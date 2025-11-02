@@ -32,7 +32,7 @@ const createBrowserWindow = () => {
   // 判断是否是开发模式
   const isDev = process.env['NODE_ENV'] === 'development';
   const appPath = isDev
-    ? 'http://localhost:4200' // 开发模式：加载 Angular 开发服务器
+    ? 'http://localhost:5200' // 开发模式：加载 Angular 开发服务器
     : url.format({
         pathname: path.join(__dirname, 'dist/my-ai/browser/index.html'), // 生产模式：注意这里的路径需要匹配 Angular 的实际输出路径
         protocol: 'file:',
