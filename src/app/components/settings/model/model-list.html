@@ -1,0 +1,29 @@
+<div class="sub-title">
+  模型 &nbsp;&nbsp;&nbsp;&nbsp;
+  <x-select [data]="manufacturerList()" [(ngModel)]="manufacturerId" (ngModelChange)="getData()"></x-select>
+</div>
+@if (modelList().length === 0) {
+  <div class="empty">
+    <x-empty></x-empty>
+    <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
+  </div>
+} @else {
+  <div class="scroll-container">
+    <x-scrollable>
+      <div class="models">
+        <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
+        @for (item of modelList(); track item.id) {
+          <div class="model" [class.checked]="item.isActive" (click)="updateModel(item)">
+            <div class="info">
+              <span class="name">{{ item.name }}</span>
+              <span class="url">{{ item.baseURL }}</span>
+            </div>
+            @if (item.isActive) {
+              <x-icon class="check" type="fto-check"></x-icon>
+            }
+          </div>
+        }
+      </div>
+    </x-scrollable>
+  </div>
+}

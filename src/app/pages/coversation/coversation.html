@@ -1,0 +1,63 @@
+<div class="inner">
+  <div class="content">
+    <x-bubbles #bubbles>
+      @for (item of data(); track item) {
+        @if (item.role === 'assistant') {
+          <x-bubble
+            placement="assistant"
+            [avatar]="{ icon: 'fto-aperture', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+            [typing]="item.typing"
+            [renderer]="render"
+            [content]="item.content"
+          ></x-bubble>
+        } @else if (item.role === 'user') {
+          <x-bubble
+            placement="end"
+            variant="filled"
+            [avatar]="{ icon: 'fto-user', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+            [content]="item.content"
+          ></x-bubble>
+        } @else if (item.role === 'error') {
+          <x-bubble
+            placement="start"
+            [avatar]="{ icon: 'fto-aperture', backgroundColor: 'rgba(248, 113, 113, 0.5)' }"
+            [typing]="item.typing"
+            [content]="item.content"
+          ></x-bubble>
+        }
+      }
+    </x-bubbles>
+  </div>
+  <form class="form" [formGroup]="formGroup">
+    <div class="wrapper">
+      <div>
+        <x-select [style.width.rem]="8" [data]="manufacturerList()" formControlName="manufacturerId"></x-select>
+        <x-select [style.width.rem]="22" [data]="modelList()" formControlName="modelId"></x-select>
+      </div>
+
+      <x-sender
+        formControlName="content"
+        maxRows="10"
+        minRows="5"
+        [placeholder]="'Enter 发送，Alt + Enter 换行'"
+        [suffix]="suffixTpl"
+        (submit)="onSubmit()"
+      ></x-sender>
+      <ng-template #suffixTpl>
+        <div class="buttons">
+          @if (loading()) {
+            <x-sender-stop (click)="loading.set(false)"></x-sender-stop>
+          } @else {
+            <x-button
+              type="primary"
+              icon="fto-send"
+              [disabled]="formGroup.invalid"
+              circle
+              (click)="onSubmit()"
+            ></x-button>
+          }
+        </div>
+      </ng-template>
+    </div>
+  </form>
+</div>

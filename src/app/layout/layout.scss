@@ -1,0 +1,89 @@
+@use '../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
+
+$header-height: 2.25rem;
+$aside-width: 12rem;
+
+:host {
+  &.collapsed {
+    $aside-width: 4rem;
+    aside {
+      width: $aside-width;
+      x-menu {
+        padding: 0;
+      }
+    }
+    header {
+      width: calc(100% - #{$aside-width});
+      left: $aside-width;
+    }
+    main {
+      padding-left: $aside-width;
+    }
+  }
+  header {
+    height: $header-height;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    -webkit-app-region: drag;
+    user-select: none;
+    background-color: $x-background-a200;
+    position: fixed;
+    top: 0;
+    left: $aside-width;
+    width: calc(100% - #{$aside-width});
+    transition: 0.3s all;
+    .btn {
+      -webkit-app-region: no-drag;
+    }
+    .tools {
+      -webkit-app-region: no-drag;
+      display: flex;
+      align-items: center;
+    }
+  }
+  aside {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 11;
+    background-color: $x-background-a200;
+    width: $aside-width;
+    height: 100%;
+    transition: 0.3s all;
+    .title {
+      -webkit-app-region: drag;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+    }
+    .scroll-container {
+      height: calc(100vh - 3rem);
+      width: 100%;
+    }
+    x-menu {
+      padding: 0 1rem;
+      transition: 0.3s all;
+      display: flex;
+      justify-content: center;
+      ::ng-deep {
+        .x-menu-nodes .x-menu-node.x-activated {
+          background-color: $x-primary-800;
+        }
+      }
+    }
+  }
+  main {
+    min-height: 100vh;
+    width: 100%;
+    padding-top: $header-height;
+    padding-left: $aside-width;
+    transition: padding 0.3s;
+    display: block;
+    transition: 0.3s all;
+    .scroll-container {
+      height: calc(100vh - #{$header-height});
+      width: 100%;
+    }
+  }
+}

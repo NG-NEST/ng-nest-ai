@@ -1,0 +1,24 @@
+<form class="app-dialog-form">
+  <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
+  <div x-dialog-content class="content">
+    <div class="left">
+      <h4 class="title">设置</h4>
+      <ul>
+        @for (menu of menus; track menu) {
+          <li [class.selected]="selectedIndex() === $index" (click)="selectMenu($index)">
+            <x-icon [type]="menu.icon"></x-icon> {{ menu.label }}
+          </li>
+        }
+      </ul>
+    </div>
+    <div class="right">
+      @if (selectedIndex() === 0) {
+        <app-manufacturer-list></app-manufacturer-list>
+      } @else if (selectedIndex() === 1) {
+        <app-model-list></app-model-list>
+      } @else if (selectedIndex() === 2) {
+        <app-theme></app-theme>
+      }
+    </div>
+  </div>
+</form>

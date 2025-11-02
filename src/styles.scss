@@ -1,0 +1,294 @@
+/* You can add global styles to this file, and also import other style files */
+@use '../node_modules/@ng-nest/ui/style/params/index.scss' as *;
+@use '../node_modules/@ng-nest/ui/style/core/index.css' as *;
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter.woff2') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  src: url('/fonts/dm-mono.woff2') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background-color: $x-background;
+  height: 100%;
+  color: $x-text;
+}
+
+::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 0.75rem;
+  /*高宽分别对应横竖滚动条的尺寸*/
+  height: 0.75rem;
+}
+
+::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 0.75rem;
+  // box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  // box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body,
+input,
+ul,
+li,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+textarea {
+  outline: none;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: $x-primary;
+  text-decoration: none;
+  transition: all 0.4s;
+  cursor: pointer;
+
+  &:hover {
+    color: $x-primary;
+  }
+}
+
+code,
+pre,
+tt {
+  font-family:
+    DM Mono,
+    SFMono-Regular,
+    Consolas,
+    Liberation Mono,
+    Menlo,
+    Courier,
+    monospace;
+}
+
+body,
+input {
+  font-family:
+    Inter,
+    -apple-system,
+    SF UI Text,
+    Arial,
+    PingFang SC,
+    Hiragino Sans GB,
+    Microsoft YaHei,
+    WenQuanYi Micro Hei,
+    sans-serif;
+}
+
+@mixin table-item-td {
+  border-top: $x-border-base;
+
+  &:not(:first-child) {
+    border-left: $x-border-base;
+  }
+
+  x-input,
+  x-select {
+    width: 100%;
+  }
+
+  &.index {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+.app-dialog-form {
+  position: relative;
+
+  .title {
+    border-bottom: $x-border-base;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .close {
+    position: absolute;
+    top: 0;
+    right: -1rem;
+
+    .x-button {
+      height: 3rem;
+      line-height: 3rem;
+    }
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+
+    &.grid-1-1 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    &.full {
+      padding: 0;
+    }
+
+    .item {
+      display: flex;
+      align-items: flex-start;
+
+      label {
+        line-height: 2.25rem;
+      }
+
+      &.required {
+        label::before {
+          display: inline-block;
+          margin-right: 0.25rem;
+          color: $x-danger;
+          line-height: 1;
+          font-size: $x-font-size-small;
+          content: '*';
+        }
+      }
+
+      x-input,
+      x-select,
+      x-cascade,
+      x-textarea,
+      x-tree-select,
+      app-editor {
+        flex: 1;
+      }
+
+      app-editor {
+        border: $x-border-base;
+        border-radius: $x-border-radius;
+        .editorPlaceholder {
+          color: $x-placeholder-color;
+        }
+      }
+    }
+  }
+
+  .actions {
+    x-button {
+      min-width: 7.5rem;
+    }
+
+    border-top: $x-border-base;
+  }
+
+  .attrs {
+    padding: 1.25rem 1rem;
+    gap: 1rem;
+
+    .attrs-table {
+      table {
+        border: $x-border-base;
+        border-collapse: collapse;
+        width: 100%;
+
+        thead {
+          tr th {
+            padding: 0.5rem 0.75rem;
+            background-color: $x-background;
+            text-align: left;
+            white-space: nowrap;
+
+            &:not(:first-child) {
+              border-left: $x-border-base;
+            }
+            &.required {
+              &::before {
+                display: inline-block;
+                margin-right: 0.25rem;
+                color: $x-danger;
+                line-height: 1;
+                font-size: $x-font-size-small;
+                content: '*';
+              }
+            }
+          }
+        }
+
+        tbody {
+          &.app-drag-table {
+            &.cdk-drop-list-dragging {
+              .app-drag-table-item.cdk-drag-placeholder {
+                opacity: 0.5;
+              }
+              .app-drag-table-item:not(.cdk-drag-placeholder) {
+                transition: transform 0.3s cubic-bezier(0, 0, 0.2, 1);
+              }
+            }
+          }
+          tr td {
+            @include table-item-td();
+          }
+        }
+      }
+
+      .empty {
+        padding: 1.25rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: $x-border-base;
+        border-right: $x-border-base;
+        border-bottom: $x-border-base;
+      }
+    }
+  }
+
+  .tooltip {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+}
+
+.x-dialog-portal {
+  border: $x-border-base;
+  background-color: $x-background !important;
+}
+
+.x-empty .fto-inbox svg {
+  stroke-width: 1;
+}
+
+.app-no-padding-dialog {
+  .x-dialog-portal {
+    padding: 0;
+  }
+  .x-dialog-portal-title {
+    margin: 0;
+  }
+  .x-dialog-portal-content {
+    margin: 0;
+    padding: 0;
+    max-height: 100vh;
+  }
+  .app-dialog-form .close {
+    right: 0;
+  }
+}

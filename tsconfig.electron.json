@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": ".",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["electron/*"]
+    }
+  },
+  "include": ["electron/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

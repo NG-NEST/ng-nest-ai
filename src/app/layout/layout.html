@@ -1,0 +1,45 @@
+<header>
+  <span>
+    @if (config.collapsed()) {
+      <x-button class="btn" (click)="onCollapsed()" text size="small" icon="icon:collasped-right"></x-button>
+    } @else {
+      <x-button class="btn" (click)="onCollapsed()" text size="small" icon="icon:collasped-left"></x-button>
+    }
+  </span>
+  <div class="tools">
+    <x-button (click)="switchDevTools()" size="small" text>切换开发人员工具</x-button>
+    <x-button size="small" title="刷新" text icon="fto-refresh-ccw" (click)="refresh()"></x-button>
+    <x-button size="small" title="设置" text icon="fto-settings" (click)="settings()"></x-button>
+    &nbsp;
+    <x-button (click)="minimize()" title="最小化" text icon="icon:win-minimize"></x-button>
+    @if (isMaximized()) {
+      <x-button (click)="unmaximize()" title="恢复" text icon="icon:win-recovery"></x-button>
+    } @else {
+      <x-button (click)="maximize()" title="最大化" text icon="icon:win-maximize"></x-button>
+    }
+    <x-button (click)="close()" title="关闭" type="danger" text icon="icon:win-close"></x-button>
+  </div>
+</header>
+<aside>
+  <div class="title">
+    <span></span>
+  </div>
+  <div class="menu scroll-container">
+    <x-scrollable>
+      <x-menu
+        [data]="menuData()"
+        [collapsed]="config.collapsed()"
+        size="small"
+        layout="column"
+        width="10rem"
+        [(activatedId)]="config.menuActivatedId"
+      >
+      </x-menu>
+    </x-scrollable>
+  </div>
+</aside>
+<main>
+  <div class="scroll-container">
+    <router-outlet></router-outlet>
+  </div>
+</main>
