@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
-import { InitService } from './init.service';
+import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
 
 export interface Message {
@@ -17,7 +17,7 @@ export const MessageTable = '++id, sessionId, manufacturerId, modelId, role, con
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
-  init: InitService = inject(InitService);
+  init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
   create(message: Omit<Message, 'id' | 'createdAt'>): Observable<number> {

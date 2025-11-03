@@ -8,12 +8,11 @@ export class DexieDatabase extends Dexie {
   manufacturers!: Table<Manufacturer, number>;
   models!: Table<Model, number>;
   sessions!: Table<Session, number>;
-  messages!: Table<Message, number>; // 添加messages表
+  messages!: Table<Message, number>;
 
   constructor() {
-    super('MyDB');
-    this.version(2).stores({
-      // 版本号递增
+    super('ng-nest-ai');
+    this.version(1).stores({
       manufacturers: ManufacturerTable,
       models: ModelTable,
       sessions: SessionTable,

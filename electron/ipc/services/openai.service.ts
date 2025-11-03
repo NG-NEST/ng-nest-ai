@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 
 export class OpenAIService {
   private openai: OpenAI | null = null;
-  private activeStreams: Map<string, { cancel: boolean }> = new Map();
+  private activeStreams: Map<string, { cancel: boolean; abortController: AbortController }> = new Map();
 
   constructor() {
     this.registerIpcHandlers();
@@ -69,7 +69,8 @@ export class OpenAIService {
     ipcMain.handle(
       'ipc:openai:chatCompletionStream',
       async (event: IpcMainInvokeEvent, { model, messages, streamId }) => {
-        const streamControl = { cancel: false };
+        const abortController = new AbortController();
+        const streamControl = { cancel: false, abortController };
         this.activeStreams.set(streamId, streamControl);
 
         if (!this.openai) {
@@ -78,11 +79,14 @@ export class OpenAIService {
         }
 
         try {
-          const stream = await this.openai.chat.completions.create({
-            model,
-            messages,
-            stream: true
-          });
+          const stream = await this.openai.chat.completions.create(
+            {
+              model,
+              messages,
+              stream: true
+            },
+            { signal: abortController.signal }
+          );
 
           for await (const chunk of stream) {
             // 检查是否需要取消
@@ -119,6 +123,10 @@ export class OpenAIService {
       const stream = this.activeStreams.get(streamId);
       if (stream) {
         stream.cancel = true;
+        // 强制终止请求
+        if (stream.abortController) {
+          stream.abortController.abort();
+        }
       }
     });
   }

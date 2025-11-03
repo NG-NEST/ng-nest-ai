@@ -35,16 +35,16 @@ body {
 
 ::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
-  border-radius: 0.75rem;
+  border-radius: $x-border-base;
   // box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  background: rgba(0, 0, 0, 0.1);
+  background: $x-background-a400;
 }
 
 ::-webkit-scrollbar-track {
   /*滚动条里面轨道*/
   // box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
   border-radius: 0.75rem;
-  background: rgba(0, 0, 0, 0.05);
+  background: $x-border-base;
 }
 
 body,

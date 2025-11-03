@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "my-ai": {
+    "ng-nest-ai": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -56,10 +56,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "my-ai:build:production"
+              "buildTarget": "ng-nest-ai:build:production"
             },
             "development": {
-              "buildTarget": "my-ai:build:development"
+              "buildTarget": "ng-nest-ai:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
-import { InitService } from './init.service';
+import { Observable, Subject, from } from 'rxjs';
+import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
+import { PaginationResult } from './type.interface';
 
 export interface Session {
   id?: number;
@@ -14,19 +15,41 @@ export const SessionTable = '++id, title, createdAt, updatedAt';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
-  init: InitService = inject(InitService);
+  init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
+
+  added = new Subject<number>();
 
   create(session: Omit<Session, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(
       (async () => {
         const now = new Date();
 
-        return await this.db.sessions.add({
+        const id = await this.db.sessions.add({
           ...session,
           createdAt: now,
           updatedAt: now
         });
+
+        this.added.next(id);
+
+        return id;
+      })()
+    );
+  }
+
+  // 新增分页查询方法
+  getByPage(page: number, size: number): Observable<PaginationResult<Session>> {
+    return from(
+      (async () => {
+        const offset = (page - 1) * size;
+        const data = await this.db.sessions.orderBy('createdAt').reverse().offset(offset).limit(size).toArray();
+        const count = await this.db.sessions.count();
+
+        return {
+          data,
+          count
+        };
       })()
     );
   }

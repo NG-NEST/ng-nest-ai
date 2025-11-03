@@ -1,0 +1,27 @@
+<div class="title" (click)="onToggle()">
+  聊天
+  @if (!toggle()) {
+    <x-icon type="fto-chevron-right"></x-icon>
+  } @else {
+    <x-icon type="fto-chevron-down"></x-icon>
+  }
+</div>
+@if (toggle()) {
+  <div class="list">
+    @for (item of data(); track item.id) {
+      <div class="item" [class.selected]="selectedItem()?.id === item.id" (click)="itemClick(item)">
+        <span [title]="item.title">{{ item.title }}</span>
+        <x-dropdown
+          (nodeClick)="operation($event, item)"
+          portalMinWidth="8rem"
+          [data]="[
+            { id: 'rename', label: '重命名', icon: 'fto-edit' },
+            { id: 'delete', label: '删除', icon: 'fto-trash-2', divided: true, style: { color: '#f56c6c' } }
+          ]"
+        >
+          <x-icon class="operation" type="fto-more-vertical"></x-icon>
+        </x-dropdown>
+      </div>
+    }
+  </div>
+}

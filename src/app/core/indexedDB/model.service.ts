@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
-import { InitService } from './init.service';
+import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
 
 export interface Model {
@@ -18,7 +18,7 @@ export const ModelTable = '++id, manufacturerId, name, code, description, create
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {
-  init: InitService = inject(InitService);
+  init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
   create(config: Omit<Model, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {

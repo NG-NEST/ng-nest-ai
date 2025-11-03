@@ -1,26 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import {
-  XButtonComponent,
-  XDialogModule,
-  XDialogService,
-  XEmptyComponent,
-  XIconComponent,
-  XScrollableComponent
-} from '@ng-nest/ui';
+import { XButtonComponent, XDialogModule, XDialogService, XEmptyComponent, XIconComponent } from '@ng-nest/ui';
 import { Manufacturer, ManufacturerService } from '@ui/core';
 import { ManufacturerComponent } from './manufacturer';
 
 @Component({
   selector: 'app-manufacturer-list',
-  imports: [
-    ReactiveFormsModule,
-    XDialogModule,
-    XButtonComponent,
-    XIconComponent,
-    XEmptyComponent,
-    XScrollableComponent
-  ],
+  imports: [ReactiveFormsModule, XDialogModule, XButtonComponent, XIconComponent, XEmptyComponent],
   templateUrl: './manufacturer-list.html',
   styleUrl: './manufacturer-list.scss'
 })
@@ -28,12 +14,6 @@ export class ManufacturerList {
   formBuilder = inject(FormBuilder);
   dialogService = inject(XDialogService);
   service = inject(ManufacturerService);
-  selectedIndex = signal(0);
-  menus = [
-    { label: '服务商', icon: 'icon:manufacturer' },
-    { label: '模型', icon: 'icon:model' },
-    { label: '关于', icon: 'icon:about' }
-  ];
 
   formGroup = this.formBuilder.group({});
 
@@ -46,10 +26,6 @@ export class ManufacturerList {
     this.service.getAll().subscribe((x) => {
       this.manufacturerList.set(x);
     });
-  }
-
-  selectMenu(index: number) {
-    this.selectedIndex.set(index);
   }
 
   addManufacturer() {

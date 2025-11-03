@@ -3,10 +3,11 @@ import { Router, RouterOutlet } from '@angular/router';
 import { XScrollableComponent } from '@ng-nest/ui/scrollable';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XDialogService } from '@ng-nest/ui/dialog';
-import { XMenuComponent, XMenuNode } from '@ng-nest/ui/menu';
-import { AppConfigService } from '@ui/core';
-import { Settings } from '@ui/components';
+import { XMenuNode } from '@ng-nest/ui/menu';
+import { AppConfigService, Session } from '@ui/core';
+import { History, Settings } from '@ui/components';
 import { AppMenus } from '../app-menus';
+import { XIconComponent } from '@ng-nest/ui/icon';
 
 // 扩展全局 Window 接口以包含你的 API
 declare global {
@@ -17,7 +18,7 @@ declare global {
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, XButtonComponent, XMenuComponent, XScrollableComponent],
+  imports: [RouterOutlet, XButtonComponent, XIconComponent, XScrollableComponent, History],
   templateUrl: './layout.html',
   styleUrl: './layout.scss'
 })
@@ -28,6 +29,7 @@ export class Layout {
   visible = signal(false);
   isMaximized = signal(false);
   menuData = signal<XMenuNode[]>(AppMenus);
+  selectedItem = signal<Session | null>(null);
 
   @HostBinding('class.collapsed') get collapsed() {
     return this.config.collapsed();
@@ -71,9 +73,20 @@ export class Layout {
   settings() {
     this.dialogService.create(Settings, {
       className: 'app-no-padding-dialog',
-      width: '36rem'
+      width: '40rem'
     });
   }
 
-  newCoversation() {}
+  menuClick(menu: XMenuNode) {
+    if (menu.id === 'coversation') {
+      this.selectedItem.set(null);
+    }
+    this.router.navigate([menu.routerLink]);
+  }
+
+  onDeleteItem(id: number) {
+    if (id === this.selectedItem()?.id) {
+      this.router.navigate(['./coversation']);
+    }
+  }
 }

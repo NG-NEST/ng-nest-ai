@@ -7,7 +7,6 @@ import {
   XEmptyComponent,
   XIconComponent,
   XOrderBy,
-  XScrollableComponent,
   XSelectComponent,
   XSelectNode
 } from '@ng-nest/ui';
@@ -23,7 +22,6 @@ import { ModelComponent } from './model';
     XButtonComponent,
     XIconComponent,
     XEmptyComponent,
-    XScrollableComponent,
     XSelectComponent
   ],
   templateUrl: './model-list.html',

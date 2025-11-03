@@ -9,6 +9,7 @@
             [typing]="item.typing"
             [renderer]="render"
             [content]="item.content"
+            [loading]="$index === data().length - 1 && loading()"
           ></x-bubble>
         } @else if (item.role === 'user') {
           <x-bubble
@@ -46,7 +47,7 @@
       <ng-template #suffixTpl>
         <div class="buttons">
           @if (loading()) {
-            <x-sender-stop (click)="loading.set(false)"></x-sender-stop>
+            <x-sender-stop (click)="onStop()"></x-sender-stop>
           } @else {
             <x-button
               type="primary"

@@ -1,5 +1,5 @@
 {
-  "name": "my-ai",
+  "name": "ng-nest-ai",
   "version": "0.0.0",
   "main": "dist/electron/main.js",
   "scripts": {
@@ -7,7 +7,7 @@
     "compile:electron": "tsc -p tsconfig.electron.json",
     "start:ng": "ng serve --port 5200 --host 0.0.0.0",
     "start:electron": "node scripts/wait-and-run-electron.js",
-    "start": "npm-run-all --parallel start:ng start:electron",
+    "start": "npm-run-all --parallel build:electron-ts start:ng start:electron",
     "build": "ng build --base-href ./",
     "build:electron-ts": "tsc -p tsconfig.electron.json",
     "build:all": "npm run build -- --base-href ./ && npm run build:electron-ts",

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, UrlSegment } from '@angular/router';
 import { XBubbleModule, XOrderBy, XSelectNode, XCollapseModule } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XDialogService } from '@ng-nest/ui/dialog';
@@ -46,6 +46,7 @@ export class Coversation {
   modelList = signal<XSelectNode[]>([]);
   modelCode = signal('');
   sessionId = signal<number | null>(null);
+  cancelFunc = signal<(() => void) | null>(null);
 
   $destroy = new Subject<void>();
 
@@ -60,8 +61,18 @@ export class Coversation {
         takeUntil(this.$destroy)
       )
       .subscribe((x) => {
-        const { url } = x;
-        if (url === '/coversation') {
+        const url = new URL(x.url, window.location.origin);
+        const sessionIdParam = url.searchParams.get('sessionId');
+
+        if (sessionIdParam) {
+          const sessionId = Number(sessionIdParam);
+          if (!isNaN(sessionId)) {
+            this.sessionId.set(sessionId);
+            // 可以在这里加载会话数据
+            this.loadSessionData(sessionId);
+          }
+        } else if (x.url === '/coversation') {
+          // 如果是根路径，清空会话
           this.reload();
         }
       });
@@ -74,6 +85,12 @@ export class Coversation {
     this.$destroy.complete();
   }
 
+  loadSessionData(sessionId: number) {
+    this.messageService.getBySessionId(sessionId).subscribe((x) => {
+      this.data.set(x);
+    });
+  }
+
   reload() {
     this.formGroup.patchValue({ content: '' });
     this.data.set([]);
@@ -84,7 +101,7 @@ export class Coversation {
     this.formGroup.controls.manufacturerId.valueChanges.subscribe((x: number | null) => {
       this.getModelList(x!);
     });
-    this.manufacturerService.getAll().subscribe((x) => {
+    this.manufacturerService.getAll().subscribe(async (x) => {
       const list = x.map((y) => ({
         id: y.id,
         label: y.name,
@@ -97,7 +114,7 @@ export class Coversation {
         const first = this.manufacturerList()[0];
         const { baseURL, apiKey, id } = first as any;
         this.formGroup.patchValue({ manufacturerId: id });
-        window.electronAPI.openAI.initialize({ baseURL, apiKey });
+        await window.electronAPI.openAI.initialize({ baseURL, apiKey });
       }
     });
   }
@@ -119,15 +136,19 @@ export class Coversation {
   }
 
   onSubmit() {
-    this.loading.set(true);
     const { content, manufacturerId, modelId } = this.formGroup.getRawValue();
+    if (!content) return;
+    this.loading.set(true);
     this.formGroup.patchValue({ content: '' });
     this.data.update((items) => {
-      items.push({
-        role: 'user',
-        content: content!,
-        typing: false
-      });
+      items.push(
+        {
+          role: 'user',
+          content: content!,
+          typing: false
+        },
+        { role: 'assistant', content: '', typing: true }
+      );
       return items;
     });
 
@@ -155,70 +176,93 @@ export class Coversation {
     let aiContent = '';
     let aiMessageId: number | null = null; // 用于跟踪AI消息ID
 
-    window.electronAPI.openAI.chatCompletionStream(
-      { model: this.modelCode(), messages },
-      (data: any) => {
-        if (data.choices && data.choices.length > 0) {
-          const delta = data.choices[0].delta;
-          if (delta && delta.content) {
-            aiContent += delta.content;
+    this.cancelFunc.set(
+      window.electronAPI.openAI.chatCompletionStream(
+        { model: this.modelCode(), messages },
+        (data: any) => {
+          if (data.choices && data.choices.length > 0) {
+            const delta = data.choices[0].delta;
+            if (delta && delta.content) {
+              aiContent += delta.content;
 
-            this.data.update((items) => {
-              const lastItemIndex = items.length - 1;
-              if (lastItemIndex >= 0 && items[lastItemIndex].role === 'assistant') {
-                items[lastItemIndex].content = aiContent;
-              } else {
-                items.push({
-                  role: 'assistant',
-                  content: aiContent,
-                  typing: true
-                });
-              }
-              return [...items];
-            });
+              this.data.update((items) => {
+                const lastItemIndex = items.length - 1;
+                if (lastItemIndex >= 0 && items[lastItemIndex].role === 'assistant') {
+                  items[lastItemIndex].content = aiContent;
+                } else {
+                  items.push({
+                    role: 'assistant',
+                    content: aiContent,
+                    typing: true
+                  });
+                }
+                return [...items];
+              });
+            }
           }
-        }
-      },
-      () => {
-        // 完成回调 - 保存AI回复到数据库
-        if (this.sessionId() !== null) {
-          const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
-            sessionId: this.sessionId()!,
-            manufacturerId: manufacturerId!,
-            modelId: modelId!,
-            role: 'assistant',
-            content: aiContent
-          };
-
-          this.messageService.create(aiMessage).subscribe((id) => {
-            console.log('AI消息已保存，ID:', id);
-          });
-        }
-        this.data.update((items) => {
-          // 完成打字效果
-          const lastItemIndex = items.length - 1;
-          if (lastItemIndex >= 0 && items[lastItemIndex].role === 'assistant') {
-            items[lastItemIndex] = {
-              ...items[lastItemIndex],
-              typing: false
+        },
+        () => {
+          // 完成回调 - 保存AI回复到数据库
+          if (this.sessionId() !== null) {
+            const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
+              sessionId: this.sessionId()!,
+              manufacturerId: manufacturerId!,
+              modelId: modelId!,
+              role: 'assistant',
+              content: aiContent
             };
+
+            this.messageService.create(aiMessage).subscribe();
           }
-          return [...items];
-        });
-        this.loading.set(false);
-      },
-      (error: any) => {
-        this.data.update((items) => {
-          items.push({
-            role: 'error',
-            content: `服务端异常！ ${error}`,
-            typing: false
+          this.data.update((items) => {
+            // 完成打字效果
+            const lastItemIndex = items.length - 1;
+            if (lastItemIndex >= 0 && items[lastItemIndex].role === 'assistant') {
+              items[lastItemIndex] = {
+                ...items[lastItemIndex],
+                typing: false
+              };
+            }
+            return [...items];
           });
-          return items;
-        });
-        this.loading.set(false);
-      }
+          this.loading.set(false);
+        },
+        (error: any) => {
+          // 完成回调 - 保存错误消息到数据库
+          if (this.sessionId() !== null) {
+            const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
+              sessionId: this.sessionId()!,
+              manufacturerId: manufacturerId!,
+              modelId: modelId!,
+              role: 'error',
+              content: error
+            };
+
+            this.messageService.create(aiMessage).subscribe();
+          }
+          this.data.update((items) => {
+            const lastItemIndex = items.length - 1;
+            if (lastItemIndex >= 0 && items[lastItemIndex].role === 'assistant') {
+              items[lastItemIndex].content = `${error}`;
+              items[lastItemIndex].role = 'error';
+            } else {
+              items.push({
+                role: 'error',
+                content: `${error}`,
+                typing: false
+              });
+            }
+            return [...items];
+          });
+          this.loading.set(false);
+        }
+      )
     );
+  }
+
+  onStop() {
+    this.cancelFunc() && this.cancelFunc()!();
+    this.loading.set(false);
   }
 
   // 保存用户消息到数据库
@@ -231,8 +275,6 @@ export class Coversation {
       content: content
     };
 
-    this.messageService.create(userMessage).subscribe((id) => {
-      console.log('用户消息已保存，ID:', id);
-    });
+    this.messageService.create(userMessage).subscribe();
   }
 }

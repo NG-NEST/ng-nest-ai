@@ -5,11 +5,19 @@ $aside-width: 12rem;
 
 :host {
   &.collapsed {
-    $aside-width: 4rem;
+    $aside-width: 3.25rem;
     aside {
       width: $aside-width;
-      x-menu {
-        padding: 0;
+      .menus .menu {
+        > x-icon {
+          margin-right: 0;
+        }
+        > span {
+          display: none;
+        }
+      }
+      .history {
+        display: none;
       }
     }
     header {
@@ -32,7 +40,7 @@ $aside-width: 12rem;
     top: 0;
     left: $aside-width;
     width: calc(100% - #{$aside-width});
-    transition: 0.3s all;
+    transition: 0.2s all;
     .btn {
       -webkit-app-region: no-drag;
     }
@@ -61,16 +69,28 @@ $aside-width: 12rem;
       height: calc(100vh - 3rem);
       width: 100%;
     }
-    x-menu {
-      padding: 0 1rem;
-      transition: 0.3s all;
-      display: flex;
-      justify-content: center;
-      ::ng-deep {
-        .x-menu-nodes .x-menu-node.x-activated {
-          background-color: $x-primary-800;
+    .menus {
+      padding: 0 0.5rem;
+      .menu {
+        display: flex;
+        align-items: center;
+        padding: 0.125rem 0.5rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        border-radius: $x-border-radius;
+        white-space: nowrap;
+        height: 2.25rem;
+        &:hover {
+          background-color: $x-background-a400;
+        }
+        > x-icon {
+          margin-right: 0.5rem;
+          font-size: 1.25rem;
         }
       }
+    }
+    .history {
+      padding: 1rem 0;
     }
   }
   main {
