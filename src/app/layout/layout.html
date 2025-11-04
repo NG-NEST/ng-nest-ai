@@ -21,22 +21,31 @@
   </div>
 </header>
 <aside>
-  <div class="title">
-    <span></span>
-  </div>
   <div class="scroll-container">
     <x-scrollable>
-      <div class="menus">
-        @for (menu of menuData(); track menu.id) {
-          <div class="menu" (click)="menuClick(menu)">
-            <x-icon [type]="menu.icon"></x-icon>
-            <span>{{ menu.label }}</span>
-          </div>
-        }
+      <div class="sticky">
+        <div class="title">
+          <span></span>
+        </div>
+        <div class="menus">
+          @for (menu of menuData(); track menu.id) {
+            <div class="menu" (click)="menuClick(menu)">
+              <x-icon [type]="menu.icon"></x-icon>
+              <span>{{ menu.label }}</span>
+            </div>
+          }
+        </div>
       </div>
-      <div class="history">
-        <app-history [(selectedItem)]="selectedItem" (delete)="onDeleteItem($event)"></app-history>
-      </div>
+      @if (projectCount() > 0) {
+        <div class="project">
+          <app-project-list [(selectedItem)]="selectedItem" (delete)="onProjectDeleteItem($event)"></app-project-list>
+        </div>
+      }
+      @if (sessionCount() > 0) {
+        <div class="history">
+          <app-history [(selectedItem)]="selectedItem" (delete)="onHistoryDeleteItem($event)"></app-history>
+        </div>
+      }
     </x-scrollable>
   </div>
 </aside>

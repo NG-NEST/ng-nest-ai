@@ -15,25 +15,21 @@ export class AppThemeService {
   darkKey = 'XThemeDark';
 
   init() {
-    return of(true).pipe(
-      tap(() => {
-        const localColors: XColorsTheme | null = this.storage.getLocal(this.colorsKey) ?? null;
-        const localVars: XVarsTheme | null = this.storage.getLocal(this.varsKey) ?? null;
-        const localDark: boolean = this.storage.getLocal(this.darkKey) === true;
+    const localColors: XColorsTheme | null = this.storage.getLocal(this.colorsKey) ?? null;
+    const localVars: XVarsTheme | null = this.storage.getLocal(this.varsKey) ?? null;
+    const localDark: boolean = this.storage.getLocal(this.darkKey) ?? false;
 
-        setTimeout(() => {
-          let theme = this.theme.getTheme(false);
-          let { colors, vars, dark } = theme;
-          this.colors.set(localColors ?? colors!);
-          this.vars.set(localVars ?? vars!);
-          this.dark.set(localDark ?? dark);
+    let theme = this.theme.getTheme(false);
+    let { colors, vars, dark } = theme;
+    this.colors.set(localColors ?? colors!);
+    this.vars.set(localVars ?? vars!);
+    this.dark.set(localDark ?? dark);
 
-          this.setColors(this.colors());
-          this.setVars(this.vars());
-          this.setDark(this.dark());
-        });
-      })
-    );
+    this.setColors(this.colors());
+    this.setVars(this.vars());
+    this.setDark(this.dark());
+
+    return of(true);
   }
 
   setColors(colors: XColorsTheme) {

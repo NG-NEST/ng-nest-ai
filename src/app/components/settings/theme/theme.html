@@ -13,7 +13,12 @@
     </div>
     <div class="item" [style.paddingRight.rem]="0">
       <div class="label">主色</div>
-      <x-color-picker [style.width.rem]="6.75" variant="borderless" formControlName="primary"></x-color-picker>
+      <x-color-picker
+        [style.width.rem]="6.75"
+        variant="borderless"
+        formControlName="primary"
+        [clearable]="false"
+      ></x-color-picker>
     </div>
   </div>
 </form>

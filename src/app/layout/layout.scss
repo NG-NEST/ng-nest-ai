@@ -19,6 +19,9 @@ $aside-width: 12rem;
       .history {
         display: none;
       }
+      .project {
+        display: none;
+      }
     }
     header {
       width: calc(100% - #{$aside-width});
@@ -65,8 +68,13 @@ $aside-width: 12rem;
       display: flex;
       align-items: center;
     }
+    .sticky {
+      background-color: $x-background-a200;
+      position: sticky;
+      top: 0;
+    }
     .scroll-container {
-      height: calc(100vh - 3rem);
+      height: 100vh;
       width: 100%;
     }
     .menus {
@@ -89,8 +97,9 @@ $aside-width: 12rem;
         }
       }
     }
-    .history {
-      padding: 1rem 0;
+    .history,
+    .project {
+      margin-top: 1rem;
     }
   }
   main {

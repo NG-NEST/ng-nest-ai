@@ -2,31 +2,30 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, model, o
 import { XDropdownComponent, XDropdownNode } from '@ng-nest/ui/dropdown';
 import { XIconComponent } from '@ng-nest/ui/icon';
 import { XMessageBoxAction, XMessageBoxService } from '@ng-nest/ui/message-box';
-import { Session, SessionService } from '@ui/core';
+import { Project, ProjectService } from '@ui/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { SessionComponent } from '../session/session';
+import { Project as ProjectComponent } from '../project/project';
 import { XDialogService } from '@ng-nest/ui/dialog';
 
 @Component({
-  selector: 'app-history',
+  selector: 'app-project-list',
   imports: [XIconComponent, XDropdownComponent],
-  templateUrl: './history.html',
-  styleUrl: './history.scss',
+  templateUrl: './project-list.html',
+  styleUrl: './project-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class History {
-  session = inject(SessionService);
+export class ProjectList {
+  project = inject(ProjectService);
   messageBox = inject(XMessageBoxService);
   dialogService = inject(XDialogService);
   cdr = inject(ChangeDetectorRef);
   router = inject(Router);
-  data = signal<Session[]>([]);
+  data = signal<Project[]>([]);
   page = signal(1);
   size = signal(20);
-  count = signal(0);
   toggle = signal(true);
-  selectedItem = model<Session | null>(null);
+  selectedItem = model<Project | null>(null);
   delete = output<number>();
 
   $destroy = new Subject<void>();
@@ -34,7 +33,7 @@ export class History {
   ngOnInit() {
     this.getData();
 
-    this.session.added.pipe(takeUntil(this.$destroy)).subscribe(() => this.getData());
+    this.project.added.pipe(takeUntil(this.$destroy)).subscribe(() => this.getData());
   }
 
   ngOnDestroy(): void {
@@ -43,9 +42,8 @@ export class History {
   }
 
   getData() {
-    this.session.getByPage(this.page(), this.size()).subscribe((result) => {
+    this.project.getByPage(this.page(), this.size()).subscribe((result) => {
       this.data.set(result.data);
-      this.count.set(result.count);
     });
   }
 
@@ -53,14 +51,14 @@ export class History {
     this.toggle.update((x) => !x);
   }
 
-  operation(event: XDropdownNode, item: Session) {
+  operation(event: XDropdownNode, item: Project) {
     const { id } = event;
-    if (id === 'rename') {
-      this.dialogService.create(SessionComponent, {
+    if (id === 'edit') {
+      this.dialogService.create(ProjectComponent, {
         width: '30rem',
         data: {
-          saveSuccess: (session: Session) => {
-            Object.assign(item, session);
+          saveSuccess: (project: Project) => {
+            Object.assign(item, project);
             this.cdr.markForCheck();
           },
           id: item.id
@@ -68,12 +66,12 @@ export class History {
       });
     } else if (id === 'delete') {
       this.messageBox.confirm({
-        title: '删除聊天',
-        content: `确认删除此聊天吗？ [${item.title}]`,
+        title: '删除项目',
+        content: `确认删除此项目吗？ [${item.name}]`,
         type: 'warning',
         callback: (data: XMessageBoxAction) => {
           if (data !== 'confirm') return;
-          this.session.delete(item.id!).subscribe((x) => {
+          this.project.delete(item.id!).subscribe((x) => {
             this.getData();
 
             this.delete.emit(item.id!);
@@ -83,8 +81,8 @@ export class History {
     }
   }
 
-  itemClick(item: Session) {
+  itemClick(item: Project) {
     this.selectedItem.set(item);
-    this.router.navigate(['/coversation'], { queryParams: { sessionId: item.id } });
+    this.router.navigate(['/coversation'], { queryParams: { projectId: item.id } });
   }
 }

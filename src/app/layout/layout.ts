@@ -1,13 +1,14 @@
-import { Component, Host, HostBinding, inject, signal } from '@angular/core';
+import { Component, HostBinding, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { XScrollableComponent } from '@ng-nest/ui/scrollable';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XDialogService } from '@ng-nest/ui/dialog';
 import { XMenuNode } from '@ng-nest/ui/menu';
-import { AppConfigService, Session } from '@ui/core';
-import { History, Settings } from '@ui/components';
+import { AppConfigService, ProjectService, Session, SessionService } from '@ui/core';
+import { History, Project, ProjectList, Search, Settings } from '@ui/components';
 import { AppMenus } from '../app-menus';
 import { XIconComponent } from '@ng-nest/ui/icon';
+import { merge } from 'rxjs';
 
 // 扩展全局 Window 接口以包含你的 API
 declare global {
@@ -18,21 +19,36 @@ declare global {
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, XButtonComponent, XIconComponent, XScrollableComponent, History],
+  imports: [RouterOutlet, XButtonComponent, XIconComponent, XScrollableComponent, ProjectList, History],
   templateUrl: './layout.html',
   styleUrl: './layout.scss'
 })
 export class Layout {
   dialogService = inject(XDialogService);
   config = inject(AppConfigService);
+  sessionService = inject(SessionService);
+  projectService = inject(ProjectService);
   router = inject(Router);
   visible = signal(false);
   isMaximized = signal(false);
   menuData = signal<XMenuNode[]>(AppMenus);
-  selectedItem = signal<Session | null>(null);
+  selectedItem = signal<Session | Project | null>(null);
+  sessionCount = signal(0);
+  projectCount = signal(0);
 
   @HostBinding('class.collapsed') get collapsed() {
     return this.config.collapsed();
+  }
+
+  ngOnInit() {
+    this.getProjectCount();
+    this.getSeesionCount();
+    merge(this.sessionService.added, this.sessionService.deleted).subscribe(() => {
+      this.getSeesionCount();
+    });
+    merge(this.projectService.added, this.projectService.deleted).subscribe(() => {
+      this.getProjectCount();
+    });
   }
 
   ngAfterViewInit() {
@@ -81,12 +97,54 @@ export class Layout {
     if (menu.id === 'coversation') {
       this.selectedItem.set(null);
     }
+    if (menu.id === 'search') {
+      this.createSearch();
+      return;
+    }
+    if (menu.id === 'project') {
+      this.createProject();
+      return;
+    }
     this.router.navigate([menu.routerLink]);
   }
 
-  onDeleteItem(id: number) {
+  onHistoryDeleteItem(id: number) {
     if (id === this.selectedItem()?.id) {
       this.router.navigate(['./coversation']);
     }
+  }
+
+  onProjectDeleteItem(id: number) {
+    if (id === this.selectedItem()?.id) {
+      this.router.navigate(['./coversation']);
+    }
+  }
+
+  createSearch() {
+    this.dialogService.create(Search, {
+      className: 'app-no-padding-dialog',
+      width: '36rem'
+    });
+  }
+
+  createProject() {
+    this.dialogService.create(Project, {
+      width: '30rem',
+      data: {
+        saveSuccess: () => {}
+      }
+    });
+  }
+
+  getSeesionCount() {
+    this.sessionService.count().subscribe((count) => {
+      this.sessionCount.set(count);
+    });
+  }
+
+  getProjectCount() {
+    this.projectService.count().subscribe((count) => {
+      this.projectCount.set(count);
+    });
   }
 }

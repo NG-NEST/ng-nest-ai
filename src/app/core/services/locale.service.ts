@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { XStorageService } from '@ng-nest/ui/core';
+import { XConfigService, XStorageService } from '@ng-nest/ui/core';
 import { XI18nLanguage, XI18nProperty, XI18nService, en_US, zh_CN } from '@ng-nest/ui/i18n';
 import { Platform } from '@angular/cdk/platform';
 import { HttpClient } from '@angular/common/http';
@@ -10,6 +10,7 @@ export class AppLocaleService {
   langKey = 'XLang';
   storage = inject(XStorageService);
   i18n = inject(XI18nService);
+  config = inject(XConfigService);
   platform = inject(Platform);
   http = inject(HttpClient);
   defaultLang = signal<XI18nLanguage>(this.i18n.getLocaleId());

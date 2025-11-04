@@ -1,0 +1,57 @@
+@use '../../../../node_modules/@ng-nest/ui/style//params/index.scss' as *;
+
+:host {
+  padding: 0 0.5rem;
+  display: block;
+  .title {
+    padding: 0.125rem 0.5rem;
+    color: $x-text-600;
+    cursor: pointer;
+    x-icon {
+      font-size: 1rem;
+    }
+    .fto-chevron-down {
+      display: none;
+    }
+    &:hover {
+      .fto-chevron-down {
+        display: initial;
+      }
+    }
+  }
+
+  .list {
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.125rem 0.5rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      border-radius: $x-border-radius;
+      white-space: nowrap;
+      height: 2.25rem;
+      &.selected {
+        background-color: $x-background-a500;
+      }
+      &:hover:not(.selected) {
+        background-color: $x-background-a400;
+      }
+      > x-icon {
+        margin-right: 0.5rem;
+        font-size: 1.25rem;
+      }
+      > span {
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      .operation {
+        padding: 0 0.5rem;
+      }
+      &:not(:first-child) {
+        margin-top: 0.125rem;
+      }
+    }
+  }
+}

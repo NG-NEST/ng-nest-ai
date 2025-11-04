@@ -1,0 +1,33 @@
+<form class="app-dialog-form" [formGroup]="form">
+  @if (!loading()) {
+    <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
+  }
+  <div x-dialog-content class="content">
+    <div class="search">
+      <x-icon type="fto-search"></x-icon>
+      <x-input
+        #autoComplete
+        [variant]="'borderless'"
+        formControlName="title"
+        size="big"
+        placeholder="根据聊天查找"
+      ></x-input>
+    </div>
+    <div class="list" [x-loading]="loading()">
+      @if (data().length === 0) {
+        <x-empty></x-empty>
+      } @else {
+        <x-list [data]="data()" [nodeTpl]="nodeTpl" (nodeClick)="nodeClick($event)" [caseSensitive]="false"></x-list>
+
+        <ng-template #nodeTpl let-node="$node">
+          <div class="node">
+            <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.label">{{
+              node.label
+            }}</span>
+            <span>{{ node.createdAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>
+          </div>
+        </ng-template>
+      }
+    </div>
+  </div>
+</form>

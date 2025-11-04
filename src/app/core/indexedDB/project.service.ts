@@ -4,30 +4,32 @@ import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
 import { PaginationResult } from './type.interface';
 
-export interface Session {
+export interface Project {
   id?: number;
-  title: string;
+  name: string;
+  icon?: string;
+  iconColor?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export const SessionTable = '++id, title, createdAt, updatedAt';
+export const ProjectTable = '++id, name, icon, iconColor, createdAt, updatedAt';
 
 @Injectable({ providedIn: 'root' })
-export class SessionService {
+export class ProjectService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
   added = new Subject<number>();
   deleted = new Subject<number>();
 
-  create(session: Omit<Session, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
+  create(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(
       (async () => {
         const now = new Date();
 
-        const id = await this.db.sessions.add({
-          ...session,
+        const id = await this.db.projects.add({
+          ...project,
           createdAt: now,
           updatedAt: now
         });
@@ -39,23 +41,23 @@ export class SessionService {
     );
   }
 
-  getListByTitle(title: string) {
+  getListByName(name: string) {
     return from(
       (async () => {
-        return await this.db.sessions
-          .filter((item) => item.title.toLowerCase().includes(title.toLowerCase()))
+        return await this.db.projects
+          .filter((item) => item.name.toLowerCase().includes(name.toLowerCase()))
           .sortBy('createdAt')
           .then((result) => result.reverse());
       })()
     );
   }
 
-  getByPage(page: number, size: number): Observable<PaginationResult<Session>> {
+  getByPage(page: number, size: number): Observable<PaginationResult<Project>> {
     return from(
       (async () => {
         const offset = (page - 1) * size;
-        const data = await this.db.sessions.orderBy('createdAt').reverse().offset(offset).limit(size).toArray();
-        const count = await this.db.sessions.count();
+        const data = await this.db.projects.orderBy('createdAt').reverse().offset(offset).limit(size).toArray();
+        const count = await this.db.projects.count();
 
         return {
           data,
@@ -65,28 +67,28 @@ export class SessionService {
     );
   }
 
-  getAll(): Observable<Session[]> {
+  getAll(): Observable<Project[]> {
     return from(
       (async () => {
-        return await this.db.sessions.orderBy('createdAt').reverse().toArray();
+        return await this.db.projects.orderBy('createdAt').reverse().toArray();
       })()
     );
   }
 
-  getById(id: number): Observable<Session | undefined> {
+  getById(id: number): Observable<Project | undefined> {
     return from(
       (async () => {
-        return await this.db.sessions.get(id);
+        return await this.db.projects.get(id);
       })()
     );
   }
 
-  update(id: number, updates: Partial<Omit<Session, 'id' | 'createdAt'>>): Observable<number> {
+  update(id: number, updates: Partial<Omit<Project, 'id' | 'createdAt'>>): Observable<number> {
     return from(
       (async () => {
         const now = new Date();
 
-        return await this.db.sessions.update(id, {
+        return await this.db.projects.update(id, {
           ...updates,
           updatedAt: now
         });
@@ -97,7 +99,7 @@ export class SessionService {
   delete(id: number): Observable<number> {
     return from(
       (async () => {
-        await this.db.sessions.delete(id);
+        await this.db.projects.delete(id);
         this.deleted.next(id);
         return id;
       })()
@@ -107,7 +109,7 @@ export class SessionService {
   clear(): Observable<void> {
     return from(
       (async () => {
-        await this.db.sessions.clear();
+        await this.db.projects.clear();
       })()
     );
   }
@@ -115,7 +117,7 @@ export class SessionService {
   count(): Observable<number> {
     return from(
       (async () => {
-        return await this.db.sessions.count();
+        return await this.db.projects.count();
       })()
     );
   }

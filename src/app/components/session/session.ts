@@ -12,7 +12,7 @@ import {
   XMessageService,
   XSwitchComponent
 } from '@ng-nest/ui';
-import { SessionService } from '@ui/core';
+import { Session, SessionService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
 @Component({
@@ -22,7 +22,7 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
   styleUrl: './session.scss'
 })
 export class SessionComponent {
-  data = inject<{ id: number; saveSuccess: () => void }>(X_DIALOG_DATA);
+  data = inject<{ id: number; saveSuccess: (session: Session) => void }>(X_DIALOG_DATA);
   dialogRef = inject(XDialogRef<SessionComponent>);
   message = inject(XMessageService);
   messageBox = inject(XMessageBoxService);
@@ -78,7 +78,7 @@ export class SessionComponent {
     rq.pipe(
       tap(() => {
         this.dialogRef.close();
-        this.data.saveSuccess();
+        this.data.saveSuccess(this.form.value);
       }),
       finalize(() => {
         this.saveLoading.set(false);

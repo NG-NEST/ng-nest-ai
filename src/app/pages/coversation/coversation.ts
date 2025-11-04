@@ -95,6 +95,7 @@ export class Coversation {
     this.formGroup.patchValue({ content: '' });
     this.data.set([]);
     this.sessionId.set(null);
+    this.onStop();
   }
 
   getRelationData() {
@@ -245,12 +246,6 @@ export class Coversation {
             if (lastItemIndex >= 0 && items[lastItemIndex].role === 'assistant') {
               items[lastItemIndex].content = `${error}`;
               items[lastItemIndex].role = 'error';
-            } else {
-              items.push({
-                role: 'error',
-                content: `${error}`,
-                typing: false
-              });
             }
             return [...items];
           });
