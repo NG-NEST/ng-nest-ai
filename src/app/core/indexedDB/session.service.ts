@@ -7,19 +7,20 @@ import { PaginationResult } from './type.interface';
 export interface Session {
   id?: number;
   title: string;
+  projectId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export const SessionTable = '++id, title, createdAt, updatedAt';
+export const SessionTable = '++id, title, projectId,  createdAt, updatedAt';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
-  added = new Subject<number>();
-  deleted = new Subject<number>();
+  added = new Subject<Session>();
+  deleted = new Subject<Session>();
 
   create(session: Omit<Session, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(
@@ -32,7 +33,7 @@ export class SessionService {
           updatedAt: now
         });
 
-        this.added.next(id);
+        this.added.next((await this.db.sessions.get(id))!);
 
         return id;
       })()
@@ -54,8 +55,33 @@ export class SessionService {
     return from(
       (async () => {
         const offset = (page - 1) * size;
-        const data = await this.db.sessions.orderBy('createdAt').reverse().offset(offset).limit(size).toArray();
-        const count = await this.db.sessions.count();
+        const data = await this.db.sessions
+          .filter((x) => !x.projectId)
+          .reverse()
+          .offset(offset)
+          .limit(size)
+          .toArray();
+        const count = await this.db.sessions.filter((x) => !x.projectId).count();
+
+        return {
+          data,
+          count
+        };
+      })()
+    );
+  }
+
+  getProjectByPage(page: number, size: number, projectId: number): Observable<PaginationResult<Session>> {
+    return from(
+      (async () => {
+        const offset = (page - 1) * size;
+        const data = await this.db.sessions
+          .filter((x) => x.projectId === projectId)
+          .reverse()
+          .offset(offset)
+          .limit(size)
+          .toArray();
+        const count = await this.db.sessions.filter((x) => x.projectId === projectId).count();
 
         return {
           data,
@@ -97,8 +123,9 @@ export class SessionService {
   delete(id: number): Observable<number> {
     return from(
       (async () => {
+        const session = await this.db.sessions.get(id);
         await this.db.sessions.delete(id);
-        this.deleted.next(id);
+        this.deleted.next(session!);
         return id;
       })()
     );
@@ -112,10 +139,22 @@ export class SessionService {
     );
   }
 
-  count(): Observable<number> {
+  count(projectId = null): Observable<number> {
     return from(
       (async () => {
-        return await this.db.sessions.count();
+        if (projectId === null) {
+          return await this.db.sessions.filter((x) => !x.projectId).count();
+        } else {
+          return await this.db.sessions.filter((x) => x.projectId === projectId).count();
+        }
+      })()
+    );
+  }
+
+  removeToProject(id: number, projectId: number) {
+    return from(
+      (async () => {
+        await this.db.sessions.update(id, { projectId });
       })()
     );
   }

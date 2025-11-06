@@ -9,11 +9,21 @@
 @if (toggle()) {
   <div class="list">
     @for (item of data(); track item.id) {
-      <div class="item" [class.selected]="selectedItem()?.id === item.id" (click)="itemClick(item)">
-        <span [title]="item.name">{{ item.name }}</span>
+      <div
+        class="item"
+        x-ripple
+        [class.selected]="selectedItem()?.id === item.id && selectedItem().name === item.name"
+        (click)="itemClick(item)"
+      >
+        <div class="left">
+          <x-icon class="item-icon" [type]="item.icon" [style.color]="item.iconColor"></x-icon>
+          <span [title]="item.name">{{ item.name }}</span>
+        </div>
         <x-dropdown
           (nodeClick)="operation($event, item)"
           portalMinWidth="8rem"
+          (click)="$event.stopPropagation()"
+          [trigger]="'click'"
           [data]="[
             { id: 'edit', label: '编辑', icon: 'fto-edit' },
             { id: 'delete', label: '删除', icon: 'fto-trash-2', divided: true, style: { color: '#f56c6c' } }

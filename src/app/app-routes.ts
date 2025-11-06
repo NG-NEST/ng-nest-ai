@@ -16,5 +16,9 @@ export const AppRoutes: Routes = [
   {
     path: 'history',
     loadChildren: () => import('./pages/history/history-routing').then((x) => x.HistoryRoutes)
+  },
+  {
+    path: 'project-home',
+    loadChildren: () => import('./pages/project-home/project-home-routing').then((x) => x.ProjectHomeRoutes)
   }
 ];

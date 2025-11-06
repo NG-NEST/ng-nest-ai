@@ -1,0 +1,67 @@
+<form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0" [formGroup]="formGroup">
+  <div class="content">
+    <app-bubbles [data]="data()" [loading]="loading()"></app-bubbles>
+  </div>
+  <div class="form">
+    <div class="wrapper">
+      <div class="project">
+        <div class="name">
+          <x-icon [type]="projectDetail()?.icon" [style.color]="projectDetail()?.iconColor"></x-icon>
+          <span>{{ projectDetail()?.name }}</span>
+        </div>
+      </div>
+      <x-sender
+        formControlName="content"
+        [placeholder]="'Enter 发送，Alt + Enter 换行'"
+        [suffix]="suffixTpl"
+        (submit)="onSubmit()"
+      ></x-sender>
+      <ng-template #suffixTpl>
+        <div class="buttons">
+          @if (loading()) {
+            <x-sender-stop (click)="onStop()"></x-sender-stop>
+          } @else {
+            <x-button
+              type="primary"
+              icon="fto-send"
+              [disabled]="formGroup.invalid"
+              circle
+              (click)="onSubmit()"
+            ></x-button>
+          }
+        </div>
+      </ng-template>
+
+      @if (count() > 0) {
+        <div class="project-sessions">
+          @for (item of sessions(); track item.id) {
+            <div
+              class="item"
+              (mouseenter)="item.hover = true"
+              (mouseleave)="item.hover = false"
+              (click)="itemClick(item)"
+            >
+              <span>{{ item.title }}</span>
+              @if (!item.hover) {
+                <span class="time">{{ item.createdAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+              }
+              <x-dropdown
+                [hidden]="!item.hover"
+                (nodeClick)="operation($event, item)"
+                portalMinWidth="8rem"
+                (click)="$event.stopPropagation()"
+                [trigger]="'click'"
+                [data]="[
+                  { id: 'rename', label: '重命名', icon: 'fto-edit' },
+                  { id: 'delete', label: '删除', icon: 'fto-trash-2', divided: true, style: { color: '#f56c6c' } }
+                ]"
+              >
+                <x-icon class="operation" type="fto-more-vertical"></x-icon>
+              </x-dropdown>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</form>

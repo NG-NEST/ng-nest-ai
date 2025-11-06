@@ -93,8 +93,8 @@ export class ModelComponent {
 
   delete() {
     this.messageBox.confirm({
-      title: '删除服务商',
-      content: `确认删除此服务商吗？ [${this.form.value.name}]`,
+      title: '删除模型',
+      content: `确认删除此模型吗？ [${this.form.value.name}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;

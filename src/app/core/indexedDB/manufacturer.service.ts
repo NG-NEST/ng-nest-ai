@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
 
@@ -20,6 +20,8 @@ export class ManufacturerService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
+  activeChange = new BehaviorSubject<Manufacturer | null>(null);
+
   create(config: Omit<Manufacturer, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(
       (async () => {
@@ -29,11 +31,17 @@ export class ManufacturerService {
           await this.db.manufacturers.filter((x) => x.isActive === true).modify({ isActive: false });
         }
 
-        return await this.db.manufacturers.add({
+        const result = await this.db.manufacturers.add({
           ...config,
           createdAt: now,
           updatedAt: now
         });
+
+        if (config.isActive) {
+          this.activeChange.next((await this.db.manufacturers.get(result))!);
+        }
+
+        return result;
       })()
     );
   }
@@ -50,6 +58,14 @@ export class ManufacturerService {
     return from(
       (async () => {
         return await this.db.manufacturers.get(id);
+      })()
+    );
+  }
+
+  getByIds(ids: number[]): Observable<Manufacturer[]> {
+    return from(
+      (async () => {
+        return await this.db.manufacturers.where('id').anyOf(ids).toArray();
       })()
     );
   }
@@ -71,10 +87,16 @@ export class ManufacturerService {
           await this.db.manufacturers.filter((x) => x.isActive === true).modify({ isActive: false });
         }
 
-        return await this.db.manufacturers.update(id, {
+        const result = await this.db.manufacturers.update(id, {
           ...updates,
           updatedAt: now
         });
+
+        if (updates.isActive) {
+          this.activeChange.next((await this.db.manufacturers.get(id))!);
+        }
+
+        return result;
       })()
     );
   }
@@ -97,10 +119,14 @@ export class ManufacturerService {
       (async () => {
         await this.db.manufacturers.filter((x) => x.isActive === true).modify({ isActive: false });
 
-        return await this.db.manufacturers.update(id, {
+        const result = await this.db.manufacturers.update(id, {
           isActive: true,
           updatedAt: new Date()
         });
+
+        this.activeChange.next((await this.db.manufacturers.get(id))!);
+
+        return result;
       })()
     );
   }

@@ -1,0 +1,28 @@
+<x-bubbles #bubbles>
+  @for (item of data(); track item.id) {
+    @if (item.role === 'assistant') {
+      <x-bubble
+        placement="assistant"
+        [avatar]="{ icon: 'fto-aperture', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+        [typing]="item.typing"
+        [renderer]="render"
+        [content]="item.content"
+        [loading]="$index === data().length - 1 && loading()"
+      ></x-bubble>
+    } @else if (item.role === 'user') {
+      <x-bubble
+        placement="end"
+        variant="filled"
+        [avatar]="{ icon: 'fto-user', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+        [content]="item.content"
+      ></x-bubble>
+    } @else if (item.role === 'error') {
+      <x-bubble
+        placement="start"
+        [avatar]="{ icon: 'fto-aperture', backgroundColor: 'rgba(248, 113, 113, 0.5)' }"
+        [typing]="item.typing"
+        [content]="item.content"
+      ></x-bubble>
+    }
+  }
+</x-bubbles>

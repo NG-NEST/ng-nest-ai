@@ -38,13 +38,14 @@ $aside-width: 12rem;
     justify-content: space-between;
     -webkit-app-region: drag;
     user-select: none;
-    background-color: $x-background-a200;
+    background-color: $x-background-a100;
     position: fixed;
     top: 0;
     left: $aside-width;
     width: calc(100% - #{$aside-width});
     transition: 0.2s all;
-    .btn {
+    .left {
+      display: flex;
       -webkit-app-region: no-drag;
     }
     .tools {
@@ -58,7 +59,7 @@ $aside-width: 12rem;
     top: 0;
     left: 0;
     z-index: 11;
-    background-color: $x-background-a200;
+    background-color: $x-background-a100;
     width: $aside-width;
     height: 100%;
     transition: 0.3s all;
@@ -69,7 +70,7 @@ $aside-width: 12rem;
       align-items: center;
     }
     .sticky {
-      background-color: $x-background-a200;
+      background-color: $x-background-a100;
       position: sticky;
       top: 0;
     }
@@ -109,7 +110,7 @@ $aside-width: 12rem;
     padding-left: $aside-width;
     transition: padding 0.3s;
     display: block;
-    transition: 0.3s all;
+    transition: 0.3s padding;
     .scroll-container {
       height: calc(100vh - #{$header-height});
       width: 100%;

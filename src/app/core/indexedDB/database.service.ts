@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DexieDatabase } from './dexie.db';
-import { from, of, tap } from 'rxjs';
+import { from } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AppDataBaseService {

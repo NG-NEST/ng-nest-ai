@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
 import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
 
@@ -21,6 +21,8 @@ export class ModelService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
+  activeChange = new BehaviorSubject<Model | null>(null);
+
   create(config: Omit<Model, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(
       (async () => {
@@ -32,11 +34,17 @@ export class ModelService {
             .modify({ isActive: false });
         }
 
-        return await this.db.models.add({
+        const result = await this.db.models.add({
           ...config,
           createdAt: now,
           updatedAt: now
         });
+
+        if (config.isActive) {
+          this.activeChange.next((await this.db.models.get(result))!);
+        }
+
+        return result;
       })()
     );
   }
@@ -45,6 +53,16 @@ export class ModelService {
     return from(
       (async () => {
         return await this.db.models.orderBy('createdAt').reverse().toArray();
+      })()
+    );
+  }
+
+  getListByNameOrCode(nameOrCode: string): Observable<Model[]> {
+    return from(
+      (async () => {
+        return await this.db.models
+          .filter((x) => x.name.includes(nameOrCode) || x.code.includes(nameOrCode))
+          .sortBy('createdAt');
       })()
     );
   }
@@ -65,10 +83,10 @@ export class ModelService {
     );
   }
 
-  getActive(): Observable<Model | undefined> {
+  getActive(manufacturerId: number): Observable<Model | undefined> {
     return from(
       (async () => {
-        return await this.db.models.filter((x) => x.isActive === true).first();
+        return await this.db.models.filter((x) => x.isActive === true && x.manufacturerId === manufacturerId).first();
       })()
     );
   }
@@ -84,10 +102,16 @@ export class ModelService {
             .modify({ isActive: false });
         }
 
-        return await this.db.models.update(id, {
+        const result = await this.db.models.update(id, {
           ...updates,
           updatedAt: now
         });
+
+        if (updates.isActive) {
+          this.activeChange.next((await this.db.models.get(id))!);
+        }
+
+        return result;
       })()
     );
   }
@@ -101,6 +125,25 @@ export class ModelService {
         }
 
         await this.db.models.delete(id);
+      })()
+    );
+  }
+
+  setActive(id: number, manufacturerId: number): Observable<number> {
+    return from(
+      (async () => {
+        await this.db.models
+          .filter((x) => x.isActive === true && x.manufacturerId === manufacturerId)
+          .modify({ isActive: false });
+
+        const result = await this.db.models.update(id, {
+          isActive: true,
+          updatedAt: new Date()
+        });
+
+        this.activeChange.next((await this.db.models.get(id))!);
+
+        return result;
       })()
     );
   }

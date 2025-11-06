@@ -1,11 +1,12 @@
 <header>
-  <span>
+  <div class="left">
     @if (config.collapsed()) {
       <x-button class="btn" (click)="onCollapsed()" text size="small" icon="icon:collasped-right"></x-button>
     } @else {
       <x-button class="btn" (click)="onCollapsed()" text size="small" icon="icon:collasped-left"></x-button>
     }
-  </span>
+    <app-model-switch></app-model-switch>
+  </div>
   <div class="tools">
     <x-button (click)="switchDevTools()" size="small" text>切换开发人员工具</x-button>
     <x-button size="small" title="刷新" text icon="fto-refresh-ccw" (click)="refresh()"></x-button>
@@ -29,7 +30,7 @@
         </div>
         <div class="menus">
           @for (menu of menuData(); track menu.id) {
-            <div class="menu" (click)="menuClick(menu)">
+            <div class="menu" x-ripple (click)="menuClick(menu)">
               <x-icon [type]="menu.icon"></x-icon>
               <span>{{ menu.label }}</span>
             </div>

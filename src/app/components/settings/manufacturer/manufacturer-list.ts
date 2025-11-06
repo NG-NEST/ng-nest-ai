@@ -1,6 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { XButtonComponent, XDialogModule, XDialogService, XEmptyComponent, XIconComponent } from '@ng-nest/ui';
+import {
+  XButtonComponent,
+  XDialogModule,
+  XDialogService,
+  XEmptyComponent,
+  XIconComponent,
+  XOrderBy
+} from '@ng-nest/ui';
 import { Manufacturer, ManufacturerService } from '@ui/core';
 import { ManufacturerComponent } from './manufacturer';
 
@@ -24,7 +31,7 @@ export class ManufacturerList {
 
   getData() {
     this.service.getAll().subscribe((x) => {
-      this.manufacturerList.set(x);
+      this.manufacturerList.set(XOrderBy(x, ['isActive', 'createdAt'], ['desc', 'desc']));
     });
   }
 

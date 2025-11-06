@@ -20,8 +20,9 @@ export class ProjectService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
-  added = new Subject<number>();
-  deleted = new Subject<number>();
+  added = new Subject<Project>();
+  deleted = new Subject<Project>();
+  updated = new Subject<Project>();
 
   create(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(
@@ -34,7 +35,7 @@ export class ProjectService {
           updatedAt: now
         });
 
-        this.added.next(id);
+        this.added.next((await this.db.projects.get(id))!);
 
         return id;
       })()
@@ -88,10 +89,14 @@ export class ProjectService {
       (async () => {
         const now = new Date();
 
-        return await this.db.projects.update(id, {
+        const result = await this.db.projects.update(id, {
           ...updates,
           updatedAt: now
         });
+
+        this.updated.next((await this.db.projects.get(id))!);
+
+        return result;
       })()
     );
   }
@@ -99,8 +104,9 @@ export class ProjectService {
   delete(id: number): Observable<number> {
     return from(
       (async () => {
+        const project = await this.db.projects.get(id);
         await this.db.projects.delete(id);
-        this.deleted.next(id);
+        this.deleted.next(project!);
         return id;
       })()
     );

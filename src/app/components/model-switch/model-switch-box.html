@@ -1,0 +1,85 @@
+<form class="app-dialog-form" [formGroup]="form" (ngSubmit)="save()">
+  @if (!loading()) {
+    <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
+  }
+  <div x-dialog-content class="content">
+    <div class="search">
+      <x-icon type="fto-search"></x-icon>
+      <x-input
+        #autoComplete
+        [variant]="'borderless'"
+        formControlName="title"
+        size="big"
+        placeholder="模型搜索"
+      ></x-input>
+    </div>
+    <div class="list" [x-loading]="loading()">
+      <div class="left">
+        @if (manufacturerList().length === 0) {
+          <x-empty></x-empty>
+        } @else {
+          <x-list
+            [data]="manufacturerList()"
+            [nodeTpl]="manufacturerTpl"
+            (nodeClick)="manufacturerClick($event)"
+            [caseSensitive]="false"
+            formControlName="manufacturerId"
+            [inPortal]="true"
+          ></x-list>
+
+          <ng-template #manufacturerTpl let-node="$node">
+            <div class="node">
+              <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.name">{{
+                node.name
+              }}</span>
+            </div>
+          </ng-template>
+        }
+      </div>
+      <div class="right">
+        @if (modelList().length === 0) {
+          <x-empty></x-empty>
+        } @else {
+          <x-list
+            [data]="modelList()"
+            [nodeTpl]="modelTpl"
+            (nodeClick)="modelClick($event)"
+            [caseSensitive]="false"
+            formControlName="modelId"
+            [inPortal]="true"
+          ></x-list>
+
+          <ng-template #modelTpl let-node="$node">
+            <div class="model-node">
+              <span class="name" x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.name">
+                {{ node.name }}</span
+              >
+              <div class="code">
+                <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.code">
+                  {{ node.code }}
+                </span>
+                <x-button
+                  [icon]="node.$icon ?? 'fto-copy'"
+                  onlyIcon
+                  flat
+                  plain
+                  text
+                  type="primary"
+                  size="mini"
+                  (click)="onCopy($event, node)"
+                ></x-button>
+              </div>
+              <span class="description">{{ node.description }}</span>
+            </div>
+          </ng-template>
+        }
+      </div>
+    </div>
+  </div>
+  <div x-dialog-actions align="center" class="actions">
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
+    <x-button flat icon="fto-save" type="primary" attrType="submit" [loading]="saveLoading()" [disabled]="!form.valid"
+      >确认</x-button
+    >
+  </div>
+</form>

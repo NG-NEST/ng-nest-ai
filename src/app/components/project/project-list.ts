@@ -7,10 +7,11 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Project as ProjectComponent } from '../project/project';
 import { XDialogService } from '@ng-nest/ui/dialog';
+import { XRippleDirective } from '@ng-nest/ui';
 
 @Component({
   selector: 'app-project-list',
-  imports: [XIconComponent, XDropdownComponent],
+  imports: [XIconComponent, XDropdownComponent, XRippleDirective],
   templateUrl: './project-list.html',
   styleUrl: './project-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -33,7 +34,9 @@ export class ProjectList {
   ngOnInit() {
     this.getData();
 
-    this.project.added.pipe(takeUntil(this.$destroy)).subscribe(() => this.getData());
+    this.project.added.pipe(takeUntil(this.$destroy)).subscribe(() => {
+      this.getData();
+    });
   }
 
   ngOnDestroy(): void {
@@ -83,6 +86,6 @@ export class ProjectList {
 
   itemClick(item: Project) {
     this.selectedItem.set(item);
-    this.router.navigate(['/coversation'], { queryParams: { projectId: item.id } });
+    this.router.navigate(['/project-home'], { queryParams: { projectId: item.id } });
   }
 }

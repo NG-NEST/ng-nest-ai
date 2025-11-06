@@ -40,8 +40,8 @@ export class ModelList {
   modelList = signal<Model[]>([]);
   ngOnInit() {
     this.manufacturerService.getAll().subscribe((x) => {
-      const list = x.map((y) => ({ id: y.id, label: y.name, isActive: y.isActive }));
-      this.manufacturerList.set(XOrderBy(list, ['isActive'], ['desc']));
+      const list = x.map((y) => ({ id: y.id, label: y.name, isActive: y.isActive, createdAt: y.createdAt }));
+      this.manufacturerList.set(XOrderBy(list, ['isActive', 'createdAt'], ['desc', 'desc']));
       if (this.manufacturerList().length > 0) {
         this.manufacturerId.set(this.manufacturerList()[0].id);
         this.getData();
@@ -51,7 +51,7 @@ export class ModelList {
 
   getData() {
     this.service.getListByManufacturerId(this.manufacturerId()!).subscribe((x) => {
-      this.modelList.set(x);
+      this.modelList.set(XOrderBy(x, ['isActive', 'createdAt'], ['desc', 'desc']));
     });
   }
 

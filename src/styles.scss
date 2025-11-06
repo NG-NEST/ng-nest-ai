@@ -173,6 +173,7 @@ input {
       }
 
       x-input,
+      x-input-group,
       x-select,
       x-cascade,
       x-textarea,
@@ -290,5 +291,8 @@ input {
   }
   .app-dialog-form .close {
     right: 0;
+  }
+  .x-dialog-portal-actions {
+    margin: 0;
   }
 }

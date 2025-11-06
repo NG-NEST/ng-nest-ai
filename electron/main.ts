@@ -14,8 +14,10 @@ const createBrowserWindow = () => {
   const { width, height } = primaryDisplay.workAreaSize;
 
   win = new BrowserWindow({
-    width: Math.floor(width * 0.8), // 窗口宽度设置为屏幕的 80%
-    height: Math.floor(height * 0.8), // 窗口高度设置为屏幕的 80%
+    width: 1024,
+    height: 768,
+    minHeight: 600,
+    minWidth: 800,
     frame: false,
     webPreferences: {
       // 推荐做法：禁用 nodeIntegration 并使用 preload 脚本
@@ -40,7 +42,7 @@ const createBrowserWindow = () => {
       });
 
   if (isDev) {
-    win.webContents.openDevTools();
+    win.webContents.openDevTools({ mode: 'detach' });
   }
 
   win.loadURL(appPath);

@@ -2,6 +2,9 @@ import { XConfig } from '@ng-nest/ui/core';
 
 export const NgNestConfig: XConfig = {
   components: {
+    icon: {
+      href: '/ng-nest-icons/'
+    },
     pagination: {
       space: '0.8rem'
     },

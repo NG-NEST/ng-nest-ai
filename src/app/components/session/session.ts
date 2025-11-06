@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -7,10 +7,8 @@ import {
   XDialogRef,
   XInputComponent,
   XLoadingComponent,
-  XMessageBoxAction,
   XMessageBoxService,
-  XMessageService,
-  XSwitchComponent
+  XMessageService
 } from '@ng-nest/ui';
 import { Session, SessionService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';

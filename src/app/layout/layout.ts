@@ -4,11 +4,19 @@ import { XScrollableComponent } from '@ng-nest/ui/scrollable';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XDialogService } from '@ng-nest/ui/dialog';
 import { XMenuNode } from '@ng-nest/ui/menu';
-import { AppConfigService, ProjectService, Session, SessionService } from '@ui/core';
-import { History, Project, ProjectList, Search, Settings } from '@ui/components';
+import { AppConfigService, ProjectService, Project, Session, SessionService } from '@ui/core';
+import {
+  History,
+  ModelSwitchComponent,
+  Project as ProjectComponent,
+  ProjectList,
+  Search,
+  Settings
+} from '@ui/components';
 import { AppMenus } from '../app-menus';
 import { XIconComponent } from '@ng-nest/ui/icon';
 import { merge } from 'rxjs';
+import { XRippleDirective } from '@ng-nest/ui';
 
 // 扩展全局 Window 接口以包含你的 API
 declare global {
@@ -19,7 +27,16 @@ declare global {
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, XButtonComponent, XIconComponent, XScrollableComponent, ProjectList, History],
+  imports: [
+    RouterOutlet,
+    XButtonComponent,
+    XIconComponent,
+    XScrollableComponent,
+    XRippleDirective,
+    ModelSwitchComponent,
+    ProjectList,
+    History
+  ],
   templateUrl: './layout.html',
   styleUrl: './layout.scss'
 })
@@ -128,10 +145,13 @@ export class Layout {
   }
 
   createProject() {
-    this.dialogService.create(Project, {
+    this.dialogService.create(ProjectComponent, {
       width: '30rem',
       data: {
-        saveSuccess: () => {}
+        saveSuccess: (project: Project) => {
+          this.selectedItem.set(project);
+          this.router.navigate([`./project-home`], { queryParams: { projectId: project.id } });
+        }
       }
     });
   }

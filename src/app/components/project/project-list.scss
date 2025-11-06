@@ -37,17 +37,23 @@
       &:hover:not(.selected) {
         background-color: $x-background-a400;
       }
-      > x-icon {
+      .left {
+        display: flex;
+        align-items: center;
+        width: 80%;
+        > span {
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+      }
+      .item-icon {
         margin-right: 0.5rem;
         font-size: 1.25rem;
-      }
-      > span {
-        text-overflow: ellipsis;
-        overflow: hidden;
       }
 
       .operation {
         padding: 0 0.5rem;
+        width: 1.875rem;
       }
       &:not(:first-child) {
         margin-top: 0.125rem;

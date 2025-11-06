@@ -33,7 +33,7 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
   styleUrl: './project.scss'
 })
 export class Project {
-  data = inject<{ id: number; saveSuccess: () => void }>(X_DIALOG_DATA);
+  data = inject<{ id: number; saveSuccess: (project: Project) => void }>(X_DIALOG_DATA);
   dialogRef = inject(XDialogRef<Project>);
   message = inject(XMessageService);
   messageBox = inject(XMessageBoxService);
@@ -47,13 +47,13 @@ export class Project {
 
   form: FormGroup<any> = this.fb.group({
     name: ['', [Validators.required]],
-    icon: ['fto-briefcase'],
+    icon: ['fto-folder'],
     iconColor: ['var(--x-text)']
   });
 
   colors = signal(['var(--x-text)', '#fa423e', '#fb6a22', '#ffc300', '#04b84c', '#0285ff', '#924ff7', '#ff66ad']);
   icons = signal([
-    'fto-briefcase',
+    'fto-folder',
     'fto-award',
     'fto-bold',
     'fto-anchor',
@@ -66,13 +66,33 @@ export class Project {
     'fto-coffee',
     'fto-compass',
     'fto-cpu',
-    'fto-database',
     'fto-feather',
     'fto-film',
     'fto-gift',
     'fto-github',
     'fto-headphones',
-    'fto-heart'
+    'fto-heart',
+    'fto-hexagon',
+    'fto-inbox',
+    'fto-key',
+    'fto-life-buoy',
+    'fto-lock',
+    'fto-music',
+    'fto-package',
+    'fto-percent',
+    'fto-pie-chart',
+    'fto-play',
+    'fto-shield',
+    'fto-user',
+    'fto-users',
+    'fto-truck',
+    'fto-dollar-sign',
+    'fto-layers',
+    'fto-link',
+    'fto-map-pin',
+    'fto-smile',
+    'fto-meh',
+    'fto-frown'
   ]);
 
   $destroy = new Subject<void>();
@@ -114,9 +134,9 @@ export class Project {
     }
     this.saveLoading.set(true);
     rq.pipe(
-      tap(() => {
+      tap((x) => {
         this.dialogRef.close();
-        this.data.saveSuccess();
+        this.data.saveSuccess({ ...this.form.value, id: this.id() ?? x });
       }),
       finalize(() => {
         this.saveLoading.set(false);
@@ -133,7 +153,7 @@ export class Project {
         if (data !== 'confirm') return;
         this.service.delete(this.id()!).subscribe((x) => {
           this.dialogRef.close();
-          this.data.saveSuccess();
+          this.data.saveSuccess(this.form.value);
         });
       }
     });
