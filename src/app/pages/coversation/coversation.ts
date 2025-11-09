@@ -39,6 +39,7 @@ export class Coversation {
   });
   sessionId = signal<number | null>(null);
   sendSubscription: Subscription | null = null;
+  typing = signal(false);
 
   $destroy = new Subject<void>();
 
@@ -92,7 +93,10 @@ export class Coversation {
           this.formGroup.enable();
         })
       )
-      .subscribe(() => {
+      .subscribe((x: any) => {
+        if (x?.start && this.loading()) {
+          this.loading.set(false);
+        }
         this.data.update((items) => [...items]);
       });
   }
@@ -101,5 +105,12 @@ export class Coversation {
     this.sendSubscription?.unsubscribe();
     this.formGroup.enable();
     this.loading.set(false);
+    if (this.typing()) {
+      this.data.update((items) => {
+        items.forEach((x) => (x.typing = false));
+        return [...items];
+      });
+      this.typing.set(false);
+    }
   }
 }

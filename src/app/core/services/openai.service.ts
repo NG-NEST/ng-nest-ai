@@ -9,7 +9,7 @@ import {
   SessionService
 } from '../indexedDB';
 import { XMessageService } from '@ng-nest/ui/message';
-import { Observable } from 'rxjs';
+import { last, Observable } from 'rxjs';
 import { v4 } from 'uuid';
 
 export interface ChatMessage {
@@ -93,14 +93,20 @@ export class AppOpenAIService {
       const newSession = data.length === 0;
       let sessionId = newSession ? null : data[0].sessionId;
 
+      if (sessionId) {
+        data.map((item) => {
+          item.typing = false;
+          return item;
+        });
+      }
+
       data.push(
         {
           id: v4(),
           role: 'user',
-          content: content!,
-          typing: false
+          content: content!
         },
-        { id: v4(), role: 'assistant', content: '', typing: true }
+        { id: v4(), role: 'assistant', content: '' }
       );
 
       if (newSession) {
@@ -116,7 +122,7 @@ export class AppOpenAIService {
       }
 
       const messages = data
-        .filter((x) => x.role !== 'error')
+        .filter((x) => x.role !== 'error' && !(x.role === 'assistant' && x.content === '' && x.typing === true))
         .map((item) => ({
           role: item.role,
           content: item.content
@@ -136,10 +142,11 @@ export class AppOpenAIService {
               const lastItemIndex = data.length - 1;
               if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
                 data[lastItemIndex].content = aiContent;
+                data[lastItemIndex].typing = true;
               }
             }
           }
-          sub.next({ content: aiContent });
+          sub.next({ start: true, content: aiContent });
         },
         () => {
           // 完成回调 - 保存AI回复到数据库
@@ -154,12 +161,10 @@ export class AppOpenAIService {
             this.messageService.create(aiMessage).subscribe();
           }
 
-          // 完成打字效果
           const lastItemIndex = data.length - 1;
           if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
             data[lastItemIndex] = {
-              ...data[lastItemIndex],
-              typing: false
+              ...data[lastItemIndex]
             };
           }
 

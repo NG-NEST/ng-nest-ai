@@ -1,6 +1,11 @@
 <form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0" [formGroup]="formGroup">
   <div class="content">
-    <app-bubbles [data]="data()" [loading]="loading()"></app-bubbles>
+    <app-bubbles
+      [data]="data()"
+      [loading]="loading()"
+      (typingStart)="typing.set(true)"
+      (typingEnd)="typing.set(false)"
+    ></app-bubbles>
   </div>
   <div class="form">
     <div class="wrapper">
@@ -18,7 +23,7 @@
       ></x-sender>
       <ng-template #suffixTpl>
         <div class="buttons">
-          @if (loading()) {
+          @if (loading() || this.typing()) {
             <x-sender-stop (click)="onStop()"></x-sender-stop>
           } @else {
             <x-button

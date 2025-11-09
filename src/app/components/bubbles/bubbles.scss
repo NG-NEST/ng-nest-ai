@@ -16,7 +16,7 @@
       h4,
       h5,
       h6 {
-        color: $x-black;
+        color: $x-text;
         margin-top: 0.8em;
         margin-bottom: 0.8em;
         font-weight: 600;
@@ -95,7 +95,7 @@
       code {
         font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
         background-color: $x-background-a200;
-        color: $x-warning;
+        color: $x-text;
         padding: 0.2em 0.4em;
         border-radius: 3px;
         font-size: 0.9em;
@@ -112,7 +112,6 @@
 
       pre code {
         background: none;
-        color: #333;
         padding: 0;
         font-size: 0.95em;
       }
@@ -151,13 +150,107 @@
       }
 
       strong {
-        color: $x-black;
+        color: $x-text;
         font-weight: 600;
       }
 
       em {
         color: $x-text-300;
       }
+
+      code {
+        .token.decorator,
+        .token.keyword,
+        .token.builtin {
+          color: #255fff;
+        }
+
+        .token.class-name,
+        .token.property,
+        .token.boolean {
+          color: #f637e3;
+        }
+
+        .token.string,
+        .token.number {
+          color: #fa2c05;
+        }
+
+        .token.comment {
+          color: #746e7c;
+        }
+      }
+
+      code.language-html,
+      code.language-xml {
+        .token.tag,
+        .token.punctuation {
+          color: #255fff;
+        }
+        .token.attr-name {
+          color: #f637e3;
+        }
+        .token.attr-value,
+        .token.attr-value .token.punctuation {
+          color: #fa2c05;
+          &.attr-equals {
+            color: #255fff;
+          }
+        }
+        .token.attr-name {
+          .attr-equals {
+            color: #255fff;
+          }
+        }
+      }
+
+      code.language-scss,
+      code.language-css,
+      code.language-less {
+        .token.selector,
+        .token.function,
+        .token.keyword {
+          color: #0546ff;
+        }
+        .token.property {
+          color: #f637e3;
+        }
+        .token.string {
+          color: #fa2c05;
+        }
+        .token.punctuation {
+          color: #474747;
+        }
+      }
+
+      .code-block-wrapper {
+        position: relative;
+        margin: 1rem 0;
+      }
+
+      .copy-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        z-index: 1;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      .copy-button:hover {
+        opacity: 1;
+        background-color: #e0e0e0;
+      }
+    }
+    .x-bubble-borderless.x-medium .x-bubble-content {
+      padding: 0;
+      width: 100%;
     }
   }
 }

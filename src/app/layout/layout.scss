@@ -73,10 +73,7 @@ $aside-width: 12rem;
       background-color: $x-background-a100;
       position: sticky;
       top: 0;
-    }
-    .scroll-container {
-      height: 100vh;
-      width: 100%;
+      z-index: 1;
     }
     .menus {
       padding: 0 0.5rem;
@@ -111,9 +108,5 @@ $aside-width: 12rem;
     transition: padding 0.3s;
     display: block;
     transition: 0.3s padding;
-    .scroll-container {
-      height: calc(100vh - #{$header-height});
-      width: 100%;
-    }
   }
 }

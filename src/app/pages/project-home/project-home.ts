@@ -64,6 +64,7 @@ export class ProjectHome {
   size = signal(20);
   count = signal(0);
   sessions = signal<Session[]>([]);
+  typing = signal(false);
 
   constructor() {}
   ngOnInit() {
@@ -120,13 +121,25 @@ export class ProjectHome {
           this.formGroup.enable();
         })
       )
-      .subscribe();
+      .subscribe((x: any) => {
+        if (x?.start && this.loading()) {
+          this.loading.set(false);
+        }
+        this.data.update((items) => [...items]);
+      });
   }
 
   onStop() {
     this.sendSubscription?.unsubscribe();
     this.formGroup.enable();
     this.loading.set(false);
+    if (this.typing()) {
+      this.data.update((items) => {
+        items.forEach((x) => (x.typing = false));
+        return [...items];
+      });
+      this.typing.set(false);
+    }
   }
 
   operation(event: XDropdownNode, item: Session) {
