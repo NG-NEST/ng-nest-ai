@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
@@ -22,6 +21,7 @@ const createBrowserWindow = () => {
     webPreferences: {
       // 推荐做法：禁用 nodeIntegration 并使用 preload 脚本
       nodeIntegration: false,
+      sandbox: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js') // 假设有一个 preload 脚本
     }
@@ -36,7 +36,7 @@ const createBrowserWindow = () => {
   const appPath = isDev
     ? 'http://localhost:5200' // 开发模式：加载 Angular 开发服务器
     : url.format({
-        pathname: path.join(__dirname, 'dist/ng-nest-ai/browser/index.html'), // 生产模式：注意这里的路径需要匹配 Angular 的实际输出路径
+        pathname: path.join(__dirname, '../ng-nest-ai/browser/index.html'), // 生产模式：注意这里的路径需要匹配 Angular 的实际输出路径
         protocol: 'file:',
         slashes: true
       });

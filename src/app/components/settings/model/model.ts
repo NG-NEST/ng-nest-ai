@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -10,14 +10,25 @@ import {
   XMessageBoxAction,
   XMessageBoxService,
   XMessageService,
-  XSwitchComponent
+  XSwitchComponent,
+  XTextareaComponent
 } from '@ng-nest/ui';
 import { ModelService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
+import { EditorComponent } from '../../editor/editor';
 
 @Component({
   selector: 'app-model',
-  imports: [ReactiveFormsModule, XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent, XSwitchComponent],
+  imports: [
+    ReactiveFormsModule,
+    XTextareaComponent,
+    XInputComponent,
+    XDialogModule,
+    XButtonComponent,
+    XLoadingComponent,
+    XSwitchComponent,
+    EditorComponent
+  ],
   templateUrl: './model.html',
   styleUrl: './model.scss'
 })
@@ -38,7 +49,11 @@ export class ModelComponent {
     name: ['', [Validators.required]],
     code: ['', [Validators.required]],
     description: [''],
-    isActive: [false, [Validators.required]]
+    isActive: [false, [Validators.required]],
+    inputTranslation: [false],
+    inputFunction: [],
+    outputTranslation: [false],
+    outputFunction: []
   });
 
   $destroy = new Subject<void>();

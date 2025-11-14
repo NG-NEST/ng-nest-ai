@@ -8,9 +8,9 @@ interface WindowControls {
   maximize: () => Promise<void>;
   unmaximize: () => Promise<void>;
   close: () => Promise<void>;
-  openDevTools: () => Promise<void>;
+  switchDevTools: () => Promise<void>;
   reloadPage: () => Promise<void>;
-  closeDevTools: () => Promise<void>;
+  previewHtml: (html: string) => Promise<void>;
 }
 const windowControls: WindowControls = {
   isMaximized: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isMaximized'),
@@ -18,9 +18,9 @@ const windowControls: WindowControls = {
   maximize: (): Promise<void> => ipcRenderer.invoke('ipc:window:maximize'),
   unmaximize: (): Promise<void> => ipcRenderer.invoke('ipc:window:unmaximize'),
   close: (): Promise<void> => ipcRenderer.invoke('ipc:window:close'),
-  openDevTools: (): Promise<void> => ipcRenderer.invoke('ipc:window:openDevTools'),
+  switchDevTools: (): Promise<void> => ipcRenderer.invoke('ipc:window:switchDevTools'),
   reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
-  closeDevTools: (): Promise<void> => ipcRenderer.invoke('ipc:window:closeDevTools')
+  previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html)
 };
 
 // openai

@@ -3,6 +3,11 @@
 @use '../node_modules/@ng-nest/ui/style/core/index.css' as *;
 
 @font-face {
+  font-family: 'codicon';
+  src: url('/fonts/codicon.ttf') format('truetype');
+}
+
+@font-face {
   font-family: 'Inter';
   src: url('/fonts/inter.woff2') format('woff');
   font-weight: normal;

@@ -1,0 +1,11 @@
+<div class="header">
+  <x-button
+    size="small"
+    [title]="fullscreen() ? 'ÍË³öÈ«ÆÁ' : 'È«ÆÁ'"
+    [icon]="fullscreen() ? 'fto-minimize-2' : 'fto-maximize-2'"
+    text
+    (click)="toggleFullscreen()"
+  >
+  </x-button>
+</div>
+<div #editorRef class="editor"></div>

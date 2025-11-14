@@ -1,0 +1,34 @@
+@use '../../../../node_modules/@ng-nest/ui/style//params/index.scss' as *;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  &.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1000;
+    transform: scale(1);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: $x-background-a100;
+    border-bottom: $x-border-base;
+  }
+
+  .editor {
+    width: 100%;
+    height: calc(100% - 2rem - #{$x-border-width});
+  }
+
+  ::ng-deep .monaco-editor .margin {
+    background-color: $x-background-a100;
+  }
+}

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, viewChild } from '@angular/core';
 import { XBubbleModule, XBubblesComponent, XMessageService } from '@ng-nest/ui';
-import { ChatMessage, PrismService } from '@ui/core';
+import { ChatMessage, AppPrismService } from '@ui/core';
 import { micromark } from 'micromark';
-import { from, fromEvent } from 'rxjs';
+import { from, fromEvent, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-bubbles',
@@ -16,8 +16,10 @@ export class BubblesComponent {
   loading = input.required<boolean>();
   typingStart = output<void>();
   typingEnd = output<void>();
-  prismService = inject(PrismService);
+  prismService = inject(AppPrismService);
   message = inject(XMessageService);
+
+  $destroy = new Subject<void>();
 
   bubbles = viewChild.required<XBubblesComponent>('bubbles');
 
@@ -27,27 +29,45 @@ export class BubblesComponent {
   };
 
   ngAfterViewInit() {
-    this.addCopyButtonListeners();
+    this.addButtonListeners();
   }
 
-  private addCopyButtonListeners() {
-    // 委托事件处理，处理所有复制按钮点击
-    fromEvent(this.bubbles().elementRef.nativeElement as HTMLElement, 'click').subscribe((event: Event) => {
-      const target = event.target as HTMLElement;
-      if (target.classList.contains('copy-button')) {
-        const codeText = target.getAttribute('data-clipboard-text') || '';
-        const decodedText = this.decodeHtmlEntitiesForCopy(codeText);
+  ngDestroy() {
+    this.$destroy.next();
+    this.$destroy.complete();
+  }
 
-        this.prismService
-          .copyToClipboard(decodedText)
-          .then(() => {
-            this.message.success('Copied to clipboard!');
-          })
-          .catch((err) => {
-            console.error('Failed to copy text: ', err);
-          });
-      }
-    });
+  private addButtonListeners() {
+    fromEvent(this.bubbles().elementRef.nativeElement as HTMLElement, 'click')
+      .pipe(takeUntil(this.$destroy))
+      .subscribe((event: Event) => {
+        const target = event.target as HTMLElement;
+        if (target.classList.contains('copy-text')) {
+          this.copyToClipboard(target);
+        } else if (target.classList.contains('preview-html')) {
+          this.previewHtml(target);
+        }
+      });
+  }
+
+  private copyToClipboard(target: HTMLElement) {
+    const codeText = target.getAttribute('data-copy-text') || '';
+    const decodedText = this.decodeHtmlEntitiesForCopy(codeText);
+
+    this.prismService
+      .copyToClipboard(decodedText)
+      .then(() => {
+        this.message.success('复制成功!');
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+      });
+  }
+  private previewHtml(target: HTMLElement) {
+    const codeText = target.getAttribute('data-preview-html') || '';
+    const decodedText = this.decodeHtmlEntitiesForCopy(codeText);
+
+    window.electronAPI.windowControls.previewHtml(decodedText);
   }
 
   private decodeHtmlEntitiesForCopy(text: string): string {

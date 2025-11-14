@@ -68,12 +68,12 @@ export class Layout {
     });
   }
 
-  ngAfterViewInit() {
-    this.isMaximized.set(window.electronAPI.windowControls.isMaximized());
+  async ngAfterViewInit() {
+    this.isMaximized.set(await window.electronAPI.windowControls.isMaximized());
   }
 
-  switchDevTools() {
-    window.electronAPI.windowControls.openDevTools();
+  async switchDevTools() {
+    await window.electronAPI.windowControls.switchDevTools();
   }
 
   minimize() {
@@ -113,6 +113,8 @@ export class Layout {
   menuClick(menu: XMenuNode) {
     if (menu.id === 'coversation') {
       this.selectedItem.set(null);
+      this.router.navigate(['./coversation'], { queryParams: { time: new Date().getTime() } });
+      return;
     }
     if (menu.id === 'search') {
       this.createSearch();
@@ -122,7 +124,6 @@ export class Layout {
       this.createProject();
       return;
     }
-    this.router.navigate([menu.routerLink]);
   }
 
   onHistoryDeleteItem(id: number) {

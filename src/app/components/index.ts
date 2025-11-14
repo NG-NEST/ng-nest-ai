@@ -7,3 +7,4 @@ export * from './model-switch/model-switch';
 export * from './model-switch/model-switch-box';
 export * from './bubbles/bubbles';
 export * from './session/session';
+export * from './editor/editor';

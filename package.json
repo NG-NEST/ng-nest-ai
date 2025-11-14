@@ -10,8 +10,10 @@
     "start": "npm-run-all --parallel build:electron-ts start:ng start:electron",
     "build": "ng build --base-href ./",
     "build:electron-ts": "tsc -p tsconfig.electron.json",
-    "build:all": "npm run build -- --base-href ./ && npm run build:electron-ts",
-    "start:prod": "npm run build:all && electron ./dist/electron/main.js"
+    "build:all": "npm run build && npm run build:electron-ts",
+    "start:prod": "npm run build:all && electron ./dist/electron/main.js",
+    "dist": "npm run build:all && npm run electron-builder",
+    "electron-builder": "electron-builder"
   },
   "private": true,
   "dependencies": {
@@ -21,9 +23,10 @@
     "@angular/forms": "^20.0.0",
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
-    "@ng-nest/ui": "^20.2.4",
+    "@ng-nest/ui": "^20.2.5",
     "dexie": "^4.2.1",
     "micromark": "^4.0.2",
+    "monaco-editor": "^0.54.0",
     "openai": "^6.7.0",
     "prismjs": "^1.30.0",
     "rxjs": "~7.8.0",
@@ -41,7 +44,7 @@
     "@types/prismjs": "^1.26.5",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
-    "electron": "^38.5.0",
+    "electron": "^39.2.0",
     "electron-builder": "^26.0.12",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
@@ -55,5 +58,33 @@
     "ts-node": "^10.9.2",
     "typescript": "~5.8.2",
     "wait-on": "^9.0.1"
+  },
+  "build": {
+    "appId": "com.ngnest.ai",
+    "productName": "NgNestAI",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/electron/**/*",
+      "dist/ng-nest-ai/browser/**/*",
+      "node_modules/**/*",
+      "!node_modules/**/*.map",
+      "!node_modules/@types/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "dist/electron/main.js"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

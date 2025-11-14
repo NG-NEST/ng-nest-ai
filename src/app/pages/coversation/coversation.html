@@ -7,15 +7,32 @@
       (typingEnd)="typing.set(false)"
     ></app-bubbles>
   </div>
-
   <div class="form">
     <div class="wrapper">
       <x-sender
         formControlName="content"
         [placeholder]="'Enter 发送，Alt + Enter 换行'"
+        [footer]="footerTpl"
         [suffix]="suffixTpl"
         (submit)="onSubmit()"
       ></x-sender>
+      <ng-template #footerTpl>
+        <div class="sender-footer">
+          <x-button
+            icon="icon:deep-thinking"
+            [text]="!deepThinking()"
+            [plain]="deepThinking()"
+            [flat]="deepThinking()"
+            (click)="onDeepThinking()"
+            size="small"
+          >
+            深度思考
+            @if (deepThinking()) {
+              <x-icon class="checked" type="fto-check"></x-icon>
+            }
+          </x-button>
+        </div>
+      </ng-template>
       <ng-template #suffixTpl>
         <div class="buttons">
           @if (loading() || this.typing()) {

@@ -1,6 +1,7 @@
 // electron/ipc/services/openai.service.ts
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import OpenAI from 'openai';
+import { Stream } from 'openai/core/streaming';
 
 export class OpenAIService {
   private openai: OpenAI | null = null;
@@ -79,14 +80,16 @@ export class OpenAIService {
         }
 
         try {
-          const stream = await this.openai.chat.completions.create(
+          const stream = (await this.openai.chat.completions.create(
             {
               model,
               messages,
               stream: true
-            },
+            } as OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
             { signal: abortController.signal }
-          );
+          )) as Stream<OpenAI.Chat.Completions.ChatCompletionChunk> & {
+            _request_id?: string | null;
+          };
 
           for await (const chunk of stream) {
             // 检查是否需要取消

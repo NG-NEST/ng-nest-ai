@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class PrismService {
+export class AppPrismService {
   platformId = inject(PLATFORM_ID);
   isBrowser = isPlatformBrowser(this.platformId);
   prism = this.isBrowser ? (window as any)['Prism'] : null;
@@ -15,24 +15,24 @@ export class PrismService {
 
   // 预定义支持的语言导入函数
   private readonly languageLoaders: Record<string, () => Promise<any>> = {
-    javascript: () => import('prismjs/components/prism-javascript.min.js' as any),
-    typescript: () => import('prismjs/components/prism-typescript.min.js' as any),
-    css: () => import('prismjs/components/prism-css.min.js' as any),
-    scss: () => import('prismjs/components/prism-scss.min.js' as any),
-    json: () => import('prismjs/components/prism-json.min.js' as any),
-    bash: () => import('prismjs/components/prism-bash.min.js' as any),
-    markdown: () => import('prismjs/components/prism-markdown.min.js' as any),
-    markup: () => import('prismjs/components/prism-markup.min.js' as any),
-    html: () => import('prismjs/components/prism-markup.min.js' as any),
-    xml: () => import('prismjs/components/prism-markup.min.js' as any),
-    python: () => import('prismjs/components/prism-python.min.js' as any),
-    java: () => import('prismjs/components/prism-java.min.js' as any),
-    go: () => import('prismjs/components/prism-go.min.js' as any),
-    rust: () => import('prismjs/components/prism-rust.min.js' as any),
-    sql: () => import('prismjs/components/prism-sql.min.js' as any),
-    yaml: () => import('prismjs/components/prism-yaml.min.js' as any),
-    docker: () => import('prismjs/components/prism-docker.min.js' as any),
-    git: () => import('prismjs/components/prism-git.min.js' as any)
+    javascript: () => import('prismjs/components/prism-javascript.js?esm' as any),
+    typescript: () => import('prismjs/components/prism-typescript.js?esm' as any),
+    css: () => import('prismjs/components/prism-css.js?esm' as any),
+    scss: () => import('prismjs/components/prism-scss.js?esm' as any),
+    json: () => import('prismjs/components/prism-json.js?esm' as any),
+    bash: () => import('prismjs/components/prism-bash.js?esm' as any),
+    markdown: () => import('prismjs/components/prism-markdown.js?esm' as any),
+    markup: () => import('prismjs/components/prism-markup.js?esm' as any),
+    html: () => import('prismjs/components/prism-markup.js?esm' as any),
+    xml: () => import('prismjs/components/prism-markup.js?esm' as any),
+    python: () => import('prismjs/components/prism-python.js?esm' as any),
+    java: () => import('prismjs/components/prism-java.js?esm' as any),
+    go: () => import('prismjs/components/prism-go.js?esm' as any),
+    rust: () => import('prismjs/components/prism-rust.js?esm' as any),
+    sql: () => import('prismjs/components/prism-sql.js?esm' as any),
+    yaml: () => import('prismjs/components/prism-yaml.js?esm' as any),
+    docker: () => import('prismjs/components/prism-docker.js?esm' as any),
+    git: () => import('prismjs/components/prism-git.js?esm' as any)
   };
 
   init() {
@@ -225,10 +225,21 @@ export class PrismService {
       const highlightedCode = this.highlight(decodedCode, language);
 
       const langClass = `language-${language}`;
+      const buttons = [
+        `<button class="button copy-text" data-copy-text="${this.escapeQuotes(decodedCode)}">复制</button>`
+      ];
+      if (language === 'html') {
+        buttons.unshift(
+          `<button class="button preview-html" data-preview-html="${this.escapeQuotes(decodedCode)}">预览</button>`
+        );
+      }
+
       return `
         <div class="code-block-wrapper">
           <pre class="${langClass}"><code class="${langClass}">${highlightedCode}</code></pre>
-          <button class="copy-button" data-clipboard-text="${this.escapeQuotes(decodedCode)}">Copy</button>
+          <div class="code-block-actions">
+            ${buttons.join('')}
+          </div>
         </div>
       `;
     });

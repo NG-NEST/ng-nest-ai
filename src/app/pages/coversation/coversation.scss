@@ -18,7 +18,7 @@
       app-bubbles {
         display: block;
         margin: 0 auto;
-        padding: 2rem 2rem 9rem 2rem;
+        padding: 2rem 2rem 10rem 2rem;
         min-width: 30rem;
         max-width: 60rem;
       }
@@ -35,6 +35,15 @@
         min-width: 30rem;
         max-width: 60rem;
         background-color: $x-background;
+      }
+
+      .sender-footer {
+        padding: 0rem 0.75rem 0.75rem 0.75rem;
+
+        .checked {
+          margin-left: 0.5rem;
+          color: $x-primary;
+        }
       }
     }
 

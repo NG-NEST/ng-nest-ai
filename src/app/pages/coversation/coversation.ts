@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { XBubbleModule, XCollapseModule } from '@ng-nest/ui';
+import { XBubbleModule, XCollapseModule, XIconComponent } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XMessageService } from '@ng-nest/ui/message';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
@@ -19,6 +19,7 @@ import { finalize, Subject, Subscription } from 'rxjs';
     ReactiveFormsModule,
     XBubbleModule,
     XCollapseModule,
+    XIconComponent,
     BubblesComponent
   ],
   templateUrl: './coversation.html',
@@ -40,20 +41,21 @@ export class Coversation {
   sessionId = signal<number | null>(null);
   sendSubscription: Subscription | null = null;
   typing = signal(false);
+  deepThinking = signal(false);
 
   $destroy = new Subject<void>();
 
   data = signal<ChatMessage[]>([]);
 
   ngOnInit() {
-    this.activatedRoute.queryParams.subscribe(({ sessionId }) => {
+    this.activatedRoute.queryParams.subscribe(({ sessionId, time }) => {
       if (sessionId) {
         sessionId = Number(sessionId);
         if (!isNaN(sessionId)) {
           this.sessionId.set(sessionId);
           this.loadSessionData(sessionId);
         }
-      } else {
+      } else if (time) {
         this.reload();
       }
     });
@@ -112,5 +114,9 @@ export class Coversation {
       });
       this.typing.set(false);
     }
+  }
+
+  onDeepThinking() {
+    this.deepThinking.update((x) => !x);
   }
 }

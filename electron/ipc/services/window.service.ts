@@ -1,5 +1,8 @@
 // electron/ipc/services/window.service.ts
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 
 export interface IWindowService {
   isMaximized(): boolean;
@@ -7,10 +10,10 @@ export interface IWindowService {
   maximize(): void;
   unmaximize(): void;
   close(): void;
-  openDevTools(): void;
-  closeDevTools(): void;
+  switchDevTools(): void;
   reloadPage(): void;
   destroy(): void;
+  previewHtml(html: string): void;
 }
 
 export class WindowService implements IWindowService {
@@ -52,10 +55,17 @@ export class WindowService implements IWindowService {
     if (win) win.close();
   }
 
-  openDevTools(): void {
+  switchDevTools(): void {
     if (this.isDestroyed) return;
     const win = this.getWindow();
-    if (win && win.webContents) win.webContents.openDevTools();
+
+    if (win && win.webContents) {
+      if (win.webContents.isDevToolsOpened()) {
+        win.webContents.closeDevTools();
+      } else {
+        win.webContents.openDevTools({ mode: 'detach' });
+      }
+    }
   }
 
   reloadPage(): void {
@@ -67,10 +77,38 @@ export class WindowService implements IWindowService {
     }
   }
 
-  closeDevTools(): void {
+  previewHtml(html: string): void {
     if (this.isDestroyed) return;
-    const win = this.getWindow();
-    if (win && win.webContents) win.webContents.closeDevTools();
+    const tempDir = os.tmpdir();
+    const filePath = path.join(tempDir, `preview-${Date.now()}.html`);
+    fs.writeFileSync(filePath, html, 'utf-8');
+
+    const win = new BrowserWindow({
+      width: 1024,
+      height: 768,
+      autoHideMenuBar: true,
+      webPreferences: {
+        contextIsolation: true,
+        sandbox: true,
+        nodeIntegration: false
+      }
+    });
+
+    // 判断是否是开发模式
+    const isDev = process.env['NODE_ENV'] === 'development';
+
+    if (isDev) {
+      win.webContents.openDevTools({ mode: 'detach' });
+    }
+
+    win.loadFile(filePath);
+    win.on('closed', () => {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (e) {
+        console.warn(e);
+      }
+    });
   }
 
   // 注册 IPC 处理程序
@@ -81,16 +119,16 @@ export class WindowService implements IWindowService {
       [`ipc:window:maximize`, () => this.maximize()],
       [`ipc:window:unmaximize`, () => this.unmaximize()],
       [`ipc:window:close`, () => this.close()],
-      [`ipc:window:openDevTools`, () => this.openDevTools()],
+      [`ipc:window:switchDevTools`, () => this.switchDevTools()],
       [`ipc:window:reloadPage`, () => this.reloadPage()],
-      [`ipc:window:closeDevTools`, () => this.closeDevTools()]
+      [`ipc:window:previewHtml`, (_event: IpcMainInvokeEvent, html: string) => this.previewHtml(html)]
     ]);
 
     handlers.forEach((handler, eventName) => {
       if (!this.registeredHandlers.has(eventName)) {
-        ipcMain.handle(eventName, async () => {
+        ipcMain.handle(eventName, async (event: IpcMainInvokeEvent, ...args: any[]) => {
           try {
-            return await handler();
+            return await handler(event, ...args);
           } catch (error) {
             throw error;
           }

@@ -9,13 +9,14 @@ import {
   SessionService
 } from '../indexedDB';
 import { XMessageService } from '@ng-nest/ui/message';
-import { last, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
 
 export interface ChatMessage {
   id?: string | number;
   role: string;
   content: string;
+  reasoningContent?: string;
 
   sessionId?: number;
   typing?: boolean;
@@ -79,14 +80,8 @@ export class AppOpenAIService {
   send(content: string, data: ChatMessage[] = [], projectId: number | null = null) {
     return new Observable((sub) => {
       if (!content) return;
-      if (this.activeManufacturer() === null) {
-        this.message.warning('请设置并激活一个服务商！');
-        return;
-      }
-      if (this.activeModel() === null) {
-        this.message.warning('请设置并激活一个模型！');
-        return;
-      }
+      if (!this.verify()) return;
+
       const manufacturerId = this.activeManufacturer()?.id;
       const modelId = this.activeModel()?.id;
       const modelCode = this.activeModel()?.code;
@@ -122,13 +117,14 @@ export class AppOpenAIService {
       }
 
       const messages = data
-        .filter((x) => x.role !== 'error' && !(x.role === 'assistant' && x.content === '' && x.typing === true))
+        .filter((x) => x.role !== 'error' && !(x.role === 'assistant' && x.content === ''))
         .map((item) => ({
           role: item.role,
           content: item.content
         }));
 
       let aiContent = '';
+      let aiReasoningContent = '';
       let completed = false;
 
       const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
@@ -137,16 +133,28 @@ export class AppOpenAIService {
           // 接收流信息
           if (msg.choices && msg.choices.length > 0) {
             const delta = msg.choices[0].delta;
-            if (delta && delta.content) {
-              aiContent += delta.content;
-              const lastItemIndex = data.length - 1;
-              if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
-                data[lastItemIndex].content = aiContent;
-                data[lastItemIndex].typing = true;
+
+            if (delta) {
+              const { content, reasoning_content } = delta;
+              if (content) {
+                aiContent += delta.content;
+                const lastItemIndex = data.length - 1;
+                if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                  data[lastItemIndex].content = aiContent;
+                  data[lastItemIndex].typing = true;
+                }
+              }
+              if (reasoning_content) {
+                aiReasoningContent += reasoning_content;
+                const lastItemIndex = data.length - 1;
+                if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                  data[lastItemIndex].reasoningContent = aiReasoningContent;
+                  data[lastItemIndex].typing = true;
+                }
               }
             }
           }
-          sub.next({ start: true, content: aiContent });
+          sub.next({ start: true, content: aiContent, reasoningContent: aiReasoningContent });
         },
         () => {
           // 完成回调 - 保存AI回复到数据库
@@ -156,7 +164,8 @@ export class AppOpenAIService {
               manufacturerId: manufacturerId!,
               modelId: modelId!,
               role: 'assistant',
-              content: aiContent
+              content: aiContent,
+              reasoningContent: aiReasoningContent
             };
             this.messageService.create(aiMessage).subscribe();
           }
@@ -207,48 +216,16 @@ export class AppOpenAIService {
     });
   }
 
-  chatCompletionStream(options: ChatCompletionOptions): Observable<{
-    data?: any;
-    done?: boolean;
-    error?: any;
-    content?: string;
-  }> {
-    return new Observable((subscriber) => {
-      let aiContent = '';
-      let completed = false;
+  private verify() {
+    if (this.activeManufacturer() === null) {
+      this.message.warning('请设置并激活一个服务商！');
+      return false;
+    }
+    if (this.activeModel() === null) {
+      this.message.warning('请设置并激活一个模型！');
+      return false;
+    }
 
-      const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
-        options,
-        (data: any) => {
-          // 接收流信息
-          if (data.choices && data.choices.length > 0) {
-            const delta = data.choices[0].delta;
-            if (delta && delta.content) {
-              aiContent += delta.content;
-            }
-          }
-          subscriber.next({ data, content: aiContent });
-        },
-        () => {
-          // 完成回调
-          completed = true;
-          subscriber.next({ done: true, content: aiContent });
-          subscriber.complete();
-        },
-        (error: any) => {
-          // 错误回调
-          completed = true;
-          subscriber.next({ error, content: aiContent });
-          subscriber.error(error);
-        }
-      );
-
-      // 清理函数
-      return () => {
-        if (!completed) {
-          cancelFunc();
-        }
-      };
-    });
+    return true;
   }
 }

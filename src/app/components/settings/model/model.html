@@ -2,19 +2,50 @@
   <h4 x-dialog-title class="title">{{ id() ? '修改' : '新增' }}模型</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
-    <div class="item required">
+    <div class="item">
       <x-input floatLabel="on" label="名称" formControlName="name" required></x-input>
     </div>
-    <div class="item required">
+    <div class="item">
       <x-input floatLabel="on" label="编码" formControlName="code" required></x-input>
     </div>
-    <div class="item required">
-      <x-input floatLabel="on" label="描述" formControlName="description"></x-input>
+    <div class="item">
+      <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
     </div>
     <div class="item required">
-      <label>激活当前模型：</label>
-      <x-switch formControlName="isActive" required></x-switch>
+      <x-switch label="激活当前模型：" direction="row" formControlName="isActive" required></x-switch>
     </div>
+    <div class="item">
+      <x-switch label="输入转换：" direction="row" formControlName="inputTranslation"></x-switch>
+    </div>
+    @if (this.form.get('inputTranslation')?.value) {
+      <div class="item">
+        <app-editor
+          class="editor"
+          [style.height.rem]="8"
+          [style.width.%]="100"
+          [options]="{
+            minimap: { enabled: false }
+          }"
+          formControlName="inputFunction"
+        ></app-editor>
+      </div>
+    }
+    <div class="item">
+      <x-switch label="输出转换：" direction="row" formControlName="outputTranslation"></x-switch>
+    </div>
+    @if (this.form.get('outputTranslation')?.value) {
+      <div class="item">
+        <app-editor
+          class="editor"
+          [style.height.rem]="8"
+          [style.width.%]="100"
+          [options]="{
+            minimap: { enabled: false }
+          }"
+          formControlName="outputFunction"
+        ></app-editor>
+      </div>
+    }
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {
