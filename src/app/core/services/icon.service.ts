@@ -3,18 +3,17 @@ import { XIconService } from '@ng-nest/ui/icon';
 import { of } from 'rxjs';
 
 const IconConfig: { [key: string]: string } = {
-  'win-recovery': '/icons/win-recovery.svg',
-  'win-close': '/icons/win-close.svg',
-  'win-maximize': '/icons/win-maximize.svg',
-  'win-minimize': '/icons/win-minimize.svg',
-  'collasped-left': '/icons/collasped-left.svg',
-  'collasped-right': '/icons/collasped-right.svg',
-  'deep-thinking': '/icons/deep-thinking.svg',
-  manufacturer: '/icons/manufacturer.svg',
-  model: '/icons/model.svg',
-  about: '/icons/about.svg',
-  settings: '/icons/settings.svg',
-  theme: '/icons/theme.svg'
+  'win-recovery': './assets/icons/win-recovery.svg',
+  'win-close': './assets/icons/win-close.svg',
+  'win-maximize': './assets/icons/win-maximize.svg',
+  'win-minimize': './assets/icons/win-minimize.svg',
+  'collasped-left': './assets/icons/collasped-left.svg',
+  'collasped-right': './assets/icons/collasped-right.svg',
+  manufacturer: './assets/icons/manufacturer.svg',
+  model: './assets/icons/model.svg',
+  about: './assets/icons/about.svg',
+  settings: './assets/icons/settings.svg',
+  theme: './assets/icons/theme.svg'
 };
 
 @Injectable({ providedIn: 'root' })

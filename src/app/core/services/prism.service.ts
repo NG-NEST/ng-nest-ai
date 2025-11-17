@@ -32,7 +32,13 @@ export class AppPrismService {
     sql: () => import('prismjs/components/prism-sql.js?esm' as any),
     yaml: () => import('prismjs/components/prism-yaml.js?esm' as any),
     docker: () => import('prismjs/components/prism-docker.js?esm' as any),
-    git: () => import('prismjs/components/prism-git.js?esm' as any)
+    git: () => import('prismjs/components/prism-git.js?esm' as any),
+    vue: () => import('prismjs/components/prism-javascript.js?esm' as any),
+    jsx: () => import('prismjs/components/prism-javascript.js?esm' as any),
+    tsx: () => import('prismjs/components/prism-typescript.js?esm' as any),
+    csharp: () => import('prismjs/components/prism-csharp.js?esm' as any),
+    c: () => import('prismjs/components/prism-c.js?esm' as any),
+
   };
 
   init() {

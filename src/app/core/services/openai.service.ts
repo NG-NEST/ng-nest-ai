@@ -154,7 +154,11 @@ export class AppOpenAIService {
               }
             }
           }
-          sub.next({ start: true, content: aiContent, reasoningContent: aiReasoningContent });
+          sub.next({
+            start: true,
+            content: aiContent,
+            reasoningContent: aiReasoningContent
+          });
         },
         () => {
           // 完成回调 - 保存AI回复到数据库

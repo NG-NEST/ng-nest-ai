@@ -21,13 +21,8 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": ["prismjs"],
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": ["src/styles.scss"],
+            "assets": ["src/assets"],
+            "styles": ["node_modules/monaco-editor/min/vs/editor/editor.main.css", "src/styles.scss"],
             "scripts": ["node_modules/prismjs/prism.js"]
           },
           "configurations": {
@@ -37,7 +32,13 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

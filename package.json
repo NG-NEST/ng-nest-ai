@@ -2,13 +2,15 @@
   "name": "ng-nest-ai",
   "version": "0.0.0",
   "main": "dist/electron/main.js",
+  "description": "NgNestAI",
+  "author": "ng-nest-moon",
   "scripts": {
     "ng": "ng",
     "compile:electron": "tsc -p tsconfig.electron.json",
     "start:ng": "ng serve --port 5200 --host 0.0.0.0",
     "start:electron": "node scripts/wait-and-run-electron.js",
     "start": "npm-run-all --parallel build:electron-ts start:ng start:electron",
-    "build": "ng build --base-href ./",
+    "build": "ng build --base-href ./ --deploy-url ./",
     "build:electron-ts": "tsc -p tsconfig.electron.json",
     "build:all": "npm run build && npm run build:electron-ts",
     "start:prod": "npm run build:all && electron ./dist/electron/main.js",
@@ -69,9 +71,6 @@
     "files": [
       "dist/electron/**/*",
       "dist/ng-nest-ai/browser/**/*",
-      "node_modules/**/*",
-      "!node_modules/**/*.map",
-      "!node_modules/@types/**/*",
       "package.json"
     ],
     "extraMetadata": {

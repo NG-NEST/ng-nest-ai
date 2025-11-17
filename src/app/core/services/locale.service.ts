@@ -40,7 +40,7 @@ export class AppLocaleService {
       this.i18n.setLocale(this.cacheLangs()[lang], true);
       return of(true);
     } else {
-      let url = `./i18n/${lang}.json`;
+      let url = `./assets/i18n/${lang}.json`;
       return this.http.get<XI18nProperty>(url).pipe(
         map((x) => {
           this.lang = lang as string;

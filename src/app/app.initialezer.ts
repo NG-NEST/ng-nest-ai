@@ -9,6 +9,7 @@ export const AppInitializer = (): Observable<boolean> => {
   const theme = inject(AppThemeService);
   return locale.init().pipe(
     concatMap(() => database.init()),
+    concatMap(() => theme.init()),
     concatMap(() => icon.init()),
     concatMap(() => theme.init())
   );

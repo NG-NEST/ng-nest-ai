@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { XButtonComponent } from '@ng-nest/ui';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { editor } from 'monaco-editor';
 import { fromEvent, Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -37,7 +37,7 @@ import { fromEvent, Subject, takeUntil } from 'rxjs';
 export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
   filename = input<string>('.plaintext');
   theme = input<string>('vs');
-  options = input<monaco.editor.IStandaloneEditorConstructionOptions>({});
+  options = input<editor.IStandaloneEditorConstructionOptions>({});
   disabled = input<boolean>(false);
 
   document = inject(DOCUMENT);
@@ -57,7 +57,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
 
   private $destroy = new Subject<void>();
 
-  private editor!: monaco.editor.IStandaloneCodeEditor;
+  private editor!: editor.IStandaloneCodeEditor;
   private onChange: (value: string) => void = () => {};
   onTouched: () => void = () => {};
 
@@ -137,7 +137,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
     if (this.editor) {
       const model = this.editor.getModel();
       if (model) {
-        monaco.editor.setModelLanguage(model, language);
+        editor.setModelLanguage(model, language);
       }
     }
   }
@@ -174,12 +174,14 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   }
 
   private initializeEditor(): void {
-    this.editor = monaco.editor.create(this.editorRef().nativeElement, {
+    this.editor = editor.create(this.editorRef().nativeElement, {
       value: this.value,
       readOnly: this.disabled(),
       language: this.language(),
       theme: this.theme(),
       automaticLayout: true,
+      tabSize: 2,
+      suggestOnTriggerCharacters: true, // ÆôÓÃ´úÂë²¹È«
       ...this.options()
     });
 
