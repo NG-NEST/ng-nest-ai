@@ -1,0 +1,67 @@
+<form class="app-dialog-form" [formGroup]="form" (ngSubmit)="save()">
+  @if (!loading()) {
+    <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
+  }
+  @if (disabled()) {
+    <h4 x-dialog-title class="title">{{ selectedPrompt()?.name }}</h4>
+  }
+  <div x-dialog-content class="content">
+    @if (!disabled()) {
+      <div class="search">
+        <x-icon type="fto-search"></x-icon>
+        <x-input
+          #autoComplete
+          [variant]="'borderless'"
+          formControlName="title"
+          size="big"
+          placeholder="系统提示词搜索"
+        ></x-input>
+      </div>
+    }
+    <div class="list" [x-loading]="loading()">
+      @if (!disabled()) {
+        <div class="left">
+          @if (promptList().length === 0) {
+            <x-empty></x-empty>
+          } @else {
+            <x-list
+              [data]="promptList()"
+              [nodeTpl]="promptTpl"
+              (nodeClick)="promptClick($event)"
+              [caseSensitive]="false"
+              formControlName="promptId"
+              [inPortal]="true"
+              checked
+            ></x-list>
+
+            <ng-template #promptTpl let-node="$node">
+              <div class="node">
+                <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.name">{{
+                  node.name
+                }}</span>
+              </div>
+            </ng-template>
+          }
+        </div>
+      }
+      <div class="right">
+        @if (this.selectedPrompt()) {
+          <div class="description">{{ selectedPrompt()?.description }}</div>
+          <div class="app-markdown" [innerHTML]="selectedPrompt()?.content | markdown"></div>
+        }
+      </div>
+    </div>
+  </div>
+  <div x-dialog-actions align="center" class="actions">
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
+    <x-button
+      flat
+      icon="fto-save"
+      type="primary"
+      attrType="submit"
+      [loading]="saveLoading()"
+      [disabled]="!form.valid || !selectedPrompt() || disabled()"
+      >确认</x-button
+    >
+  </div>
+</form>

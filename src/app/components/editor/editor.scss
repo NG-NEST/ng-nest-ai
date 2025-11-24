@@ -1,4 +1,4 @@
-@use '../../../../node_modules/@ng-nest/ui/style//params/index.scss' as *;
+@use '../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
 
 :host {
   display: block;
@@ -16,11 +16,22 @@
   }
 
   .header {
+    padding-left: 0.75rem;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     background-color: $x-background-a100;
     border-bottom: $x-border-base;
+    height: 2rem;
+
+    > label.required {
+      display: inline-block;
+      margin-right: 0.25rem;
+      color: var(--x-danger);
+      line-height: 1;
+      font-size: var(--x-font-size-small);
+      content: '*';
+    }
   }
 
   .editor {
@@ -28,7 +39,11 @@
     height: calc(100% - 2rem - #{$x-border-width});
   }
 
-  ::ng-deep .monaco-editor .margin {
-    background-color: $x-background-a100;
+  ::ng-deep {
+    .monaco-editor {
+      .margin {
+        background-color: $x-background-a100;
+      }
+    }
   }
 }

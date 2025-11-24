@@ -9,11 +9,12 @@ export interface Project {
   name: string;
   icon?: string;
   iconColor?: string;
+  workspace?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export const ProjectTable = '++id, name, icon, iconColor, createdAt, updatedAt';
+export const ProjectTable = '++id, name, icon, iconColor, workspace, createdAt, updatedAt';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectService {

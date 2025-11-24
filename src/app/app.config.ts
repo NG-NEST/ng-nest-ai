@@ -4,7 +4,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter, withRouterConfig } from '@angular/router';
+import { provideRouter, withHashLocation, withRouterConfig } from '@angular/router';
 
 import { AppInitializer } from './app.initialezer';
 import { provideHttpClient, withFetch } from '@angular/common/http';
@@ -18,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideAppInitializer(AppInitializer),
-    provideRouter(LayoutRoutes, withRouterConfig({ onSameUrlNavigation: 'reload' })),
+    provideRouter(LayoutRoutes, withRouterConfig({ onSameUrlNavigation: 'reload' }), withHashLocation()),
     { provide: X_CONFIG, useValue: NgNestConfig }
   ]
 };

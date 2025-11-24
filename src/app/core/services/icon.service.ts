@@ -13,7 +13,9 @@ const IconConfig: { [key: string]: string } = {
   model: './assets/icons/model.svg',
   about: './assets/icons/about.svg',
   settings: './assets/icons/settings.svg',
-  theme: './assets/icons/theme.svg'
+  theme: './assets/icons/theme.svg',
+  prompt: './assets/icons/prompt.svg',
+  devtools: './assets/icons/devtools.svg'
 };
 
 @Injectable({ providedIn: 'root' })

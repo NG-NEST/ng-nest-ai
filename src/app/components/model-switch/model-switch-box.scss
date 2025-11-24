@@ -1,4 +1,4 @@
-@use '../../../../node_modules/@ng-nest/ui/style//params/index.scss' as *;
+@use '../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
 
 :host {
   .content {
@@ -37,10 +37,14 @@
       padding: 1rem;
       border-right: $x-border-base;
       width: 14rem;
+      overflow: auto;
+      max-height: calc(100vh - 3.125rem);
     }
     .right {
       padding: 1rem;
       flex: 1;
+      overflow: auto;
+      max-height: calc(100vh - 3.125rem);
     }
   }
   .node {

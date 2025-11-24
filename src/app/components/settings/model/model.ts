@@ -15,8 +15,6 @@ import {
 } from '@ng-nest/ui';
 import { ModelService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
-import { EditorComponent } from '../../editor/editor';
-
 @Component({
   selector: 'app-model',
   imports: [
@@ -26,8 +24,7 @@ import { EditorComponent } from '../../editor/editor';
     XDialogModule,
     XButtonComponent,
     XLoadingComponent,
-    XSwitchComponent,
-    EditorComponent
+    XSwitchComponent
   ],
   templateUrl: './model.html',
   styleUrl: './model.scss'

@@ -1,4 +1,4 @@
-@use '../../../../../node_modules/@ng-nest/ui/style//params/index.scss' as *;
+@use '../../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
 
 :host {
   .sub-title {
@@ -20,23 +20,32 @@
     }
   }
   .empty {
+    padding: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
   }
 
-  .manufacturer {
-    padding: 1rem;
-  }
-
   .models {
-    padding: 1rem;
+    padding: 0 1rem 1rem 1rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     overflow-y: auto;
-    max-height: calc(100vh - 7.25rem);
+    max-height: calc(100vh - 9.25rem);
+    position: relative;
+    .search {
+      padding: 1rem 0 0 0;
+      position: sticky;
+      top: 0;
+      background-color: $x-background;
+
+      x-input-group {
+        margin-top: 1rem;
+        width: 100%;
+      }
+    }
     .model {
       padding: 0.5rem 0.75rem;
       border: $x-border-base;
@@ -61,7 +70,7 @@
       .name {
         font-weight: 500;
       }
-      .url {
+      .code {
         color: $x-text-600;
       }
       .check {

@@ -67,6 +67,18 @@ export class ModelService {
     );
   }
 
+  getListByManufacturerAndNameOrCode(manufacturerId: number, nameOrCode: string): Observable<Model[]> {
+    return from(
+      (async () => {
+        return await this.db.models
+          .filter(
+            (x) => x.manufacturerId === manufacturerId && (x.name.includes(nameOrCode) || x.code.includes(nameOrCode))
+          )
+          .sortBy('createdAt');
+      })()
+    );
+  }
+
   getListByManufacturerId(manufacturerId: number): Observable<Model[]> {
     return from(
       (async () => {

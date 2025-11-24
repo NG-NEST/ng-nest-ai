@@ -1,0 +1,102 @@
+@use '../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
+
+:host {
+  .content {
+    gap: 0;
+  }
+  .close {
+    z-index: 1;
+  }
+  .search {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    x-input {
+      width: 100%;
+      border-bottom: $x-border-base;
+
+      ::ng-deep {
+        .x-input-frame {
+          padding: 1rem 3.5rem 1rem 3.25rem !important;
+          height: 3rem !important;
+          line-height: 3rem !important;
+        }
+      }
+    }
+    x-icon {
+      z-index: 1;
+      position: absolute;
+      left: 1rem;
+      font-size: 1.25rem;
+    }
+  }
+  .list {
+    display: flex;
+    .left {
+      padding: 1rem;
+      border-right: $x-border-base;
+      width: 14rem;
+    }
+    .right {
+      padding: 1rem;
+      flex: 1;
+    }
+  }
+  .node {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .model-node {
+    padding: 0.25rem 0;
+    color: $x-text;
+    display: block;
+
+    span {
+      line-height: 1.75;
+    }
+
+    .code,
+    .description {
+      font-size: $x-font-size-mini;
+      color: $x-text-600;
+    }
+    .code {
+      display: flex;
+      align-items: center;
+    }
+    .description {
+      margin-top: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      white-space: normal;
+      // 兼容性写法
+      display: box;
+      box-orient: vertical;
+    }
+  }
+
+  ::ng-deep {
+    .x-list-medium .x-list-option {
+      height: initial;
+      border: $x-border-base;
+      border-radius: $x-border-radius;
+      margin: 0.25rem;
+      padding: 0.25rem 1rem;
+      transition: all 0.3s;
+      &:hover:not(.x-selected) {
+        background-color: $x-primary-900;
+        border-color: $x-primary-700;
+      }
+      &.x-selected {
+        background-color: $x-primary-900;
+        border-color: $x-primary;
+      }
+    }
+  }
+}

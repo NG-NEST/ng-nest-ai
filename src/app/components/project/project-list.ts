@@ -24,7 +24,7 @@ export class ProjectList {
   router = inject(Router);
   data = signal<Project[]>([]);
   page = signal(1);
-  size = signal(20);
+  size = signal(10);
   toggle = signal(true);
   selectedItem = model<Project | null>(null);
   delete = output<number>();

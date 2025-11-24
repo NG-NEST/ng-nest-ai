@@ -14,7 +14,7 @@
     <div class="item required">
       <x-switch label="激活当前模型：" direction="row" formControlName="isActive" required></x-switch>
     </div>
-    <div class="item">
+    <!-- <div class="item">
       <x-switch label="输入转换：" direction="row" formControlName="inputTranslation"></x-switch>
     </div>
     @if (this.form.get('inputTranslation')?.value) {
@@ -47,7 +47,7 @@
           formControlName="outputFunction"
         ></app-editor>
       </div>
-    }
+    } -->
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {

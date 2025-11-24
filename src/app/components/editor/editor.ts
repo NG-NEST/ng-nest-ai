@@ -5,6 +5,7 @@ import {
   ElementRef,
   OnDestroy,
   Renderer2,
+  booleanAttribute,
   computed,
   effect,
   forwardRef,
@@ -39,6 +40,8 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   theme = input<string>('vs');
   options = input<editor.IStandaloneEditorConstructionOptions>({});
   disabled = input<boolean>(false);
+  label = input<string>('');
+  required = input({ transform: booleanAttribute });
 
   document = inject(DOCUMENT);
   renderer = inject(Renderer2);
@@ -181,7 +184,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
       theme: this.theme(),
       automaticLayout: true,
       tabSize: 2,
-      suggestOnTriggerCharacters: true, // ÆôÓÃ´úÂë²¹È«
+      suggestOnTriggerCharacters: true, // ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ë²¹È«
       ...this.options()
     });
 

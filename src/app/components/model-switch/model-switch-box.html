@@ -69,7 +69,7 @@
                   (click)="onCopy($event, node)"
                 ></x-button>
               </div>
-              <span class="description">{{ node.description }}</span>
+              <span class="description" [attr.title]="node.description">{{ node.description }}</span>
             </div>
           </ng-template>
         }

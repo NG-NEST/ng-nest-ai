@@ -3,16 +3,18 @@ import { Observable, Subject, from } from 'rxjs';
 import { AppDataBaseService } from './database.service';
 import { DexieDatabase } from './dexie.db';
 import { PaginationResult } from './type.interface';
+import { Prompt } from './prompt.service';
 
 export interface Session {
   id?: number;
   title: string;
   projectId?: number;
+  promptId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export const SessionTable = '++id, title, projectId,  createdAt, updatedAt';
+export const SessionTable = '++id, title, projectId, promptId, createdAt, updatedAt';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {

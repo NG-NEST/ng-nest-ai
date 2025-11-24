@@ -17,20 +17,24 @@
         (submit)="onSubmit()"
       ></x-sender>
       <ng-template #footerTpl>
-        <div class="sender-footer">
-          <x-button
-            [text]="!deepThinking()"
-            [plain]="deepThinking()"
-            [flat]="deepThinking()"
-            (click)="onDeepThinking()"
-            size="small"
-          >
-            深度思考
-            @if (deepThinking()) {
-              <x-icon class="checked" type="fto-check"></x-icon>
-            }
-          </x-button>
-        </div>
+        @if (data().length === 0 || (data().length > 0 && selectedPrompt())) {
+          <div class="sender-footer">
+            <x-button
+              [text]="!selectedPrompt()"
+              [plain]="selectedPrompt()"
+              [flat]="selectedPrompt()"
+              (click)="onTool()"
+              size="small"
+            >
+              @if (selectedPrompt()) {
+                <x-icon type="fto-user"></x-icon>
+                {{ selectedPrompt()?.name }}
+              } @else {
+                <x-icon type="fto-grid"></x-icon>
+              }
+            </x-button>
+          </div>
+        }
       </ng-template>
       <ng-template #suffixTpl>
         <div class="buttons">

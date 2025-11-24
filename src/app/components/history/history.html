@@ -1,10 +1,13 @@
-<div class="title" (click)="onToggle()">
-  聊天
-  @if (!toggle()) {
-    <x-icon type="fto-chevron-right"></x-icon>
-  } @else {
-    <x-icon type="fto-chevron-down"></x-icon>
-  }
+<div class="title">
+  <span class="toggle" (click)="onToggle()">
+    聊天
+    @if (!toggle()) {
+      <x-icon type="fto-chevron-right"></x-icon>
+    } @else {
+      <x-icon type="fto-chevron-down"></x-icon>
+    }
+  </span>
+  <span class="more" (click)="onMore()">更多</span>
 </div>
 @if (toggle()) {
   <div class="list">

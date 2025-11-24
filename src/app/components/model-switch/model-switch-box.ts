@@ -18,7 +18,6 @@ import {
 } from '@ng-nest/ui';
 import { Manufacturer, ManufacturerService, Model, ModelService, SessionService } from '@ui/core';
 import {
-  catchError,
   debounceTime,
   delay,
   distinctUntilChanged,
@@ -28,7 +27,6 @@ import {
   of,
   Subject,
   switchMap,
-  take,
   takeUntil,
   tap
 } from 'rxjs';
@@ -109,6 +107,7 @@ export class ModelSwitchBoxComponent {
               })
             );
           } else {
+            this.keywordText.set('');
             this.getRelationData();
           }
           return of([]);

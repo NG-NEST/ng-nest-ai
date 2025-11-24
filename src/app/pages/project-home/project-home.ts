@@ -114,7 +114,7 @@ export class ProjectHome {
     this.formGroup.disable();
 
     this.sendSubscription = this.openAIService
-      .send(content, this.data(), this.projectId()!)
+      .send({ content, data: this.data(), projectId: this.projectId()! })
       .pipe(
         finalize(() => {
           this.loading.set(false);

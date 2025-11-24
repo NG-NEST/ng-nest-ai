@@ -41,10 +41,6 @@ const createBrowserWindow = () => {
         slashes: true
       });
 
-  if (isDev) {
-    win.webContents.openDevTools({ mode: 'detach' });
-  }
-
   win.loadURL(appPath);
 
   win.on('closed', async () => {

@@ -8,9 +8,16 @@
     <app-model-switch></app-model-switch>
   </div>
   <div class="tools">
-    <x-button (click)="switchDevTools()" size="small" text>切换开发人员工具</x-button>
-    <x-button size="small" title="刷新" text icon="fto-refresh-ccw" (click)="refresh()"></x-button>
-    <x-button size="small" title="设置" text icon="fto-settings" (click)="settings()"></x-button>
+    <x-button size="small" x-popover content="刷新" text icon="fto-refresh-ccw" (click)="refresh()"></x-button>
+    <x-button
+      size="small"
+      x-popover
+      content="切换开发人员工具"
+      text
+      icon="fto-code"
+      (click)="switchDevTools()"
+    ></x-button>
+    <x-button size="small" x-popover content="设置" text icon="fto-settings" (click)="settings()"></x-button>
     &nbsp;
     <x-button (click)="minimize()" title="最小化" text icon="icon:win-minimize"></x-button>
     @if (isMaximized()) {

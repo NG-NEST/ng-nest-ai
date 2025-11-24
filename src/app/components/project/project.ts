@@ -47,13 +47,14 @@ export class Project {
 
   form: FormGroup<any> = this.fb.group({
     name: ['', [Validators.required]],
-    icon: ['fto-folder'],
-    iconColor: ['var(--x-text)']
+    icon: ['fto-box'],
+    iconColor: ['var(--x-text)'],
+    workspace: ['']
   });
 
   colors = signal(['var(--x-text)', '#fa423e', '#fb6a22', '#ffc300', '#04b84c', '#0285ff', '#924ff7', '#ff66ad']);
   icons = signal([
-    'fto-folder',
+    'fto-box',
     'fto-award',
     'fto-bold',
     'fto-anchor',
@@ -165,5 +166,12 @@ export class Project {
 
   setIcon(icon: string) {
     this.form.patchValue({ icon });
+  }
+
+  async selectDirectory() {
+    const workspace = await window.electronAPI.windowControls.selectDirectory();
+    if (workspace !== '') {
+      this.form.patchValue({ workspace });
+    }
   }
 }

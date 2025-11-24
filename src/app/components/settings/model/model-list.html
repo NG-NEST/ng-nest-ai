@@ -1,31 +1,48 @@
-<div class="sub-title">模型</div>
-<div class="manufacturer">
-  <x-select
-    [data]="manufacturerList()"
-    floatLabel="on"
-    label="服务商"
-    [(ngModel)]="manufacturerId"
-    (ngModelChange)="getData()"
-  ></x-select>
-</div>
-@if (modelList().length === 0) {
-  <div class="empty">
-    <x-empty></x-empty>
-    <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
-  </div>
-} @else {
-  <div class="models">
-    <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
-    @for (item of modelList(); track item.id) {
-      <div class="model" [class.checked]="item.isActive" (click)="updateModel(item)">
-        <div class="info">
-          <span class="name">{{ item.name }}</span>
-          <span class="url">{{ item.baseURL }}</span>
-        </div>
-        @if (item.isActive) {
-          <x-icon class="check" type="fto-check"></x-icon>
-        }
+<form [formGroup]="formGroup">
+  <div class="sub-title">模型</div>
+  @if (allModelList().length === 0) {
+    <div class="empty">
+      <x-empty></x-empty>
+      <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
+    </div>
+  } @else {
+    <div class="models">
+      <div class="search">
+        <x-select
+          [data]="manufacturerList()"
+          floatLabel="on"
+          label="服务商"
+          formControlName="manufacturerId"
+        ></x-select>
+        <x-input-group compact>
+          <x-input
+            #inputSearch
+            formControlName="value"
+            icon="fto-search"
+            iconLayout="left"
+            style="width: 100%"
+          ></x-input>
+          <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
+        </x-input-group>
       </div>
-    }
-  </div>
-}
+
+      @for (item of modelList(); track item.id) {
+        <div class="model" [class.checked]="item.isActive" (click)="updateModel(item)">
+          <div class="info">
+            <span class="name" x-keyword [text]="keywordText()" [caseSensitive]="false">{{ item.name }}</span>
+            <span class="code" x-keyword [text]="keywordText()" [caseSensitive]="false">{{ item.code }}</span>
+          </div>
+          @if (item.isActive) {
+            <x-icon class="check" type="fto-check"></x-icon>
+          }
+        </div>
+      }
+
+      @if (modelList().length === 0) {
+        <div class="empty">
+          <x-empty></x-empty>
+        </div>
+      }
+    </div>
+  }
+</form>

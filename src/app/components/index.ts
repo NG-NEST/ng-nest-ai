@@ -8,3 +8,5 @@ export * from './model-switch/model-switch-box';
 export * from './bubbles/bubbles';
 export * from './session/session';
 export * from './editor/editor';
+export * from './markdown/markdown.pipe';
+export * from './rule/rule';

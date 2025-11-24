@@ -1,0 +1,57 @@
+@use '../../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
+
+:host {
+  .content {
+    gap: 0;
+  }
+  .close {
+    z-index: 1;
+  }
+  .search {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    x-input {
+      width: 100%;
+      border-bottom: $x-border-base;
+
+      ::ng-deep {
+        .x-input-frame {
+          padding: 1rem 3.5rem 1rem 3.25rem !important;
+          height: 3rem !important;
+          line-height: 3rem !important;
+        }
+      }
+    }
+    x-icon {
+      z-index: 1;
+      position: absolute;
+      left: 1rem;
+      font-size: 1.25rem;
+    }
+  }
+  .list {
+    padding: 1rem;
+  }
+  .node {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .name {
+      padding-right: 1rem;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      word-break: break-all;
+
+      // 兼容性处理
+      white-space: nowrap;
+      width: 0; // 解决flex布局下的省略号问题
+    }
+  }
+}

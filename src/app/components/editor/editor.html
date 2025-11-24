@@ -1,4 +1,5 @@
 <div class="header">
+  <label [class.required]="required()">{{ label() + required() }}</label>
   <x-button
     size="small"
     [title]="fullscreen() ? '取消全屏' : '全屏'"

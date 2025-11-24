@@ -7,11 +7,12 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { SessionComponent } from '../session/session';
 import { XDialogService } from '@ng-nest/ui/dialog';
-import { XRippleDirective } from '@ng-nest/ui';
+import { XLinkComponent, XRippleDirective } from '@ng-nest/ui';
+import { More } from './more/more';
 
 @Component({
   selector: 'app-history',
-  imports: [XIconComponent, XDropdownComponent, XRippleDirective],
+  imports: [XIconComponent, XDropdownComponent, XRippleDirective, XLinkComponent],
   templateUrl: './history.html',
   styleUrl: './history.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -24,7 +25,7 @@ export class History {
   router = inject(Router);
   data = signal<Session[]>([]);
   page = signal(1);
-  size = signal(20);
+  size = signal(10);
   count = signal(0);
   toggle = signal(true);
   selectedItem = model<Session | null>(null);
@@ -87,5 +88,12 @@ export class History {
   itemClick(item: Session) {
     this.selectedItem.set(item);
     this.router.navigate(['/coversation'], { queryParams: { sessionId: item.id } });
+  }
+
+  onMore() {
+    this.dialogService.create(More, {
+      className: 'app-no-padding-dialog',
+      width: '40rem'
+    });
   }
 }

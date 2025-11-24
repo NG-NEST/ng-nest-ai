@@ -1,4 +1,4 @@
-<x-bubbles #bubbles>
+<x-bubbles #bubbles class="app-markdown">
   @for (item of data(); track item.id) {
     @if (item.role === 'assistant') {
       <x-bubble

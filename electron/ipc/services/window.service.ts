@@ -1,5 +1,5 @@
 // electron/ipc/services/window.service.ts
-import { BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron';
+import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -14,6 +14,7 @@ export interface IWindowService {
   reloadPage(): void;
   destroy(): void;
   previewHtml(html: string): void;
+  selectDirectory(): string;
 }
 
 export class WindowService implements IWindowService {
@@ -111,6 +112,14 @@ export class WindowService implements IWindowService {
     });
   }
 
+  selectDirectory(): string {
+    const result = dialog.showOpenDialogSync({
+      properties: ['openDirectory', 'showHiddenFiles']
+    });
+
+    return result ? result[0] : '';
+  }
+
   // 注册 IPC 处理程序
   private registerIpcHandlers(): void {
     const handlers = new Map<string, Function>([
@@ -121,7 +130,8 @@ export class WindowService implements IWindowService {
       [`ipc:window:close`, () => this.close()],
       [`ipc:window:switchDevTools`, () => this.switchDevTools()],
       [`ipc:window:reloadPage`, () => this.reloadPage()],
-      [`ipc:window:previewHtml`, (_event: IpcMainInvokeEvent, html: string) => this.previewHtml(html)]
+      [`ipc:window:previewHtml`, (_event: IpcMainInvokeEvent, html: string) => this.previewHtml(html)],
+      [`ipc:window:selectDirectory`, () => this.selectDirectory()]
     ]);
 
     handlers.forEach((handler, eventName) => {

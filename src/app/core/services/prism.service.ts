@@ -3,6 +3,13 @@ import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { XIsArray } from '@ng-nest/ui';
 import { XIsString } from '@ng-nest/ui/core';
 import { of } from 'rxjs';
+import * as prettier from 'prettier/standalone';
+import * as prettierBabel from 'prettier/plugins/babel';
+import * as prettierEstree from 'prettier/plugins/estree';
+import * as prettierHtml from 'prettier/plugins/html';
+import * as prettierCss from 'prettier/plugins/postcss';
+import * as prettierTypescript from 'prettier/plugins/typescript';
+import { Options } from 'prettier';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +44,7 @@ export class AppPrismService {
     jsx: () => import('prismjs/components/prism-javascript.js?esm' as any),
     tsx: () => import('prismjs/components/prism-typescript.js?esm' as any),
     csharp: () => import('prismjs/components/prism-csharp.js?esm' as any),
-    c: () => import('prismjs/components/prism-c.js?esm' as any),
-
+    c: () => import('prismjs/components/prism-c.js?esm' as any)
   };
 
   init() {
@@ -125,10 +131,11 @@ export class AppPrismService {
       }
     } else if (Prism.languages[language]) {
       this.loadedLanguages.add(language);
-    } else {
-      // 对于未预定义的语言，可以选择忽略或使用动态导入（带 @vite-ignore）
-      console.warn(`Unsupported language: ${language}`);
     }
+    //else {
+    // 对于未预定义的语言，可以选择忽略或使用动态导入（带 @vite-ignore）
+    // console.warn(`Unsupported language: ${language}`);
+    //}
   }
 
   highlight(code: string, language: string): string {
@@ -137,52 +144,6 @@ export class AppPrismService {
       return Prism.highlight(code, Prism.languages[language], language);
     }
     return code;
-  }
-
-  /**
-   * 处理包含代码块的 Markdown 文本
-   * 使用正则表达式提取并高亮代码块
-   */
-  async processMarkdownWithCode(markdown: string): Promise<string> {
-    // 代码块匹配正则表达式
-    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-
-    // 检查是否存在代码块
-    const hasCodeBlocks = codeBlockRegex.test(markdown);
-
-    // 如果没有代码块，直接返回原始 Markdown
-    if (!hasCodeBlocks) {
-      return markdown;
-    }
-
-    // 重置 lastIndex 以准备第二次匹配
-    codeBlockRegex.lastIndex = 0;
-
-    // 收集所有需要的语言
-    const languagePromises: Promise<void>[] = [];
-    let match;
-
-    // 第一次遍历：收集需要加载的语言
-    while ((match = codeBlockRegex.exec(markdown)) !== null) {
-      const language = match[1] || 'markup';
-      languagePromises.push(this.loadLanguage(language));
-    }
-
-    // 等待所有语言加载完成
-    await Promise.all(languagePromises);
-
-    // 加载 Prism 核心库
-    await this.loadPrism();
-
-    // 第二次遍历：替换代码块为高亮后的 HTML
-    const processedMarkdown = markdown.replace(codeBlockRegex, (match, language, code) => {
-      const lang = language || 'markup';
-      const trimmedCode = code.trim();
-      const highlightedCode = this.highlight(trimmedCode, lang);
-      return `<pre class="language-${lang}"><code class="language-${lang}">${highlightedCode}</code></pre>`;
-    });
-
-    return processedMarkdown;
   }
 
   /**
@@ -206,10 +167,12 @@ export class AppPrismService {
 
     // 收集需要的语言
     const languagePromises: Promise<void>[] = [];
+    const matches: RegExpExecArray[] = [];
     let match;
 
-    // 第一次遍历：收集语言
+    // 第一次遍历：收集语言和匹配项
     while ((match = codeBlockRegex.exec(html)) !== null) {
+      matches.push(match);
       const fullClass = match[1] || match[2] || '';
       const language = this.extractLanguageFromClass(fullClass) || 'markup';
       languagePromises.push(this.loadLanguage(language));
@@ -221,36 +184,97 @@ export class AppPrismService {
     // 加载 Prism 核心库
     await this.loadPrism();
 
-    // 替换代码块内容
-    const processedHtml = html.replace(codeBlockRegex, (match, preClass, codeClass, codeContent) => {
+    // 创建新的 HTML 内容
+    let processedHtml = html;
+
+    // 逐个处理每个代码块
+    for (const match of matches) {
+      const [fullMatch, preClass, codeClass, codeContent] = match;
       const fullClass = preClass || codeClass || '';
       const language = this.extractLanguageFromClass(fullClass) || 'markup';
 
-      // 解码 HTML 实体（如果需要）
+      // 解码 HTML 实体
       const decodedCode = this.decodeHtmlEntities(codeContent);
-      const highlightedCode = this.highlight(decodedCode, language);
+
+      // 使用 Prettier 格式化代码
+      const formattedCode = await this.formatWithPrettier(decodedCode, language);
+
+      // 使用 Prism 高亮格式化后的代码
+      const highlightedCode = this.highlight(formattedCode, language);
 
       const langClass = `language-${language}`;
       const buttons = [
-        `<button class="button copy-text" data-copy-text="${this.escapeQuotes(decodedCode)}">复制</button>`
+        `<button class="button copy-text" data-copy-text="${this.escapeQuotes(formattedCode)}">复制</button>`
       ];
       if (language === 'html') {
         buttons.unshift(
-          `<button class="button preview-html" data-preview-html="${this.escapeQuotes(decodedCode)}">预览</button>`
+          `<button class="button preview-html" data-preview-html="${this.escapeQuotes(formattedCode)}">预览</button>`
         );
       }
 
-      return `
-        <div class="code-block-wrapper">
-          <pre class="${langClass}"><code class="${langClass}">${highlightedCode}</code></pre>
-          <div class="code-block-actions">
-            ${buttons.join('')}
-          </div>
+      const replacement = `
+      <div class="code-block-wrapper">
+        <pre class="${langClass}"><code class="${langClass}">${highlightedCode}</code></pre>
+        <div class="code-block-actions">
+          ${buttons.join('')}
         </div>
-      `;
-    });
+      </div>
+    `;
+
+      // 替换当前匹配项
+      processedHtml = processedHtml.replace(fullMatch, replacement);
+    }
 
     return processedHtml;
+  }
+
+  /**
+   * 使用 Prettier 格式化代码
+   */
+  private async formatWithPrettier(code: string, language: string): Promise<string> {
+    try {
+      // 根据语言确定 Prettier 配置
+      const options: Options = {
+        parser: this.getPrettierParser(language)!,
+        plugins: [prettierBabel, prettierEstree as any, prettierHtml, prettierCss, prettierTypescript],
+        printWidth: 80,
+        tabWidth: 2,
+        useTabs: false,
+        semi: true,
+        singleQuote: true,
+        trailingComma: 'none'
+      };
+
+      // 如果无法识别语言，则不格式化
+      if (!options.parser) {
+        return code;
+      }
+
+      // 执行格式化
+      return await prettier.format(code, options);
+    } catch (error) {
+      // 如果格式化失败，返回原始代码
+      // console.warn(`Prettier formatting failed for language ${language}:`, error);
+      return code;
+    }
+  }
+
+  /**
+   * 根据语言映射到 Prettier 解析器
+   */
+  private getPrettierParser(language: string): string | null {
+    const parserMap: Record<string, string> = {
+      javascript: 'babel',
+      typescript: 'typescript',
+      html: 'html',
+      css: 'css',
+      scss: 'css',
+      json: 'json',
+      jsx: 'babel',
+      tsx: 'typescript'
+    };
+
+    return parserMap[language] || null;
   }
 
   /**

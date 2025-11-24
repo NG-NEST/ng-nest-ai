@@ -16,7 +16,7 @@ import {
 import { AppMenus } from '../app-menus';
 import { XIconComponent } from '@ng-nest/ui/icon';
 import { merge } from 'rxjs';
-import { XRippleDirective } from '@ng-nest/ui';
+import { XPopoverDirective, XRippleDirective } from '@ng-nest/ui';
 
 // 扩展全局 Window 接口以包含你的 API
 declare global {
@@ -33,6 +33,7 @@ declare global {
     XIconComponent,
     XScrollableComponent,
     XRippleDirective,
+    XPopoverDirective,
     ModelSwitchComponent,
     ProjectList,
     History

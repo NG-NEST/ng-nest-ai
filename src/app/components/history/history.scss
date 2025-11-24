@@ -1,4 +1,4 @@
-@use '../../../../node_modules/@ng-nest/ui/style//params/index.scss' as *;
+@use '../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
 
 :host {
   padding: 0 0.5rem;
@@ -7,6 +7,18 @@
     padding: 0.125rem 0.5rem;
     color: $x-text-600;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    .toggle {
+      cursor: pointer;
+      flex: 1;
+    }
+    .more {
+      display: none;
+      &:hover {
+        color: $x-primary;
+      }
+    }
     x-icon {
       font-size: 1rem;
     }
@@ -15,6 +27,9 @@
     }
     &:hover {
       .fto-chevron-down {
+        display: initial;
+      }
+      .more {
         display: initial;
       }
     }

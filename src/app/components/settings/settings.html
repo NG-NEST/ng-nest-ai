@@ -5,19 +5,23 @@
       <h4 class="title">设置</h4>
       <ul>
         @for (menu of menus; track menu) {
-          <li [class.selected]="selectedIndex() === $index" (click)="selectMenu($index)">
+          <li [class.selected]="selectedMenuId() === menu.id" (click)="selectMenu(menu)">
             <x-icon [type]="menu.icon"></x-icon> {{ menu.label }}
           </li>
         }
       </ul>
     </div>
     <div class="right">
-      @if (selectedIndex() === 0) {
+      @if (selectedMenuId() === 'manufacturer') {
         <app-manufacturer-list></app-manufacturer-list>
-      } @else if (selectedIndex() === 1) {
+      } @else if (selectedMenuId() === 'model') {
         <app-model-list></app-model-list>
-      } @else if (selectedIndex() === 2) {
+      } @else if (selectedMenuId() === 'theme') {
         <app-theme></app-theme>
+      } @else if (selectedMenuId() === 'prompt') {
+        <app-prompt-list></app-prompt-list>
+      } @else if (selectedMenuId() === 'about') {
+        <app-about></app-about>
       }
     </div>
   </div>

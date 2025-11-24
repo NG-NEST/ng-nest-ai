@@ -6,6 +6,7 @@ import {
   MessageService,
   Model,
   ModelService,
+  Prompt,
   SessionService
 } from '../indexedDB';
 import { XMessageService } from '@ng-nest/ui/message';
@@ -25,6 +26,13 @@ export interface ChatMessage {
 export interface ChatCompletionOptions {
   model: string;
   messages: ChatMessage[];
+}
+
+export interface ChatSendParams {
+  content: string;
+  data?: ChatMessage[];
+  projectId?: number | null;
+  prompt?: Prompt;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -77,21 +85,44 @@ export class AppOpenAIService {
     this.messageService.create(userMessage).subscribe();
   }
 
-  send(content: string, data: ChatMessage[] = [], projectId: number | null = null) {
+  private saveSystemMessage(sessionId: number, content: string, manufacturerId: number, modelId: number) {
+    const systemMessage: Omit<Message, 'id' | 'createdAt'> = {
+      sessionId: sessionId,
+      manufacturerId: manufacturerId,
+      modelId: modelId,
+      role: 'system',
+      content: content
+    };
+
+    this.messageService.create(systemMessage).subscribe();
+  }
+
+  send(params: ChatSendParams) {
     return new Observable((sub) => {
+      let { content, data, projectId, prompt } = params;
       if (!content) return;
+      data = data ?? [];
+      projectId = projectId ?? null;
       if (!this.verify()) return;
 
       const manufacturerId = this.activeManufacturer()?.id;
       const modelId = this.activeModel()?.id;
       const modelCode = this.activeModel()?.code;
-      const newSession = data.length === 0;
+      const newSession = data?.length === 0;
       let sessionId = newSession ? null : data[0].sessionId;
 
       if (sessionId) {
         data.map((item) => {
           item.typing = false;
           return item;
+        });
+      }
+
+      if (prompt) {
+        data.push({
+          id: v4(),
+          role: 'system',
+          content: prompt.content
         });
       }
 
@@ -105,14 +136,22 @@ export class AppOpenAIService {
       );
 
       if (newSession) {
-        this.sessionService.create({ title: content!.substring(0, 50), projectId: projectId! }).subscribe((id) => {
-          sessionId = id;
-          data.map((item) => {
-            item.sessionId = id;
+        this.sessionService
+          .create({ title: content!.substring(0, 50), projectId: projectId!, promptId: prompt?.id })
+          .subscribe((id) => {
+            sessionId = id;
+            data.map((item) => {
+              item.sessionId = id;
+            });
+            if (prompt) {
+              this.saveSystemMessage(id, prompt.content!, manufacturerId!, modelId!);
+            }
+            this.saveUserMessage(id, content!, manufacturerId!, modelId!);
           });
-          this.saveUserMessage(id, content!, manufacturerId!, modelId!);
-        });
       } else {
+        if (prompt) {
+          this.saveSystemMessage(sessionId!, prompt.content!, manufacturerId!, modelId!);
+        }
         this.saveUserMessage(sessionId!, content!, manufacturerId!, modelId!);
       }
 
@@ -122,6 +161,8 @@ export class AppOpenAIService {
           role: item.role,
           content: item.content
         }));
+
+      console.log(messages);
 
       let aiContent = '';
       let aiReasoningContent = '';

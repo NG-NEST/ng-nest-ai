@@ -11,6 +11,7 @@ interface WindowControls {
   switchDevTools: () => Promise<void>;
   reloadPage: () => Promise<void>;
   previewHtml: (html: string) => Promise<void>;
+  selectDirectory: () => Promise<string>;
 }
 const windowControls: WindowControls = {
   isMaximized: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isMaximized'),
@@ -20,7 +21,8 @@ const windowControls: WindowControls = {
   close: (): Promise<void> => ipcRenderer.invoke('ipc:window:close'),
   switchDevTools: (): Promise<void> => ipcRenderer.invoke('ipc:window:switchDevTools'),
   reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
-  previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html)
+  previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html),
+  selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory')
 };
 
 // openai
