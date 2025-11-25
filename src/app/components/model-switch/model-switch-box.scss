@@ -38,13 +38,13 @@
       border-right: $x-border-base;
       width: 14rem;
       overflow: auto;
-      max-height: calc(100vh - 3.125rem);
+      max-height: calc(100vh - 12rem);
     }
     .right {
       padding: 1rem;
       flex: 1;
       overflow: auto;
-      max-height: calc(100vh - 3.125rem);
+      max-height: calc(100vh - 12rem);
     }
   }
   .node {

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { ChatCompletionMessageParam } from 'openai/resources';
+import type { Chat } from 'openai/resources';
 
 // window controls
 interface WindowControls {
@@ -29,10 +29,7 @@ const windowControls: WindowControls = {
 interface OpenAI {
   initialize: (param: { apiKey: string; baseURL: string }) => Promise<void>;
   chatCompletionStream: (
-    options: {
-      model: string;
-      messages: ChatCompletionMessageParam[];
-    },
+    options: Chat.Completions.ChatCompletionCreateParamsStreaming,
     onData: (data: any) => void,
     onDone: () => void,
     onError: (error: any) => void
@@ -41,10 +38,7 @@ interface OpenAI {
 const openAI: OpenAI = {
   initialize: (param: { apiKey: string; baseURL: string }) => ipcRenderer.invoke('ipc:openai:initialize', param),
   chatCompletionStream: (
-    options: {
-      model: string;
-      messages: ChatCompletionMessageParam[];
-    },
+    options: Chat.Completions.ChatCompletionCreateParamsStreaming,
     onData: (data: any) => void,
     onDone: () => void,
     onError: (error: any) => void

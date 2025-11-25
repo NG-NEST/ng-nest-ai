@@ -21,9 +21,16 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": ["prismjs"],
-            "assets": ["src/assets"],
+            "assets": [
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor/min/vs",
+                "output": "assets/monaco"
+              }
+            ],
             "styles": ["node_modules/monaco-editor/min/vs/editor/editor.main.css", "src/styles.scss"],
-            "scripts": ["node_modules/prismjs/prism.js"]
+            "scripts": ["node_modules/prismjs/prism.js", "node_modules/monaco-editor/min/vs/loader.js"]
           },
           "configurations": {
             "production": {

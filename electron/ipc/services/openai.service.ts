@@ -69,7 +69,7 @@ export class OpenAIService {
     // 注册流式聊天完成处理程序
     ipcMain.handle(
       'ipc:openai:chatCompletionStream',
-      async (event: IpcMainInvokeEvent, { model, messages, streamId }) => {
+      async (event: IpcMainInvokeEvent, { model, messages, streamId, ...options }) => {
         const abortController = new AbortController();
         const streamControl = { cancel: false, abortController };
         this.activeStreams.set(streamId, streamControl);
@@ -84,7 +84,8 @@ export class OpenAIService {
             {
               model,
               messages,
-              stream: true
+              stream: true,
+              ...options
             } as OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
             { signal: abortController.signal }
           )) as Stream<OpenAI.Chat.Completions.ChatCompletionChunk> & {

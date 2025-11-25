@@ -12,42 +12,49 @@
       <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
     </div>
     <div class="item required">
-      <x-switch label="激活当前模型：" direction="row" formControlName="isActive" required></x-switch>
+      <x-switch label="使用当前模型：" direction="row" formControlName="isActive" required></x-switch>
     </div>
-    <!-- <div class="item">
-      <x-switch label="输入转换：" direction="row" formControlName="inputTranslation"></x-switch>
+    <div class="item required">
+      <x-radio
+        label="调用方式："
+        [data]="['OpenAI', 'Http']"
+        direction="row"
+        formControlName="requestType"
+        required
+      ></x-radio>
     </div>
-    @if (this.form.get('inputTranslation')?.value) {
-      <div class="item">
-        <app-editor
-          class="editor"
-          [filename]="'.js'"
-          [style.height.rem]="8"
-          [style.width.%]="100"
-          [options]="{
-            minimap: { enabled: false }
-          }"
-          formControlName="inputFunction"
-        ></app-editor>
-      </div>
-    }
     <div class="item">
-      <x-switch label="输出转换：" direction="row" formControlName="outputTranslation"></x-switch>
+      <app-editor
+        class="editor"
+        [label]="inputLabelTpl"
+        [filename]="'.js'"
+        [style.height.rem]="8"
+        [style.width.%]="100"
+        [options]="{
+          minimap: { enabled: false }
+        }"
+        formControlName="inputFunction"
+      ></app-editor>
+      <ng-template #inputLabelTpl>
+        <span class="label">输入转换 InputFunction(input)</span>
+      </ng-template>
     </div>
-    @if (this.form.get('outputTranslation')?.value) {
-      <div class="item">
-        <app-editor
-          class="editor"
-          [filename]="'.js'"
-          [style.height.rem]="8"
-          [style.width.%]="100"
-          [options]="{
-            minimap: { enabled: false }
-          }"
-          formControlName="outputFunction"
-        ></app-editor>
-      </div>
-    } -->
+    <div class="item">
+      <app-editor
+        class="editor"
+        [label]="outputLabelTpl"
+        [filename]="'.js'"
+        [style.height.rem]="8"
+        [style.width.%]="100"
+        [options]="{
+          minimap: { enabled: false }
+        }"
+        formControlName="outputFunction"
+      ></app-editor>
+      <ng-template #outputLabelTpl>
+        <span class="label">输出转换 OutputFunction(input)</span>
+      </ng-template>
+    </div>
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {

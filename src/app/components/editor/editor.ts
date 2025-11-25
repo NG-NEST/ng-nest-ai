@@ -15,13 +15,16 @@ import {
   viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { XButtonComponent } from '@ng-nest/ui';
-import { editor } from 'monaco-editor';
+import { XButtonComponent, XOutletDirective, XTemplate } from '@ng-nest/ui';
+import type { editor } from 'monaco-editor';
 import { fromEvent, Subject, takeUntil } from 'rxjs';
+
+// 不再直接声明 monaco，而是动态加载
+// declare const monaco: any;
 
 @Component({
   selector: 'app-editor',
-  imports: [XButtonComponent],
+  imports: [XButtonComponent, XOutletDirective],
   templateUrl: './editor.html',
   styleUrls: ['./editor.scss'],
   host: {
@@ -40,8 +43,8 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   theme = input<string>('vs');
   options = input<editor.IStandaloneEditorConstructionOptions>({});
   disabled = input<boolean>(false);
-  label = input<string>('');
-  required = input({ transform: booleanAttribute });
+  label = input<XTemplate>('');
+  required = input<boolean>(false);
 
   document = inject(DOCUMENT);
   renderer = inject(Renderer2);
@@ -61,6 +64,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   private $destroy = new Subject<void>();
 
   private editor!: editor.IStandaloneCodeEditor;
+  private monacoInstance: any;
   private onChange: (value: string) => void = () => {};
   onTouched: () => void = () => {};
 
@@ -75,25 +79,28 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   }
 
   ngAfterViewInit(): void {
-    this.initializeEditor();
+    // 动态加载 monaco editor
+    this.loadMonaco().then(() => {
+      this.initializeEditor();
 
-    fromEvent<KeyboardEvent>(this.document.documentElement, 'keydown')
-      .pipe(takeUntil(this.$destroy))
-      .subscribe((event) => {
-        if (event.key === 'Escape' && this.fullscreen()) {
-          this.toggleFullscreen();
-        }
-      });
+      fromEvent<KeyboardEvent>(this.document.documentElement, 'keydown')
+        .pipe(takeUntil(this.$destroy))
+        .subscribe((event) => {
+          if (event.key === 'Escape' && this.fullscreen()) {
+            this.toggleFullscreen();
+          }
+        });
 
-    fromEvent(this.document.defaultView as Window, 'resize')
-      .pipe(takeUntil(this.$destroy))
-      .subscribe(() => {
-        if (this.fullscreen() && this.editor) {
-          setTimeout(() => {
-            this.editor.layout();
-          }, 100);
-        }
-      });
+      fromEvent(this.document.defaultView as Window, 'resize')
+        .pipe(takeUntil(this.$destroy))
+        .subscribe(() => {
+          if (this.fullscreen() && this.editor) {
+            setTimeout(() => {
+              this.editor.layout();
+            }, 100);
+          }
+        });
+    });
   }
 
   ngOnDestroy() {
@@ -136,11 +143,32 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
     }, 10);
   }
 
+  private loadMonaco(): Promise<any> {
+    return new Promise((resolve) => {
+      const requireFunc = (window as any).require;
+      if (requireFunc) {
+        requireFunc.config({
+          paths: {
+            vs: 'assets/monaco'
+          }
+        });
+
+        requireFunc(['vs/editor/editor.main'], () => {
+          this.monacoInstance = (window as any).monaco;
+          resolve(this.monacoInstance);
+        });
+      } else {
+        this.monacoInstance = (window as any).monaco;
+        resolve(this.monacoInstance);
+      }
+    });
+  }
+
   private updateEditorLanguage(language: string) {
-    if (this.editor) {
+    if (this.editor && this.monacoInstance) {
       const model = this.editor.getModel();
       if (model) {
-        editor.setModelLanguage(model, language);
+        this.monacoInstance.editor.setModelLanguage(model, language);
       }
     }
   }
@@ -177,14 +205,19 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   }
 
   private initializeEditor(): void {
-    this.editor = editor.create(this.editorRef().nativeElement, {
+    if (!this.monacoInstance) {
+      console.error('Monaco editor failed to load');
+      return;
+    }
+
+    this.editor = this.monacoInstance.editor.create(this.editorRef().nativeElement, {
       value: this.value,
       readOnly: this.disabled(),
       language: this.language(),
       theme: this.theme(),
       automaticLayout: true,
       tabSize: 2,
-      suggestOnTriggerCharacters: true, // ���ô��벹ȫ
+      suggestOnTriggerCharacters: true,
       ...this.options()
     });
 

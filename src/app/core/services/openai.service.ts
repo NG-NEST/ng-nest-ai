@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, input, output, signal } from '@angular/core';
 import {
   Manufacturer,
   ManufacturerService,
@@ -12,6 +12,7 @@ import {
 import { XMessageService } from '@ng-nest/ui/message';
 import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
+import { ChatCompletionChunk } from 'openai/resources';
 
 export interface ChatMessage {
   id?: string | number;
@@ -34,6 +35,8 @@ export interface ChatSendParams {
   projectId?: number | null;
   prompt?: Prompt;
 }
+
+export type ChatDelta = ChatCompletionChunk.Choice.Delta & { reasoning_content?: string };
 
 @Injectable({ providedIn: 'root' })
 export class AppOpenAIService {
@@ -162,21 +165,23 @@ export class AppOpenAIService {
           content: item.content
         }));
 
-      console.log(messages);
-
       let aiContent = '';
       let aiReasoningContent = '';
       let completed = false;
 
+      const input = this.inputTranslation({ model: modelCode!, messages });
+
       const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
-        { model: modelCode, messages },
-        (msg: any) => {
+        input,
+        (msg: ChatCompletionChunk) => {
+          const output = this.outputTranslation(msg);
+
           // 接收流信息
-          if (msg.choices && msg.choices.length > 0) {
-            const delta = msg.choices[0].delta;
+          if (output.choices && output.choices.length > 0) {
+            const delta = output.choices[0].delta;
 
             if (delta) {
-              const { content, reasoning_content } = delta;
+              const { content, reasoning_content } = delta as ChatDelta;
               if (content) {
                 aiContent += delta.content;
                 const lastItemIndex = data.length - 1;
@@ -259,6 +264,36 @@ export class AppOpenAIService {
         }
       };
     });
+  }
+
+  private inputTranslation(input: ChatCompletionOptions) {
+    const inputFunction = this.activeModel()?.inputFunction;
+    if (inputFunction && inputFunction.trim() !== '') {
+      try {
+        const transformFunction = new Function('input', `${inputFunction}`);
+        return transformFunction(input);
+      } catch (error) {
+        console.error('Input transformation function error:', error);
+        return input;
+      }
+    } else {
+      return input;
+    }
+  }
+
+  private outputTranslation(output: ChatCompletionChunk): ChatCompletionChunk {
+    const outputFunction = this.activeModel()?.outputFunction;
+    if (outputFunction && outputFunction.trim() !== '') {
+      try {
+        const transformFunction = new Function('output', `${outputFunction}`);
+        return transformFunction(output);
+      } catch (error) {
+        console.error('Output transformation function error:', error);
+        return output;
+      }
+    } else {
+      return output;
+    }
   }
 
   private verify() {

@@ -10,9 +10,15 @@ import {
   XMessageBoxAction,
   XMessageBoxService,
   XMessageService,
+  XRadioComponent,
   XSwitchComponent,
-  XTextareaComponent
+  XTabComponent,
+  XTabsComponent,
+  XTextareaComponent,
+  XTableNoDataRow,
+  XCheckboxComponent
 } from '@ng-nest/ui';
+import { EditorComponent } from '@ui/components';
 import { ModelService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 @Component({
@@ -24,7 +30,9 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
     XDialogModule,
     XButtonComponent,
     XLoadingComponent,
-    XSwitchComponent
+    XSwitchComponent,
+    XRadioComponent,
+    EditorComponent
   ],
   templateUrl: './model.html',
   styleUrl: './model.scss'
@@ -47,10 +55,9 @@ export class ModelComponent {
     code: ['', [Validators.required]],
     description: [''],
     isActive: [false, [Validators.required]],
-    inputTranslation: [false],
-    inputFunction: [],
-    outputTranslation: [false],
-    outputFunction: []
+    requestType: ['OpenAI', [Validators.required]],
+    inputFunction: [''],
+    outputFunction: ['']
   });
 
   $destroy = new Subject<void>();

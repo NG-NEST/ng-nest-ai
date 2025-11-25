@@ -12,9 +12,14 @@ export interface Model {
   createdAt?: Date;
   updatedAt?: Date;
   isActive: boolean;
+  inputTranslation?: boolean;
+  inputFunction?: string;
+  outputTranslation?: boolean;
+  outputFunction?: string;
 }
 
-export const ModelTable = '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive';
+export const ModelTable =
+  '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive, inputTranslation, inputFunction, outputTranslation, outputFunction';
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

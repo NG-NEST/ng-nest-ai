@@ -160,11 +160,7 @@ input {
 
     .item {
       display: flex;
-      align-items: flex-start;
-
-      label {
-        line-height: 2.25rem;
-      }
+      align-items: center;
 
       &.required {
         label::before {
