@@ -1,6 +1,28 @@
 @use '../../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
 
 :host {
+  ::ng-deep {
+    .x-tabs-block.x-tabs-top > .x-tabs-contents {
+      background-color: transparent;
+    }
+  }
   .content {
+    gap: 0;
+  }
+  .editor-label {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .http {
+    flex-direction: column;
+    align-items: flex-start;
+    > * {
+      width: 100%;
+    }
+    x-tabs {
+      margin-top: 0.5rem;
+    }
   }
 }

@@ -12,6 +12,7 @@ interface WindowControls {
   reloadPage: () => Promise<void>;
   previewHtml: (html: string) => Promise<void>;
   selectDirectory: () => Promise<string>;
+  openExternal: (url: string) => Promise<void>;
 }
 const windowControls: WindowControls = {
   isMaximized: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isMaximized'),
@@ -22,7 +23,8 @@ const windowControls: WindowControls = {
   switchDevTools: (): Promise<void> => ipcRenderer.invoke('ipc:window:switchDevTools'),
   reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
   previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html),
-  selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory')
+  selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory'),
+  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('ipc:window:openExternal', url)
 };
 
 // openai
@@ -88,12 +90,30 @@ const openAI: OpenAI = {
   }
 };
 
+// http
+interface Http {
+  get: (url: string, options?: RequestInit) => Promise<any>;
+  post: (url: string, body: any, options?: RequestInit) => Promise<any>;
+  put: (url: string, body: any, options?: RequestInit) => Promise<any>;
+  delete: (url: string, options?: RequestInit) => Promise<any>;
+}
+const http: Http = {
+  get: (url: string, options?: RequestInit): Promise<any> => ipcRenderer.invoke('ipc:http:get', url, options),
+  post: (url: string, body: any, options?: RequestInit): Promise<any> =>
+    ipcRenderer.invoke('ipc:http:post', url, body, options),
+  put: (url: string, body: any, options?: RequestInit): Promise<any> =>
+    ipcRenderer.invoke('ipc:http:put', url, body, options),
+  delete: (url: string, options?: RequestInit): Promise<any> => ipcRenderer.invoke('ipc:http:delete', url, options)
+};
+
 interface IElectronAPI {
   windowControls: WindowControls;
   openAI: OpenAI;
+  http: Http;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
   windowControls,
-  openAI
+  openAI,
+  http
 } as IElectronAPI);

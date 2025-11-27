@@ -127,7 +127,7 @@ export class ModelList {
 
   addModel() {
     this.dialogService.create(ModelComponent, {
-      width: '30rem',
+      width: '36rem',
       data: {
         saveSuccess: () => this.getData(),
         manufacturerId: this.formGroup.getRawValue().manufacturerId!
@@ -137,7 +137,7 @@ export class ModelList {
 
   updateModel(item: Model) {
     this.dialogService.create(ModelComponent, {
-      width: '30rem',
+      width: '36rem',
       data: {
         saveSuccess: () => this.getData(),
         id: item.id,

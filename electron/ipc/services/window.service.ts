@@ -1,5 +1,5 @@
 // electron/ipc/services/window.service.ts
-import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent } from 'electron';
+import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, shell } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -15,6 +15,7 @@ export interface IWindowService {
   destroy(): void;
   previewHtml(html: string): void;
   selectDirectory(): string;
+  openExternal(url: string): void;
 }
 
 export class WindowService implements IWindowService {
@@ -120,6 +121,14 @@ export class WindowService implements IWindowService {
     return result ? result[0] : '';
   }
 
+  openExternal(url: string): void {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      shell.openExternal(url);
+      return;
+    }
+    throw new Error('Invalid external URL');
+  }
+
   // 注册 IPC 处理程序
   private registerIpcHandlers(): void {
     const handlers = new Map<string, Function>([
@@ -131,7 +140,8 @@ export class WindowService implements IWindowService {
       [`ipc:window:switchDevTools`, () => this.switchDevTools()],
       [`ipc:window:reloadPage`, () => this.reloadPage()],
       [`ipc:window:previewHtml`, (_event: IpcMainInvokeEvent, html: string) => this.previewHtml(html)],
-      [`ipc:window:selectDirectory`, () => this.selectDirectory()]
+      [`ipc:window:selectDirectory`, () => this.selectDirectory()],
+      [`ipc:window:openExternal`, (_event: IpcMainInvokeEvent, url: string) => this.openExternal(url)]
     ]);
 
     handlers.forEach((handler, eventName) => {

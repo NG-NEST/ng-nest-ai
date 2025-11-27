@@ -3,10 +3,12 @@ import * as path from 'path';
 import * as url from 'url';
 import { WindowService } from './ipc/services/window.service';
 import { OpenAIService } from './ipc/services/openai.service';
+import { HttpService } from './ipc/services/http.service';
 
 let win: BrowserWindow | null = null;
 let windowService: WindowService | null = null;
 let openaiService: OpenAIService | null = null;
+let httpService: HttpService | null = null;
 
 const createBrowserWindow = () => {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -30,6 +32,7 @@ const createBrowserWindow = () => {
   // 创建并注册 IPC 处理程序
   windowService = new WindowService(() => win);
   openaiService = new OpenAIService();
+  httpService = new HttpService();
 
   // 判断是否是开发模式
   const isDev = process.env['NODE_ENV'] === 'development';
@@ -52,6 +55,10 @@ const createBrowserWindow = () => {
     if (openaiService) {
       openaiService.destroy();
       openaiService = null;
+    }
+    if (httpService) {
+      httpService.destroy();
+      httpService = null;
     }
     win = null;
   });

@@ -16,10 +16,21 @@ export interface Model {
   inputFunction?: string;
   outputTranslation?: boolean;
   outputFunction?: string;
+  method?: string;
+  url?: string;
+  headers?: Header[];
+}
+
+export interface Header {
+  id?: string;
+  enabled?: boolean;
+  key?: string;
+  value?: string;
+  description?: string;
 }
 
 export const ModelTable =
-  '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive, inputTranslation, inputFunction, outputTranslation, outputFunction';
+  '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive, inputTranslation, inputFunction, outputTranslation, outputFunction, method, url, headers';
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

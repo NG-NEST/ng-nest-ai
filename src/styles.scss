@@ -158,6 +158,17 @@ input {
       padding: 0;
     }
 
+    .list {
+      padding-top: 2rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+    }
+
     .item {
       display: flex;
       align-items: center;
@@ -202,18 +213,18 @@ input {
   }
 
   .attrs {
-    padding: 1.25rem 1rem;
-    gap: 1rem;
-
     .attrs-table {
       table {
         border: $x-border-base;
         border-collapse: collapse;
         width: 100%;
 
+        caption {
+        }
+
         thead {
           tr th {
-            padding: 0.5rem 0.75rem;
+            padding: 0.25rem 0.5rem;
             background-color: $x-background;
             text-align: left;
             white-space: nowrap;
@@ -247,6 +258,15 @@ input {
           }
           tr td {
             @include table-item-td();
+            &.button {
+              padding: 0.25rem 0.5rem;
+            }
+            .checkbox {
+              height: 1.75rem;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+            }
           }
         }
       }

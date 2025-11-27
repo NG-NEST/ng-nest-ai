@@ -58,7 +58,7 @@ export class Layout {
     return this.config.collapsed();
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.getProjectCount();
     this.getSeesionCount();
     merge(this.sessionService.added, this.sessionService.deleted).subscribe(() => {
@@ -67,6 +67,9 @@ export class Layout {
     merge(this.projectService.added, this.projectService.deleted).subscribe(() => {
       this.getProjectCount();
     });
+
+    const result = await window.electronAPI.http.get('https://ngnest.com/img/logo/logo-32x32.png');
+    console.log(result);
   }
 
   async ngAfterViewInit() {

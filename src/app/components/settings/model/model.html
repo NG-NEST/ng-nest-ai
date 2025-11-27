@@ -2,59 +2,201 @@
   <h4 x-dialog-title class="title">{{ id() ? '修改' : '新增' }}模型</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
-    <div class="item">
-      <x-input floatLabel="on" label="名称" formControlName="name" required></x-input>
-    </div>
-    <div class="item">
-      <x-input floatLabel="on" label="编码" formControlName="code" required></x-input>
-    </div>
-    <div class="item">
-      <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
-    </div>
-    <div class="item required">
-      <x-switch label="使用当前模型：" direction="row" formControlName="isActive" required></x-switch>
-    </div>
-    <div class="item required">
-      <x-radio
-        label="调用方式："
-        [data]="['OpenAI', 'Http']"
-        direction="row"
-        formControlName="requestType"
-        required
-      ></x-radio>
-    </div>
-    <div class="item">
-      <app-editor
-        class="editor"
-        [label]="inputLabelTpl"
-        [filename]="'.js'"
-        [style.height.rem]="8"
-        [style.width.%]="100"
-        [options]="{
-          minimap: { enabled: false }
-        }"
-        formControlName="inputFunction"
-      ></app-editor>
-      <ng-template #inputLabelTpl>
-        <span class="label">输入转换 InputFunction(input)</span>
-      </ng-template>
-    </div>
-    <div class="item">
-      <app-editor
-        class="editor"
-        [label]="outputLabelTpl"
-        [filename]="'.js'"
-        [style.height.rem]="8"
-        [style.width.%]="100"
-        [options]="{
-          minimap: { enabled: false }
-        }"
-        formControlName="outputFunction"
-      ></app-editor>
-      <ng-template #outputLabelTpl>
-        <span class="label">输出转换 OutputFunction(input)</span>
-      </ng-template>
-    </div>
+    <x-slider [data]="['基本信息', '请求方式']" [(activatedIndex)]="sliderBase"> </x-slider>
+    @if (sliderBase() === 0) {
+      <div class="list">
+        <div class="item">
+          <x-input floatLabel="on" label="名称" formControlName="name" required></x-input>
+        </div>
+        <div class="item">
+          <x-input floatLabel="on" label="编码" formControlName="code" required></x-input>
+        </div>
+        <div class="item">
+          <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
+        </div>
+        <div class="item required">
+          <x-switch label="使用当前模型：" direction="row" formControlName="isActive" required></x-switch>
+        </div>
+      </div>
+    } @else if (sliderBase() === 1) {
+      <div class="list">
+        <div class="item required">
+          <x-radio
+            label="请求方式："
+            [data]="['OpenAI', 'Http']"
+            direction="row"
+            formControlName="requestType"
+            required
+          ></x-radio>
+        </div>
+        @if (form.get('requestType')?.value === 'OpenAI') {
+          <div class="column">
+            <x-slider
+              [style.marginBottom]="'0.25rem'"
+              [data]="['输入转换', '输出转换']"
+              size="mini"
+              [(activatedIndex)]="sliderFunction"
+            >
+            </x-slider>
+            @if (sliderFunction() === 0) {
+              <ng-container *ngTemplateOutlet="inputTpl; context: { helpType: 'input' }"></ng-container>
+            } @else if (sliderFunction() === 1) {
+              <ng-container *ngTemplateOutlet="outputTpl; context: { helpType: 'output' }"></ng-container>
+            }
+          </div>
+        } @else if (form.get('requestType')?.value === 'Http') {
+          <div class="item http attrs">
+            <x-input-group compact>
+              <x-select
+                style="flex: initial; width: 6rem"
+                [data]="['POST']"
+                clearable="false"
+                formControlName="method"
+              ></x-select>
+              <x-input floatLabel="on" label="请求地址" formControlName="url"></x-input>
+            </x-input-group>
+            <x-slider
+              [style.margin]="'2rem 0 0.25rem 0'"
+              size="mini"
+              [data]="['Headers', 'Body', '输入转换', '输出转换']"
+              [(activatedIndex)]="sliderHttp"
+            >
+            </x-slider>
+            @if (sliderHttp() === 0) {
+              <div class="attrs-table" formArrayName="headers">
+                <table>
+                  <thead>
+                    <tr>
+                      <th width="40"></th>
+                      <th>Key</th>
+                      <th>Value</th>
+                      <th width="35">
+                        <x-button size="mini" attrType="button" icon="fto-plus" flat plain (click)="add()"></x-button>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (control of headers.controls; track control) {
+                      <tr [formGroupName]="$index">
+                        <td class="button">
+                          <x-checkbox class="checkbox" [data]="['']" formControlName="enabled" single></x-checkbox>
+                        </td>
+                        <td>
+                          <x-input formControlName="key"></x-input>
+                        </td>
+                        <td>
+                          <x-input formControlName="value"></x-input>
+                        </td>
+                        <td class="button">
+                          <x-button
+                            icon="fto-trash-2"
+                            attrType="button"
+                            size="mini"
+                            flat
+                            plain
+                            (click)="remove($index)"
+                          >
+                          </x-button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else if (sliderHttp() === 1) {
+              <div [style.height.rem]="16">
+                <app-editor
+                  class="editor"
+                  [label]="bodyLabelTpl"
+                  [filename]="'.json'"
+                  [style.height.rem]="16"
+                  [style.width.%]="100"
+                  [options]="{
+                    minimap: { enabled: false }
+                  }"
+                  formControlName="body"
+                ></app-editor>
+                <ng-template #bodyLabelTpl>
+                  <div class="editor-label">
+                    <span>Body（json）</span>
+                    <x-button
+                      size="small"
+                      text
+                      class="help"
+                      icon="fto-help-circle"
+                      [title]="'帮助'"
+                      (click)="onHelp('body')"
+                    ></x-button>
+                  </div>
+                </ng-template>
+              </div>
+            } @else if (sliderHttp() === 2) {
+              <ng-container *ngTemplateOutlet="inputTpl; context: { helpType: 'http-input' }"></ng-container>
+            } @else if (sliderHttp() === 3) {
+              <ng-container *ngTemplateOutlet="outputTpl; context: { helpType: 'http-output' }"></ng-container>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <ng-template #inputTpl let-helpType="helpType">
+      <div class="item">
+        <app-editor
+          class="editor"
+          [label]="inputLabelTpl"
+          [filename]="'.js'"
+          [style.height.rem]="16"
+          [style.width.%]="100"
+          [options]="{
+            minimap: { enabled: false }
+          }"
+          formControlName="inputFunction"
+        ></app-editor>
+        <ng-template #inputLabelTpl>
+          <div class="editor-label">
+            <span>InputFunction(input) </span>
+            <x-button
+              size="small"
+              text
+              class="help"
+              icon="fto-help-circle"
+              [title]="'帮助'"
+              (click)="onHelp(helpType)"
+            ></x-button>
+          </div>
+        </ng-template>
+      </div>
+    </ng-template>
+
+    <ng-template #outputTpl let-helpType="helpType">
+      <div class="item">
+        <app-editor
+          class="editor"
+          [label]="outputLabelTpl"
+          [filename]="'.js'"
+          [style.height.rem]="16"
+          [style.width.%]="100"
+          [options]="{
+            minimap: { enabled: false }
+          }"
+          formControlName="outputFunction"
+        ></app-editor>
+        <ng-template #outputLabelTpl>
+          <div class="editor-label">
+            <span>OutputFunction(output) </span>
+            <x-button
+              size="small"
+              text
+              class="help"
+              icon="fto-help-circle"
+              [title]="'帮助'"
+              (click)="onHelp(helpType)"
+            ></x-button>
+          </div>
+        </ng-template>
+      </div>
+    </ng-template>
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {
