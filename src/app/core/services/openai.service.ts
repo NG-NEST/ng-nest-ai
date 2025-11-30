@@ -1,14 +1,5 @@
-import { inject, Injectable, input, output, signal } from '@angular/core';
-import {
-  Manufacturer,
-  ManufacturerService,
-  Message,
-  MessageService,
-  Model,
-  ModelService,
-  Prompt,
-  SessionService
-} from '../indexedDB';
+import { inject, Injectable } from '@angular/core';
+import { Manufacturer, Message, MessageService, Model, Prompt, SessionService } from '../indexedDB';
 import { XMessageService } from '@ng-nest/ui/message';
 import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
@@ -34,6 +25,9 @@ export interface ChatSendParams {
   data?: ChatMessage[];
   projectId?: number | null;
   prompt?: Prompt;
+
+  manufacturer?: Manufacturer;
+  model?: Model;
 }
 
 export type ChatDelta = ChatCompletionChunk.Choice.Delta & { reasoning_content?: string };
@@ -41,40 +35,8 @@ export type ChatDelta = ChatCompletionChunk.Choice.Delta & { reasoning_content?:
 @Injectable({ providedIn: 'root' })
 export class AppOpenAIService {
   message = inject(XMessageService);
-  manufacturerService = inject(ManufacturerService);
   sessionService = inject(SessionService);
   messageService = inject(MessageService);
-  modelService = inject(ModelService);
-  activeManufacturer = signal<Manufacturer | null>(null);
-  activeModel = signal<Model | null>(null);
-
-  constructor() {
-    this.manufacturerService.getActive().subscribe((x) => {
-      this.setActiveManufacturer(x!);
-    });
-    this.manufacturerService.activeChange.subscribe((x) => {
-      this.setActiveManufacturer(x!);
-    });
-    this.modelService.activeChange.subscribe((x) => {
-      if (!x) return;
-      if (x?.manufacturerId === this.activeManufacturer()?.id) {
-        this.activeModel.set(x);
-      }
-    });
-  }
-
-  private setActiveManufacturer(manufacturer: Manufacturer) {
-    if (!manufacturer) return;
-    this.activeManufacturer.set(manufacturer!);
-    this.modelService.getActive(manufacturer!.id!).subscribe((model) => {
-      if (!model) return;
-      this.activeModel.set(model!);
-    });
-
-    const { baseURL, apiKey } = manufacturer;
-
-    window.electronAPI.openAI.initialize({ baseURL, apiKey });
-  }
 
   private saveUserMessage(sessionId: number, content: string, manufacturerId: number, modelId: number) {
     const userMessage: Omit<Message, 'id' | 'createdAt'> = {
@@ -102,17 +64,18 @@ export class AppOpenAIService {
 
   send(params: ChatSendParams) {
     return new Observable((sub) => {
-      let { content, data, projectId, prompt } = params;
-      if (!content) return;
+      let { content, data, projectId, prompt, manufacturer, model } = params;
+      if (!content || !manufacturer || !model) return;
       data = data ?? [];
       projectId = projectId ?? null;
-      if (!this.verify()) return;
 
-      const manufacturerId = this.activeManufacturer()?.id;
-      const modelId = this.activeModel()?.id;
-      const modelCode = this.activeModel()?.code;
       const newSession = data?.length === 0;
       let sessionId = newSession ? null : data[0].sessionId;
+
+      const manufacturerId = manufacturer.id;
+      const modelId = model.id;
+      const modelCode = model.code;
+      const { inputFunction, outputFunction } = model;
 
       if (sessionId) {
         data.map((item) => {
@@ -169,12 +132,12 @@ export class AppOpenAIService {
       let aiReasoningContent = '';
       let completed = false;
 
-      const input = this.inputTranslation({ model: modelCode!, messages });
+      const input = this.inputTranslation({ model: modelCode!, messages }, inputFunction);
 
       const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
         input,
         (msg: ChatCompletionChunk) => {
-          const output = this.outputTranslation(msg);
+          const output = this.outputTranslation(msg, outputFunction);
 
           // 接收流信息
           if (output.choices && output.choices.length > 0) {
@@ -266,8 +229,7 @@ export class AppOpenAIService {
     });
   }
 
-  private inputTranslation(input: ChatCompletionOptions) {
-    const inputFunction = this.activeModel()?.inputFunction;
+  private inputTranslation(input: ChatCompletionOptions, inputFunction?: string) {
     if (inputFunction && inputFunction.trim() !== '') {
       try {
         const transformFunction = new Function('input', `${inputFunction}`);
@@ -281,8 +243,7 @@ export class AppOpenAIService {
     }
   }
 
-  private outputTranslation(output: ChatCompletionChunk): ChatCompletionChunk {
-    const outputFunction = this.activeModel()?.outputFunction;
+  private outputTranslation(output: ChatCompletionChunk, outputFunction?: string): ChatCompletionChunk {
     if (outputFunction && outputFunction.trim() !== '') {
       try {
         const transformFunction = new Function('output', `${outputFunction}`);
@@ -294,18 +255,5 @@ export class AppOpenAIService {
     } else {
       return output;
     }
-  }
-
-  private verify() {
-    if (this.activeManufacturer() === null) {
-      this.message.warning('请设置并激活一个服务商！');
-      return false;
-    }
-    if (this.activeModel() === null) {
-      this.message.warning('请设置并激活一个模型！');
-      return false;
-    }
-
-    return true;
   }
 }

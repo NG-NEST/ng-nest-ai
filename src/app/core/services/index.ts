@@ -4,3 +4,4 @@ export * from './theme.service';
 export * from './config.service';
 export * from './openai.service';
 export * from './prism.service';
+export * from './send.service';

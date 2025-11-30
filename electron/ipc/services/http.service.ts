@@ -61,8 +61,7 @@ export class HttpService {
           'Content-Type': 'application/json',
           ...options?.headers
         },
-        body: typeof body === 'string' ? body : JSON.stringify(body),
-        ...options
+        body: typeof body === 'string' ? body : JSON.stringify(body)
       });
 
       // 将 Headers 对象转换为普通对象
@@ -82,13 +81,7 @@ export class HttpService {
       return {
         status: error.cause?.code || 'FETCH_ERROR',
         statusText: error.message,
-        headers: {},
-        data: null,
-        error: {
-          message: error.message,
-          code: error.cause?.code || 'UNKNOWN_ERROR',
-          hostname: error.cause?.hostname || null
-        }
+        error
       };
     }
   }

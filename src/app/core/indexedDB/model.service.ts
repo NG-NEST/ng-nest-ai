@@ -16,9 +16,11 @@ export interface Model {
   inputFunction?: string;
   outputTranslation?: boolean;
   outputFunction?: string;
-  method?: string;
+  requestType?: 'OpenAI' | 'Http';
+  method?: 'POST';
   url?: string;
   headers?: Header[];
+  body?: string;
 }
 
 export interface Header {
@@ -30,7 +32,7 @@ export interface Header {
 }
 
 export const ModelTable =
-  '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive, inputTranslation, inputFunction, outputTranslation, outputFunction, method, url, headers';
+  '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive, requestType, inputTranslation, inputFunction, outputTranslation, outputFunction, method, url, headers, body';
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

@@ -13,9 +13,9 @@ import {
   Prompt,
   ChatSendParams,
   PromptService,
-  SessionService
+  SessionService,
+  AppSendService
 } from '@ui/core';
-import { Chat } from 'openai/resources';
 import { finalize, Subject, Subscription } from 'rxjs';
 
 @Component({
@@ -46,6 +46,7 @@ export class Coversation {
   sessionService = inject(SessionService);
   promptService = inject(PromptService);
   openAIService = inject(AppOpenAIService);
+  sendService = inject(AppSendService);
   formBuilder = inject(FormBuilder);
   formGroup = this.formBuilder.group({
     content: ['', [Validators.required]]
@@ -116,7 +117,7 @@ export class Coversation {
       params.prompt = this.selectedPrompt()!;
     }
 
-    this.sendSubscription = this.openAIService
+    this.sendSubscription = this.sendService
       .send(params)
       .pipe(
         finalize(() => {

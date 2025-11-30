@@ -15,7 +15,7 @@ import {
 } from '@ui/components';
 import { AppMenus } from '../app-menus';
 import { XIconComponent } from '@ng-nest/ui/icon';
-import { merge } from 'rxjs';
+import { interval, merge } from 'rxjs';
 import { XPopoverDirective, XRippleDirective } from '@ng-nest/ui';
 
 // 扩展全局 Window 接口以包含你的 API
@@ -68,7 +68,8 @@ export class Layout {
       this.getProjectCount();
     });
 
-    const result = await window.electronAPI.http.get('https://ngnest.com/img/logo/logo-32x32.png');
+    const result = await window.electronAPI.http.get('https://ngnest.com/static/json/version.json');
+
     console.log(result);
   }
 
