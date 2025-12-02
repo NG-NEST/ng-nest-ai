@@ -10,6 +10,7 @@ export interface ChatMessage {
   role: string;
   content: string;
   reasoningContent?: string;
+  image?: string;
 
   sessionId?: number;
   typing?: boolean;
@@ -30,7 +31,7 @@ export interface ChatSendParams {
   model?: Model;
 }
 
-export type ChatDelta = ChatCompletionChunk.Choice.Delta & { reasoning_content?: string };
+export type ChatDelta = ChatCompletionChunk.Choice.Delta & { reasoning_content?: string; image?: string };
 
 @Injectable({ providedIn: 'root' })
 export class AppOpenAIService {

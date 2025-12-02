@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, viewChild } from '@angular/core';
-import { XBubbleModule, XBubblesComponent, XMessageService } from '@ng-nest/ui';
+import { XBubbleModule, XBubblesComponent, XImageComponent, XMessageService } from '@ng-nest/ui';
 import { ChatMessage, AppPrismService } from '@ui/core';
 import { micromark } from 'micromark';
 import { from, fromEvent, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-bubbles',
-  imports: [XBubbleModule],
+  imports: [XBubbleModule, XImageComponent],
   templateUrl: './bubbles.html',
   styleUrl: './bubbles.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

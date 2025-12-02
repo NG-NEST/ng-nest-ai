@@ -67,10 +67,6 @@ export class Layout {
     merge(this.projectService.added, this.projectService.deleted).subscribe(() => {
       this.getProjectCount();
     });
-
-    const result = await window.electronAPI.http.get('https://ngnest.com/static/json/version.json');
-
-    console.log(result);
   }
 
   async ngAfterViewInit() {

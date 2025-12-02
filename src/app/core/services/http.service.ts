@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { ChatDelta, ChatSendParams } from './openai.service';
 import { ChatCompletionChunk } from 'openai/resources';
 import { Header, Message, MessageService, SessionService } from '../indexedDB';
-import { from, map, of, tap } from 'rxjs';
+import { finalize, from, map, of, tap } from 'rxjs';
 import { XMessageService } from '@ng-nest/ui';
 
 @Injectable({ providedIn: 'root' })
@@ -105,21 +105,19 @@ export class AppHttpService {
 
     let aiContent = '';
     let aiReasoningContent = '';
+    let aiImage = '';
     let completed = false;
 
     return from(window.electronAPI.http.post(url, body, { headers }) as Promise<any>).pipe(
-      tap((data) => {
-        console.log('before', data);
-      }),
-      map((data) => {
-        if (data.status === 200) {
-          const output = this.outputTranslation(data.data, outputFunction);
+      map((msg) => {
+        if (msg.status === 200) {
+          const output = this.outputTranslation(msg.data, outputFunction);
           // 接收流信息
           if (output.choices && output.choices.length > 0) {
             const delta = output.choices[0].delta;
 
             if (delta) {
-              const { content, reasoning_content } = delta as ChatDelta;
+              const { content, reasoning_content, image } = delta as ChatDelta;
               if (content) {
                 aiContent += delta.content;
                 const lastItemIndex = data.length - 1;
@@ -136,18 +134,61 @@ export class AppHttpService {
                   data[lastItemIndex].typing = true;
                 }
               }
+              if (image) {
+                aiImage = image;
+                const lastItemIndex = data.length - 1;
+                if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                  data[lastItemIndex].image = aiImage;
+                  data[lastItemIndex].typing = true;
+                }
+              }
             }
           }
-          return output;
-        } else {
-          const error = data.error;
-          this.message.error(data.data ?? data.error?.message ?? '请求失败');
+          // 完成回调 - 保存AI回复到数据库
+          if (sessionId !== null) {
+            const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
+              sessionId: sessionId!,
+              manufacturerId: manufacturerId!,
+              modelId: modelId!,
+              role: 'assistant',
+              content: aiContent,
+              reasoningContent: aiReasoningContent,
+              image: aiImage
+            };
+            this.messageService.create(aiMessage).subscribe();
+          }
 
-          return { error };
+          const lastItemIndex = data.length - 1;
+          if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+            data[lastItemIndex] = {
+              ...data[lastItemIndex]
+            };
+          }
+          return { start: true, content: aiContent, reasoningContent: aiReasoningContent, image: aiImage };
+        } else {
+          // 完成回调 - 保存错误消息到数据库
+          if (sessionId !== null) {
+            const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
+              sessionId: sessionId!,
+              manufacturerId: manufacturerId!,
+              modelId: modelId!,
+              role: 'error',
+              content: msg.statusText
+            };
+
+            this.messageService.create(aiMessage).subscribe();
+          }
+          const lastItemIndex = data.length - 1;
+          if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+            data[lastItemIndex].content = `${msg.statusText}`;
+            data[lastItemIndex].role = 'error';
+          }
+
+          return { error: msg.statusText, data };
         }
       }),
-      tap((data) => {
-        console.log('after', data);
+      finalize(() => {
+        completed = true;
       })
     );
   }

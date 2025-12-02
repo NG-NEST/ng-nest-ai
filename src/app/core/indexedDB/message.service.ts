@@ -11,10 +11,12 @@ export interface Message {
   role: 'system' | 'user' | 'assistant' | 'error';
   content: string;
   reasoningContent?: string;
+  image?: string;
   createdAt?: Date;
 }
 
-export const MessageTable = '++id, sessionId, manufacturerId, modelId, role, content, reasoningContent, createdAt';
+export const MessageTable =
+  '++id, sessionId, manufacturerId, modelId, role, content, reasoningContent, image, createdAt';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
