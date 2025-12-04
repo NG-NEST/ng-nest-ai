@@ -19,13 +19,13 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/compiler": "^20.0.0",
-    "@angular/core": "^20.0.0",
-    "@angular/forms": "^20.0.0",
-    "@angular/platform-browser": "^20.0.0",
-    "@angular/router": "^20.0.0",
-    "@ng-nest/ui": "^20.2.5",
+    "@angular/common": "^21.0.3",
+    "@angular/compiler": "^21.0.3",
+    "@angular/core": "^21.0.3",
+    "@angular/forms": "^21.0.3",
+    "@angular/platform-browser": "^21.0.3",
+    "@angular/router": "^21.0.3",
+    "@ng-nest/ui": "^21.0.2",
     "dexie": "^4.2.1",
     "micromark": "^4.0.2",
     "monaco-editor": "^0.54.0",
@@ -37,9 +37,9 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular/build": "^20.0.0",
-    "@angular/cli": "^20.0.0",
-    "@angular/compiler-cli": "^20.0.0",
+    "@angular/build": "^21.0.2",
+    "@angular/cli": "^21.0.2",
+    "@angular/compiler-cli": "^21.0.3",
     "@types/electron": "^1.4.38",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^24.9.2",
@@ -58,7 +58,7 @@
     "prettier": "^3.6.2",
     "reflect-metadata": "^0.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "~5.8.2",
+    "typescript": "~5.9.3",
     "wait-on": "^9.0.1"
   },
   "build": {

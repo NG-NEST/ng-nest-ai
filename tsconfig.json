@@ -13,15 +13,20 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "moduleResolution": "node",
-    "lib": ["ES2022", "DOM"],
-    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "types": ["node", "electron"],
+    "types": [
+      "node",
+      "electron"
+    ],
     "paths": {
-      "@ui/core": ["./src/app/core"],
-      "@ui/components": ["./src/app/components"]
+      "@ui/core": [
+        "./src/app/core"
+      ],
+      "@ui/components": [
+        "./src/app/components"
+      ]
     }
   },
   "include": ["electron/**/*", "src/**/*"],
