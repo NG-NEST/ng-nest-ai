@@ -6,19 +6,6 @@
     padding: 1rem;
     margin: 0;
   }
-  .item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: $x-border-base;
-    border-radius: $x-border-radius;
-    padding: 0.25rem 1rem;
-    .label {
-    }
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
-  }
   .theme {
     padding: 1rem;
 

@@ -11,11 +11,34 @@
         <div class="item">
           <x-input floatLabel="on" label="编码" formControlName="code" required></x-input>
         </div>
+        <div class="row">
+          <div class="item required switch">
+            <label>切换成当前模型</label>
+            <x-switch formControlName="isActive" required></x-switch>
+          </div>
+          <div class="item switch">
+            <label>使用系统提示词</label>
+            <x-switch formControlName="usePrompt"></x-switch>
+          </div>
+        </div>
+        <div class="row">
+          <div class="item switch">
+            <label>使用文件上传</label>
+            <x-switch formControlName="useUploadFile"></x-switch>
+          </div>
+        </div>
+        <div class="item">
+          <x-select
+            floatLabel="over"
+            label="标签"
+            [style.width.px]="300"
+            [data]="['文生图', '图生文', '深度思考']"
+            formControlName="tags"
+            multiple
+          ></x-select>
+        </div>
         <div class="item">
           <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
-        </div>
-        <div class="item required">
-          <x-switch label="使用当前模型：" direction="row" formControlName="isActive" required></x-switch>
         </div>
       </div>
     } @else if (sliderBase() === 1) {

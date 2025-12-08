@@ -106,14 +106,25 @@ const http: Http = {
   delete: (url: string, options?: RequestInit): Promise<any> => ipcRenderer.invoke('ipc:http:delete', url, options)
 };
 
+// minio
+interface Minio {
+  uploadFile: (bucketName: string, objectName: string, fileData: string) => Promise<boolean>;
+}
+const minio: Minio = {
+  uploadFile: (bucketName: string, objectName: string, fileData: string) =>
+    ipcRenderer.invoke('ipc:minio:uploadFile', bucketName, objectName, fileData)
+};
+
 interface IElectronAPI {
   windowControls: WindowControls;
   openAI: OpenAI;
   http: Http;
+  minio: Minio;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
   windowControls,
   openAI,
-  http
+  http,
+  minio
 } as IElectronAPI);

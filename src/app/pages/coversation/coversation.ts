@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { XBubbleModule, XCollapseModule, XDialogService, XIconComponent } from '@ng-nest/ui';
+import { XAttachmentsComponent, XBubbleModule, XCollapseModule, XDialogService, XFileCardComponent } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XMessageService } from '@ng-nest/ui/message';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
@@ -28,8 +28,9 @@ import { finalize, Subject, Subscription } from 'rxjs';
     ReactiveFormsModule,
     XBubbleModule,
     XCollapseModule,
-    XIconComponent,
-    BubblesComponent
+    BubblesComponent,
+    XAttachmentsComponent,
+    XFileCardComponent
   ],
   templateUrl: './coversation.html',
   styleUrl: './coversation.scss',
@@ -49,17 +50,19 @@ export class Coversation {
   sendService = inject(AppSendService);
   formBuilder = inject(FormBuilder);
   formGroup = this.formBuilder.group({
-    content: ['', [Validators.required]]
+    content: ['', [Validators.required]],
+    files: []
   });
   sessionId = signal<number | null>(null);
   sendSubscription: Subscription | null = null;
   typing = signal(false);
-
   $destroy = new Subject<void>();
-
   data = signal<ChatMessage[]>([]);
-
   selectedPrompt = signal<Prompt | null>(null);
+  activeModel = computed(() => this.sendService.activeModel());
+  url = signal<string | null>(null);
+  isImage = signal<boolean>(false);
+  file = signal<{ name: string; size: number; url: string; type: string } | null>(null);
 
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(({ sessionId, time }) => {
@@ -71,6 +74,35 @@ export class Coversation {
         }
       } else if (time) {
         this.reload();
+      }
+    });
+    this.formGroup.controls.files.valueChanges.subscribe(async (files: any) => {
+      if (!files) {
+        this.file.set(null);
+        return;
+      }
+
+      const file = files[0];
+
+      const fileData = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader!.result as string).split(',')[1]); // È¥µôdata:*/*;base64,Ç°×º
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const bucketName = 'ng-nest-ai';
+      const objectName = `${crypto.randomUUID()}/${file.name}`;
+
+      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData, file.type);
+
+      if (result) {
+        this.file.set({
+          name: file.name,
+          url: `https://cos.ngnest.com/${bucketName}/${objectName}`,
+          size: file.size,
+          type: file.type
+        });
       }
     });
   }
@@ -109,13 +141,17 @@ export class Coversation {
     const { content } = this.formGroup.getRawValue();
     if (!content) return;
     this.loading.set(true);
-    this.formGroup.patchValue({ content: '' });
-    this.formGroup.disable();
 
     const params: ChatSendParams = { content, data: this.data() };
     if (this.selectedPrompt() && this.data().length === 0) {
       params.prompt = this.selectedPrompt()!;
     }
+    if (this.file() && this.isImageFile(this.file()?.type!)) {
+      params.image = this.file()?.url;
+    }
+
+    this.formGroup.patchValue({ content: '', files: null });
+    this.formGroup.disable();
 
     this.sendSubscription = this.sendService
       .send(params)
@@ -158,5 +194,20 @@ export class Coversation {
         }
       }
     });
+  }
+
+  isImageFile(fileType: string): boolean {
+    const imageTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+      'image/bmp',
+      'image/tiff'
+    ];
+
+    return imageTypes.includes(fileType.toLowerCase());
   }
 }

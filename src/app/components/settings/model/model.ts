@@ -16,8 +16,6 @@ import {
   XRadioComponent,
   XSelectComponent,
   XSwitchComponent,
-  XTabComponent,
-  XTabsComponent,
   XTextareaComponent
 } from '@ng-nest/ui';
 import { EditorComponent } from '@ui/components';
@@ -70,13 +68,16 @@ export class ModelComponent {
     code: ['', [Validators.required]],
     description: [''],
     isActive: [false, [Validators.required]],
+    usePrompt: [false, []],
+    useUploadFile: [false, []],
     requestType: ['OpenAI', [Validators.required]],
     inputFunction: [''],
     outputFunction: [''],
     method: ['POST'],
     url: [],
     headers: this.fb.array([]),
-    body: []
+    body: [],
+    tags: []
   });
 
   get headers() {

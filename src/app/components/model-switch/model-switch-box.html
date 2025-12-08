@@ -70,6 +70,11 @@
                 ></x-button>
               </div>
               <span class="description" [attr.title]="node.description">{{ node.description }}</span>
+              <div class="tags">
+                @for (tag of node.tags; track tag) {
+                  <x-tag size="mini" type="info">{{ tag }}</x-tag>
+                }
+              </div>
             </div>
           </ng-template>
         }

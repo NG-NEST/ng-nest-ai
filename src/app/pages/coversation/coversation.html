@@ -8,33 +8,51 @@
     ></app-bubbles>
   </div>
   <div class="form">
-    <div class="wrapper">
+    <div #wrapper class="wrapper">
       <x-sender
         formControlName="content"
         [placeholder]="'Enter 发送，Alt + Enter 换行'"
         [footer]="footerTpl"
+        [header]="headerTpl"
         [suffix]="suffixTpl"
         (submit)="onSubmit()"
       ></x-sender>
+      <ng-template #headerTpl>
+        <div class="sender-header">
+          @if (file()) {
+            <x-file-card
+              variant="filled"
+              [name]="file().name"
+              [size]="file().size!"
+              [description]="file().description"
+              [url]="file().url"
+            ></x-file-card>
+          }
+        </div>
+      </ng-template>
       <ng-template #footerTpl>
-        @if (data().length === 0 || (data().length > 0 && selectedPrompt())) {
-          <div class="sender-footer">
-            <x-button
-              [text]="!selectedPrompt()"
-              [plain]="selectedPrompt()"
-              [flat]="selectedPrompt()"
-              (click)="onTool()"
-              size="small"
-            >
+        <div class="sender-footer">
+          @if (activeModel()?.usePrompt && (data().length === 0 || (data().length > 0 && selectedPrompt()))) {
+            <x-button plain flat (click)="onTool()" [icon]="selectedPrompt() ? 'fto-user' : 'icon:prompt'">
               @if (selectedPrompt()) {
-                <x-icon type="fto-user"></x-icon>
-                {{ selectedPrompt()?.name }}
+                {{ selectedPrompt().name }}
               } @else {
-                <x-icon type="fto-grid"></x-icon>
+                提示词
               }
             </x-button>
-          </div>
-        }
+          }
+          @if (activeModel()?.useUploadFile) {
+            <x-attachments
+              [dropContainer]="wrapper.elementRef"
+              [dropTitle]="'拖动文件到此处'"
+              [dropDescription]="'支持文件类型: .png, .jpg, .jpeg, .gif, .bmp'"
+              [accept]="'image/png, image/jpeg, image/gif, image/bmp'"
+              formControlName="files"
+            >
+              <x-button plain flat icon="fto-paperclip"></x-button>
+            </x-attachments>
+          }
+        </div>
       </ng-template>
       <ng-template #suffixTpl>
         <div class="buttons">

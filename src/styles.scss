@@ -169,6 +169,15 @@ input {
       flex-direction: column;
     }
 
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      .item {
+        flex: 1;
+      }
+    }
+
     .item {
       display: flex;
       align-items: center;
@@ -181,6 +190,18 @@ input {
           line-height: 1;
           font-size: $x-font-size-small;
           content: '*';
+        }
+      }
+
+      &.switch {
+        display: flex;
+        justify-content: space-between;
+        border: $x-border-base;
+        border-radius: $x-border-radius;
+        padding: 0.25rem 0.75rem;
+        transition: all 0.3s;
+        &:hover {
+          border-color: $x-primary-300;
         }
       }
 
@@ -352,8 +373,8 @@ input {
 
   ul,
   ol {
-    padding-left: 1em;
-    margin: 0 0 1em 0;
+    padding-left: 1.2em;
+    margin: 0 0 1.2em 0;
     p {
       margin: 0;
     }
@@ -433,7 +454,7 @@ input {
   }
 
   img {
-    max-width: 100%;
+    max-width: 36rem;
     height: auto;
     display: block;
     border-radius: 6px;
@@ -549,6 +570,22 @@ input {
 
 .x-empty .fto-inbox svg {
   stroke-width: 1;
+}
+
+.x-image-preview-header {
+  -webkit-app-region: no-drag;
+}
+
+.x-button {
+  line-height: initial !important;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.x-button > x-icon[class^='icon:'],
+x-icon[class^='icon:'] {
+  font-size: 1.25rem;
 }
 
 .app-no-padding-dialog {

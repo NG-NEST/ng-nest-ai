@@ -14,7 +14,8 @@ import {
   XListComponent,
   XListNode,
   XLoadingComponent,
-  XOrderBy
+  XOrderBy,
+  XTagComponent
 } from '@ng-nest/ui';
 import { Manufacturer, ManufacturerService, Model, ModelService, SessionService } from '@ui/core';
 import {
@@ -43,7 +44,8 @@ import {
     XLoadingComponent,
     XEmptyComponent,
     XListComponent,
-    XKeywordDirective
+    XKeywordDirective,
+    XTagComponent
   ],
   templateUrl: './model-switch-box.html',
   styleUrl: './model-switch-box.scss'

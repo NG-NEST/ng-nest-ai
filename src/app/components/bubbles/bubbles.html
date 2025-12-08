@@ -16,12 +16,25 @@
         <x-image [src]="item.image"></x-image>
       </ng-template>
     } @else if (item.role === 'user') {
-      <x-bubble
-        placement="end"
-        variant="filled"
-        [avatar]="{ icon: 'fto-user', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
-        [content]="item.content"
-      ></x-bubble>
+      @if (item.image) {
+        <x-bubble
+          placement="end"
+          variant="filled"
+          [avatar]="{ icon: 'fto-user', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+          [content]="item.imageContent"
+          [header]="headerTpl"
+        ></x-bubble>
+        <ng-template #headerTpl>
+          <x-image [src]="item.image"></x-image>
+        </ng-template>
+      } @else {
+        <x-bubble
+          placement="end"
+          variant="filled"
+          [avatar]="{ icon: 'fto-user', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+          [content]="item.content"
+        ></x-bubble>
+      }
     } @else if (item.role === 'error') {
       <x-bubble
         placement="start"

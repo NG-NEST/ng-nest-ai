@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup">
   <div class="sub-title">关于</div>
   <div class="about">
-    <div class="item">
+    <div class="item switch">
       <div class="label">切换开发人员工具</div>
       <x-switch [checkedText]="enableTpl" [unCheckedText]="disableTpl" formControlName="switchDev"></x-switch>
       <ng-template #enableTpl>

@@ -33,6 +33,8 @@
   }
   .list {
     display: flex;
+    padding-top: 0;
+    gap: 0;
     .left {
       padding: 1rem;
       border-right: $x-border-base;
@@ -73,7 +75,7 @@
     .description {
       margin-top: 0.5rem;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -82,6 +84,15 @@
       // 兼容性写法
       display: box;
       box-orient: vertical;
+    }
+    .tags {
+      display: flex;
+      gap: 0.25rem;
+      ::ng-deep {
+        .x-tag {
+          font-size: $x-font-size-mini;
+        }
+      }
     }
   }
 

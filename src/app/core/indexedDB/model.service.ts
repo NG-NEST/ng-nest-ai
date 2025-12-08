@@ -12,6 +12,8 @@ export interface Model {
   createdAt?: Date;
   updatedAt?: Date;
   isActive: boolean;
+  usePrompt?: boolean;
+  useUploadFile?: boolean;
   inputTranslation?: boolean;
   inputFunction?: string;
   outputTranslation?: boolean;
@@ -21,6 +23,7 @@ export interface Model {
   url?: string;
   headers?: Header[];
   body?: string;
+  tags?: string[];
 }
 
 export interface Header {
@@ -31,8 +34,9 @@ export interface Header {
   description?: string;
 }
 
-export const ModelTable =
-  '++id, manufacturerId, name, code, description, createdAt, updatedAt, isActive, requestType, inputTranslation, inputFunction, outputTranslation, outputFunction, method, url, headers, body';
+export const ModelTable = `++id, manufacturerId, name, code, description, createdAt, updatedAt, 
+isActive, usePrompt, useUploadFile, requestType, inputTranslation, inputFunction, outputTranslation, outputFunction, 
+method, url, headers, body`;
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

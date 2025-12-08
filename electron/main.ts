@@ -4,11 +4,15 @@ import * as url from 'url';
 import { WindowService } from './ipc/services/window.service';
 import { OpenAIService } from './ipc/services/openai.service';
 import { HttpService } from './ipc/services/http.service';
+import { MinioService } from './ipc/services/minio.service';
+
+require('dotenv').config();
 
 let win: BrowserWindow | null = null;
 let windowService: WindowService | null = null;
 let openaiService: OpenAIService | null = null;
 let httpService: HttpService | null = null;
+let minioService: MinioService | null = null;
 
 const createBrowserWindow = () => {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -33,6 +37,7 @@ const createBrowserWindow = () => {
   windowService = new WindowService(() => win);
   openaiService = new OpenAIService();
   httpService = new HttpService();
+  minioService = new MinioService();
 
   // 判断是否是开发模式
   const isDev = process.env['NODE_ENV'] === 'development';
@@ -59,6 +64,10 @@ const createBrowserWindow = () => {
     if (httpService) {
       httpService.destroy();
       httpService = null;
+    }
+    if (minioService) {
+      minioService.destroy();
+      minioService = null;
     }
     win = null;
   });

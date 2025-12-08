@@ -3,7 +3,7 @@ import { Manufacturer, Message, MessageService, Model, Prompt, SessionService } 
 import { XMessageService } from '@ng-nest/ui/message';
 import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
-import { ChatCompletionChunk } from 'openai/resources';
+import { Chat, ChatCompletionChunk } from 'openai/resources';
 
 export interface ChatMessage {
   id?: string | number;
@@ -11,6 +11,7 @@ export interface ChatMessage {
   content: string;
   reasoningContent?: string;
   image?: string;
+  imageContent?: string;
 
   sessionId?: number;
   typing?: boolean;
@@ -26,6 +27,7 @@ export interface ChatSendParams {
   data?: ChatMessage[];
   projectId?: number | null;
   prompt?: Prompt;
+  image?: string;
 
   manufacturer?: Manufacturer;
   model?: Model;
@@ -39,25 +41,34 @@ export class AppOpenAIService {
   sessionService = inject(SessionService);
   messageService = inject(MessageService);
 
-  private saveUserMessage(sessionId: number, content: string, manufacturerId: number, modelId: number) {
+  private saveUserMessage(message: {
+    sessionId: number;
+    content: string;
+    image?: string;
+    imageContent?: string;
+    manufacturerId: number;
+    modelId: number;
+  }) {
     const userMessage: Omit<Message, 'id' | 'createdAt'> = {
-      sessionId: sessionId,
-      manufacturerId: manufacturerId,
-      modelId: modelId,
+      sessionId: message.sessionId,
+      manufacturerId: message.manufacturerId,
+      modelId: message.modelId,
       role: 'user',
-      content: content
+      content: message.content,
+      image: message.image,
+      imageContent: message.imageContent
     };
 
     this.messageService.create(userMessage).subscribe();
   }
 
-  private saveSystemMessage(sessionId: number, content: string, manufacturerId: number, modelId: number) {
+  private saveSystemMessage(message: { sessionId: number; content: string; manufacturerId: number; modelId: number }) {
     const systemMessage: Omit<Message, 'id' | 'createdAt'> = {
-      sessionId: sessionId,
-      manufacturerId: manufacturerId,
-      modelId: modelId,
+      sessionId: message.sessionId,
+      manufacturerId: message.manufacturerId,
+      modelId: message.modelId,
       role: 'system',
-      content: content
+      content: message.content
     };
 
     this.messageService.create(systemMessage).subscribe();
@@ -65,7 +76,7 @@ export class AppOpenAIService {
 
   send(params: ChatSendParams) {
     return new Observable((sub) => {
-      let { content, data, projectId, prompt, manufacturer, model } = params;
+      let { content, data, projectId, prompt, manufacturer, model, image } = params;
       if (!content || !manufacturer || !model) return;
       data = data ?? [];
       projectId = projectId ?? null;
@@ -85,6 +96,12 @@ export class AppOpenAIService {
         });
       }
 
+      const userMsg: ChatMessage = {
+        id: v4(),
+        role: 'user',
+        content: content!
+      };
+
       if (prompt) {
         data.push({
           id: v4(),
@@ -93,14 +110,42 @@ export class AppOpenAIService {
         });
       }
 
-      data.push(
-        {
-          id: v4(),
-          role: 'user',
-          content: content!
-        },
-        { id: v4(), role: 'assistant', content: '' }
-      );
+      if (image) {
+        userMsg.image = image;
+        userMsg.imageContent = content;
+        userMsg.content = [
+          {
+            type: 'image_url',
+            image_url: {
+              url: image
+            }
+          },
+          { type: 'text', text: content }
+        ] as any;
+      }
+
+      data.push(userMsg, { id: v4(), role: 'assistant', content: '' });
+
+      const saveMessage = (saveId: number) => {
+        const saveMsg: any = {
+          sessionId: 0,
+          content: '',
+          manufacturerId: manufacturerId!,
+          modelId: modelId!
+        };
+        if (prompt) {
+          saveMsg.sessionId = saveId;
+          saveMsg.content = prompt.content!;
+          this.saveSystemMessage(saveMsg);
+        }
+        saveMsg.sessionId = saveId;
+        saveMsg.content = content!;
+        if (image) {
+          saveMsg.image = userMsg.image;
+          saveMsg.imageContent = userMsg.imageContent;
+        }
+        this.saveUserMessage(saveMsg);
+      };
 
       if (newSession) {
         this.sessionService
@@ -110,16 +155,10 @@ export class AppOpenAIService {
             data.map((item) => {
               item.sessionId = id;
             });
-            if (prompt) {
-              this.saveSystemMessage(id, prompt.content!, manufacturerId!, modelId!);
-            }
-            this.saveUserMessage(id, content!, manufacturerId!, modelId!);
+            saveMessage(id!);
           });
       } else {
-        if (prompt) {
-          this.saveSystemMessage(sessionId!, prompt.content!, manufacturerId!, modelId!);
-        }
-        this.saveUserMessage(sessionId!, content!, manufacturerId!, modelId!);
+        saveMessage(sessionId!);
       }
 
       const messages = data

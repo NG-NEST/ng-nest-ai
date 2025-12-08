@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup">
   <div class="sub-title">外观</div>
-  <div formGroupName="theme" class="theme">
-    <div class="item">
+  <div formGroupName="theme" class="theme list">
+    <div class="item switch">
       <div class="label">背景</div>
       <x-switch [checkedText]="moonTpl" [unCheckedText]="sunTpl" formControlName="dark"></x-switch>
       <ng-template #moonTpl>
@@ -11,7 +11,7 @@
         <div class="theme-icon"><x-icon type="fto-sun"> </x-icon> 明亮</div>
       </ng-template>
     </div>
-    <div class="item" [style.paddingRight.rem]="0">
+    <div class="item switch" [style.paddingRight.rem]="0">
       <div class="label">主色</div>
       <x-color-picker
         [style.width.rem]="6.75"
