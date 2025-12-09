@@ -12,7 +12,8 @@ import {
   XSelectNode,
   XInputGroupComponent,
   XInputComponent,
-  XKeywordDirective
+  XKeywordDirective,
+  XTagComponent
 } from '@ng-nest/ui';
 import { ManufacturerService, Model, ModelService } from '@ui/core';
 import { ModelComponent } from './model';
@@ -30,7 +31,8 @@ import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription, s
     XSelectComponent,
     XInputGroupComponent,
     XInputComponent,
-    XKeywordDirective
+    XKeywordDirective,
+    XTagComponent
   ],
   templateUrl: './model-list.html',
   styleUrl: './model-list.scss'

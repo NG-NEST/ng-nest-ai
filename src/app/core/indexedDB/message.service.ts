@@ -13,11 +13,13 @@ export interface Message {
   reasoningContent?: string;
   image?: string;
   imageContent?: string;
+  video?: string;
+  videoContent?: string;
   createdAt?: Date;
 }
 
 export const MessageTable =
-  '++id, sessionId, manufacturerId, modelId, role, content, image, imageContent, reasoningContent, createdAt';
+  '++id, sessionId, manufacturerId, modelId, role, content, image, imageContent, video, videoContent, reasoningContent, createdAt';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {

@@ -1,7 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { XAttachmentsComponent, XBubbleModule, XCollapseModule, XDialogService, XFileCardComponent } from '@ng-nest/ui';
+import {
+  XAttachmentsComponent,
+  XBubbleModule,
+  XCollapseModule,
+  XDialogService,
+  XFileCardComponent,
+  XIconComponent
+} from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XMessageService } from '@ng-nest/ui/message';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
@@ -30,7 +37,8 @@ import { finalize, Subject, Subscription } from 'rxjs';
     XCollapseModule,
     BubblesComponent,
     XAttachmentsComponent,
-    XFileCardComponent
+    XFileCardComponent,
+    XIconComponent
   ],
   templateUrl: './coversation.html',
   styleUrl: './coversation.scss',
@@ -86,7 +94,7 @@ export class Coversation {
 
       const fileData = await new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve((reader!.result as string).split(',')[1]); // ȥ��data:*/*;base64,ǰ׺
+        reader.onload = () => resolve((reader!.result as string).split(',')[1]); // 去掉data:*/*;base64,前缀
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
@@ -149,6 +157,9 @@ export class Coversation {
     if (this.file() && this.isImageFile(this.file()?.type!)) {
       params.image = this.file()?.url;
     }
+    if (this.file() && this.isVideoFile(this.file()?.type!)) {
+      params.video = this.file()?.url;
+    }
 
     this.formGroup.patchValue({ content: '', files: null });
     this.formGroup.disable();
@@ -209,5 +220,11 @@ export class Coversation {
     ];
 
     return imageTypes.includes(fileType.toLowerCase());
+  }
+
+  isVideoFile(fileType: string): boolean {
+    const videoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
+
+    return videoTypes.includes(fileType.toLowerCase());
   }
 }

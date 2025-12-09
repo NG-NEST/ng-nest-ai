@@ -1,0 +1,39 @@
+<form class="app-dialog-form" [formGroup]="form">
+  <h4 x-dialog-title class="title">{{ title() }}</h4>
+  <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
+  <div x-dialog-content class="content">
+    <div class="list">
+      <div class="item">
+        <app-editor
+          class="editor"
+          [label]="labelTpl"
+          required
+          [filename]="'.js'"
+          [style.height.rem]="14"
+          [style.width.%]="100"
+          [options]="{
+            minimap: { enabled: false }
+          }"
+          formControlName="content"
+        ></app-editor>
+        <ng-template #labelTpl>
+          <div class="editor-label">
+            <span>Function()</span>
+            <x-button
+              size="small"
+              text
+              class="help"
+              icon="fto-help-circle"
+              [title]="'帮助'"
+              (click)="onHelp()"
+            ></x-button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+  <div x-dialog-actions align="center" class="actions">
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
+    <x-button flat icon="fto-save" type="primary" attrType="submit" [disabled]="!form.valid">保存</x-button>
+  </div>
+</form>

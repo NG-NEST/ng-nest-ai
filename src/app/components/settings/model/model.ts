@@ -7,6 +7,7 @@ import {
   XDialogModule,
   XDialogRef,
   XDialogService,
+  XIconComponent,
   XInputComponent,
   XInputGroupComponent,
   XLoadingComponent,
@@ -24,6 +25,7 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 import { HelpComponent } from '../../help/help';
 import { XSliderComponent } from '@ng-nest/ui/slider';
 import { NgTemplateOutlet } from '@angular/common';
+import { ValueFunction } from '../../value-function/value-function';
 
 @Component({
   selector: 'app-model',
@@ -40,6 +42,7 @@ import { NgTemplateOutlet } from '@angular/common';
     XSelectComponent,
     XCheckboxComponent,
     XSliderComponent,
+    XIconComponent,
     EditorComponent,
     NgTemplateOutlet
   ],
@@ -69,7 +72,8 @@ export class ModelComponent {
     description: [''],
     isActive: [false, [Validators.required]],
     usePrompt: [false, []],
-    useUploadFile: [false, []],
+    useUploadImage: [false, []],
+    useUploadVideo: [false, []],
     requestType: ['OpenAI', [Validators.required]],
     inputFunction: [''],
     outputFunction: [''],
@@ -223,6 +227,16 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
 \`\`\`
         `
       }
+    ],
+    [
+      'header-value-function',
+      {
+        title: 'Header value function',
+        content: `
+### 请求头 value 函数
+
+        `
+      }
     ]
   ]);
 
@@ -324,6 +338,7 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
         enabled: [header?.enabled ?? true],
         key: [header?.key ?? ''],
         value: [header?.value ?? ''],
+        valueFunction: [header?.valueFunction ?? ''],
         description: [header?.description ?? '']
       })
     );
@@ -331,5 +346,17 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
 
   remove(i: number) {
     this.headers.removeAt(i);
+  }
+
+  showFunction(control: FormGroup) {
+    const { valueFunction, key } = control.getRawValue();
+    this.dialogService.create(ValueFunction, {
+      width: '40rem',
+      data: {
+        title: key,
+        content: valueFunction,
+        helpContent: this.helpMap.get('header-value-function')?.content || ''
+      }
+    });
   }
 }

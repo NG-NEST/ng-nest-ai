@@ -13,7 +13,8 @@ export interface Model {
   updatedAt?: Date;
   isActive: boolean;
   usePrompt?: boolean;
-  useUploadFile?: boolean;
+  useUploadImage?: boolean;
+  useUploadVideo?: boolean;
   inputTranslation?: boolean;
   inputFunction?: string;
   outputTranslation?: boolean;
@@ -31,12 +32,13 @@ export interface Header {
   enabled?: boolean;
   key?: string;
   value?: string;
+  valueFunction?: string;
   description?: string;
 }
 
 export const ModelTable = `++id, manufacturerId, name, code, description, createdAt, updatedAt, 
-isActive, usePrompt, useUploadFile, requestType, inputTranslation, inputFunction, outputTranslation, outputFunction, 
-method, url, headers, body`;
+isActive, usePrompt, useUploadImage, useUploadVideo, requestType, inputTranslation, inputFunction, 
+outputTranslation, outputFunction, method, url, headers, body`;
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

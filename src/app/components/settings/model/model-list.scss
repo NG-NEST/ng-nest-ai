@@ -66,9 +66,16 @@
       .info {
         display: flex;
         flex-direction: column;
+        gap: 0.325rem;
       }
       .name {
         font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        x-icon {
+          font-size: 1.125rem;
+        }
       }
       .code {
         color: $x-text-600;
@@ -76,6 +83,15 @@
       .check {
         font-size: 1.25rem;
         color: $x-primary;
+      }
+      .tags {
+        display: flex;
+        gap: 0.25rem;
+        ::ng-deep {
+          .x-tag {
+            font-size: $x-font-size-mini;
+          }
+        }
       }
     }
   }

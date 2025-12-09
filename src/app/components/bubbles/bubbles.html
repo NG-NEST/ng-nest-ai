@@ -27,6 +27,19 @@
         <ng-template #headerTpl>
           <x-image [src]="item.image"></x-image>
         </ng-template>
+      } @else if (item.video) {
+        <x-bubble
+          placement="end"
+          variant="filled"
+          [avatar]="{ icon: 'fto-user', backgroundColor: 'rgba(59, 130, 246, 0.5)' }"
+          [content]="item.videoContent"
+          [header]="headerTpl"
+        ></x-bubble>
+        <ng-template #headerTpl>
+          <video [src]="item.video" controls preload="metadata" width="640" height="360" playsinline muted>
+            您的浏览器不支持 video 标签。
+          </video>
+        </ng-template>
       } @else {
         <x-bubble
           placement="end"

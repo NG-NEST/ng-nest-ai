@@ -3,7 +3,7 @@
   @if (allPromptList().length === 0) {
     <div class="empty">
       <x-empty></x-empty>
-      <x-button (click)="addPrompt()" text icon="fto-plus" size="mini" type="primary">新增</x-button>
+      <x-button (click)="addPrompt()" icon="fto-plus" flat plain>新增</x-button>
     </div>
   } @else {
     <div class="prompts">

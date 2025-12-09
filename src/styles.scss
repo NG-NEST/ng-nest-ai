@@ -159,7 +159,6 @@ input {
     }
 
     .list {
-      padding-top: 2rem;
       display: grid;
       gap: 2rem;
     }
@@ -181,6 +180,14 @@ input {
     .item {
       display: flex;
       align-items: center;
+
+      .label {
+        display: flex;
+        align-items: center;
+        .text {
+          margin-left: 0.25rem;
+        }
+      }
 
       &.required {
         label::before {
@@ -221,6 +228,13 @@ input {
         .editorPlaceholder {
           color: $x-placeholder-color;
         }
+      }
+
+      .editor-label {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
     }
   }
@@ -585,7 +599,7 @@ input {
 
 .x-button > x-icon[class^='icon:'],
 x-icon[class^='icon:'] {
-  font-size: 1.25rem;
+  font-size: 1rem;
 }
 
 .app-no-padding-dialog {

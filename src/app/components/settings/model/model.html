@@ -11,34 +11,40 @@
         <div class="item">
           <x-input floatLabel="on" label="编码" formControlName="code" required></x-input>
         </div>
+        <div class="item">
+          <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
+        </div>
         <div class="row">
           <div class="item required switch">
             <label>切换成当前模型</label>
             <x-switch formControlName="isActive" required></x-switch>
           </div>
           <div class="item switch">
-            <label>使用系统提示词</label>
+            <label class="label">
+              <x-icon type="icon:prompt"></x-icon>
+              <span class="text">支持系统提示词</span>
+            </label>
             <x-switch formControlName="usePrompt"></x-switch>
           </div>
         </div>
         <div class="row">
           <div class="item switch">
-            <label>使用文件上传</label>
-            <x-switch formControlName="useUploadFile"></x-switch>
+            <label class="label"><x-icon type="fto-image"></x-icon> <span class="text">支持图片上传</span></label>
+            <x-switch formControlName="useUploadImage"></x-switch>
+          </div>
+          <div class="item switch">
+            <label class="label"><x-icon type="fto-video"></x-icon> <span class="text">支持视频上传</span></label>
+            <x-switch formControlName="useUploadVideo"></x-switch>
           </div>
         </div>
         <div class="item">
           <x-select
-            floatLabel="over"
-            label="标签"
+            [placeholder]="'标签'"
             [style.width.px]="300"
-            [data]="['文生图', '图生文', '深度思考']"
+            [data]="['深度思考', '文生图', '图生文', '视频理解']"
             formControlName="tags"
             multiple
           ></x-select>
-        </div>
-        <div class="item">
-          <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
         </div>
       </div>
     } @else if (sliderBase() === 1) {
@@ -108,7 +114,11 @@
                           <x-input formControlName="key"></x-input>
                         </td>
                         <td>
-                          <x-input formControlName="value"></x-input>
+                          <x-input-group compact>
+                            <x-input formControlName="value"></x-input>
+                            <x-button icon="icon:function" (click)="showFunction(control)" [title]="'函数'"></x-button>
+                          </x-input-group>
+                          <input type="hidden" formControlName="valueFunction" />
                         </td>
                         <td class="button">
                           <x-button

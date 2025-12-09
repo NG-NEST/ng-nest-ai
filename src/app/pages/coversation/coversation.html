@@ -41,15 +41,24 @@
               }
             </x-button>
           }
-          @if (activeModel()?.useUploadFile) {
+          @if (activeModel()?.useUploadImage && !activeModel()?.useUploadVideo) {
+            <x-attachments [accept]="'image/png, image/jpeg, image/gif, image/bmp'" formControlName="files">
+              <x-button plain flat icon="fto-image"></x-button>
+            </x-attachments>
+          }
+          @if (activeModel()?.useUploadVideo && !activeModel()?.useUploadImage) {
+            <x-attachments [accept]="'video/mp4, video/webm, video/avi, .mp4, .webm, .avi'" formControlName="files">
+              <x-button plain flat icon="fto-video"></x-button>
+            </x-attachments>
+          }
+          @if (activeModel()?.useUploadVideo && activeModel()?.useUploadImage) {
             <x-attachments
-              [dropContainer]="wrapper.elementRef"
-              [dropTitle]="'拖动文件到此处'"
-              [dropDescription]="'支持文件类型: .png, .jpg, .jpeg, .gif, .bmp'"
-              [accept]="'image/png, image/jpeg, image/gif, image/bmp'"
+              [accept]="
+                'image/png, image/jpeg, image/gif, image/bmp, video/mp4, video/webm, video/avi, .mp4, .webm, .avi'
+              "
               formControlName="files"
             >
-              <x-button plain flat icon="fto-paperclip"></x-button>
+              <x-button plain flat> <x-icon type="fto-image"></x-icon> / <x-icon type="fto-video"></x-icon> </x-button>
             </x-attachments>
           }
         </div>

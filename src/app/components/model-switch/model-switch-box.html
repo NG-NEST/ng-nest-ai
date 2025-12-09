@@ -51,9 +51,20 @@
 
           <ng-template #modelTpl let-node="$node">
             <div class="model-node">
-              <span class="name" x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.name">
-                {{ node.name }}</span
-              >
+              <div class="name">
+                <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.name">
+                  {{ node.name }}</span
+                >
+                @if (node.usePrompt) {
+                  <x-icon type="icon:prompt"></x-icon>
+                }
+                @if (node.useUploadImage) {
+                  <x-icon type="fto-image"></x-icon>
+                }
+                @if (node.useUploadVideo) {
+                  <x-icon type="fto-video"></x-icon>
+                }
+              </div>
               <div class="code">
                 <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.code">
                   {{ node.code }}
@@ -72,7 +83,14 @@
               <span class="description" [attr.title]="node.description">{{ node.description }}</span>
               <div class="tags">
                 @for (tag of node.tags; track tag) {
-                  <x-tag size="mini" type="info">{{ tag }}</x-tag>
+                  <x-tag
+                    size="mini"
+                    [style]="{
+                      color: 'var(--x-text-300)',
+                      borderColor: 'var(--x-background-a500)'
+                    }"
+                    >{{ tag }}</x-tag
+                  >
                 }
               </div>
             </div>

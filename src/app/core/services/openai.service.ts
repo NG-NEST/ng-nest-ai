@@ -3,7 +3,7 @@ import { Manufacturer, Message, MessageService, Model, Prompt, SessionService } 
 import { XMessageService } from '@ng-nest/ui/message';
 import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
-import { Chat, ChatCompletionChunk } from 'openai/resources';
+import { ChatCompletionChunk } from 'openai/resources';
 
 export interface ChatMessage {
   id?: string | number;
@@ -12,6 +12,8 @@ export interface ChatMessage {
   reasoningContent?: string;
   image?: string;
   imageContent?: string;
+  video?: string;
+  videoContent?: string;
 
   sessionId?: number;
   typing?: boolean;
@@ -28,6 +30,7 @@ export interface ChatSendParams {
   projectId?: number | null;
   prompt?: Prompt;
   image?: string;
+  video?: string;
 
   manufacturer?: Manufacturer;
   model?: Model;
@@ -46,6 +49,8 @@ export class AppOpenAIService {
     content: string;
     image?: string;
     imageContent?: string;
+    video?: string;
+    videoContent?: string;
     manufacturerId: number;
     modelId: number;
   }) {
@@ -56,7 +61,9 @@ export class AppOpenAIService {
       role: 'user',
       content: message.content,
       image: message.image,
-      imageContent: message.imageContent
+      imageContent: message.imageContent,
+      video: message.video,
+      videoContent: message.videoContent
     };
 
     this.messageService.create(userMessage).subscribe();
@@ -76,7 +83,7 @@ export class AppOpenAIService {
 
   send(params: ChatSendParams) {
     return new Observable((sub) => {
-      let { content, data, projectId, prompt, manufacturer, model, image } = params;
+      let { content, data, projectId, prompt, manufacturer, model, image, video } = params;
       if (!content || !manufacturer || !model) return;
       data = data ?? [];
       projectId = projectId ?? null;
@@ -124,6 +131,20 @@ export class AppOpenAIService {
         ] as any;
       }
 
+      if (video) {
+        userMsg.video = video;
+        userMsg.videoContent = content;
+        userMsg.content = [
+          {
+            type: 'video_url',
+            video_url: {
+              url: video
+            }
+          },
+          { type: 'text', text: content }
+        ] as any;
+      }
+
       data.push(userMsg, { id: v4(), role: 'assistant', content: '' });
 
       const saveMessage = (saveId: number) => {
@@ -143,6 +164,10 @@ export class AppOpenAIService {
         if (image) {
           saveMsg.image = userMsg.image;
           saveMsg.imageContent = userMsg.imageContent;
+        }
+        if (video) {
+          saveMsg.video = userMsg.video;
+          saveMsg.videoContent = userMsg.videoContent;
         }
         this.saveUserMessage(saveMsg);
       };
