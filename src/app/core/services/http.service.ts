@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { ChatDelta, ChatSendParams } from './openai.service';
 import { ChatCompletionChunk } from 'openai/resources';
-import { Header, Message, MessageService, SessionService } from '../indexedDB';
-import { finalize, from, map, of, tap } from 'rxjs';
+import { Message, MessageService, SessionService } from '../indexedDB';
+import { finalize, from, map, of } from 'rxjs';
 import { XMessageService } from '@ng-nest/ui';
 
 @Injectable({ providedIn: 'root' })
@@ -48,9 +48,10 @@ export class AppHttpService {
     const modelId = model.id;
     const modelCode = model.code;
 
-    let { url, body, code, inputFunction, outputFunction } = model!;
+    let { url, bodyFunction, headersFunction, code, inputFunction, outputFunction } = model!;
     let { apiKey } = manufacturer!;
-    let headers: Record<string, string> = {};
+    let bodyPromise: Promise<Record<string, string>>;
+    let headersPromise: Promise<Record<string, string>>;
 
     if (sessionId) {
       data.map((item) => {
@@ -84,21 +85,22 @@ export class AppHttpService {
           data.map((item) => {
             item.sessionId = id;
           });
-          //   if (prompt) {
-          //     this.saveSystemMessage(id, prompt.content!, manufacturerId!, modelId!);
-          //   }
+          // if (prompt) {
+          //   this.saveSystemMessage(id, prompt.content!, manufacturerId!, modelId!);
+          // }
           this.saveUserMessage(id, content!, manufacturerId!, modelId!);
         });
     } else {
-      //   if (prompt) {
-      //     this.saveSystemMessage(sessionId!, prompt.content!, manufacturerId!, modelId!);
-      //   }
+      // if (prompt) {
+      //   this.saveSystemMessage(sessionId!, prompt.content!, manufacturerId!, modelId!);
+      // }
       this.saveUserMessage(sessionId!, content!, manufacturerId!, modelId!);
     }
 
     try {
-      body = this.inputTranslation(JSON.parse(this.replaceVars(body!, { apiKey, code, content })), inputFunction);
-      headers = this.setHeaders(model.headers!, { apiKey, code, content }) as { [key: string]: string };
+      const vars = { apiKey, code, content };
+      bodyPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(bodyFunction!, vars));
+      headersPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(headersFunction!, vars));
     } catch (error) {
       console.error('Error:', error);
     }
@@ -108,7 +110,11 @@ export class AppHttpService {
     let aiImage = '';
     let completed = false;
 
-    return from(window.electronAPI.http.post(url, body, { headers }) as Promise<any>).pipe(
+    return from(
+      Promise.all([bodyPromise!, headersPromise!]).then(([body, headers]) =>
+        window.electronAPI.http.post(url, body, { headers })
+      )
+    ).pipe(
       map((msg) => {
         if (msg.status === 200) {
           const output = this.outputTranslation(msg.data, outputFunction);
@@ -193,15 +199,7 @@ export class AppHttpService {
     );
   }
 
-  setHeaders(headers: Header[], values: { apiKey: string; code: string; content: string }) {
-    const header: { [key: string]: string } = {};
-    for (let h of headers) {
-      if (h.enabled) header[h.key!] = this.replaceVars(h.value!, values);
-    }
-    return header;
-  }
-
-  replaceVars(body: string, values: { apiKey: string; code: string; content: string }) {
+  replaceVars(content: string, values: { apiKey: string; code: string; content: string }) {
     // 创建映射关系
     const replacements: Record<string, string> = {
       '${apiKey}': values.apiKey,
@@ -210,7 +208,7 @@ export class AppHttpService {
     };
 
     // 逐一替换每个变量
-    let result = body;
+    let result = content;
     Object.keys(replacements).forEach((key) => {
       const value = replacements[key];
       // 使用更安全的字符串替换方法
@@ -218,20 +216,6 @@ export class AppHttpService {
     });
 
     return result;
-  }
-
-  private inputTranslation(body: any, inputFunction?: string) {
-    if (inputFunction && inputFunction.trim() !== '') {
-      try {
-        const transformFunction = new Function('input', `${inputFunction}`);
-        return transformFunction(body);
-      } catch (error) {
-        console.error('Input transformation function error:', error);
-        return body;
-      }
-    } else {
-      return body;
-    }
   }
 
   private outputTranslation(output: any, outputFunction?: string): ChatCompletionChunk {

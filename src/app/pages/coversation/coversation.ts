@@ -68,8 +68,6 @@ export class Coversation {
   data = signal<ChatMessage[]>([]);
   selectedPrompt = signal<Prompt | null>(null);
   activeModel = computed(() => this.sendService.activeModel());
-  url = signal<string | null>(null);
-  isImage = signal<boolean>(false);
   file = signal<{ name: string; size: number; url: string; type: string } | null>(null);
 
   ngOnInit() {

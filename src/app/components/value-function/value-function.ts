@@ -14,7 +14,9 @@ import { HelpComponent } from '../help/help';
 export class ValueFunction {
   dialogRef = inject(XDialogRef<ValueFunction>);
   dialogService = inject(XDialogService);
-  data = inject<{ title: string; content: string; helpContent: string }>(X_DIALOG_DATA);
+  data = inject<{ title: string; content: string; helpContent: string; save: (content: string) => void }>(
+    X_DIALOG_DATA
+  );
   formBuilder = inject(FormBuilder);
   form = this.formBuilder.group({
     content: ['', [Validators.required]]
@@ -47,5 +49,11 @@ export class ValueFunction {
         content: this.helpContent()
       }
     });
+  }
+
+  onSubmit() {
+    const { save } = this.data;
+    save && save(this.form.getRawValue().content!);
+    this.dialogRef.close();
   }
 }

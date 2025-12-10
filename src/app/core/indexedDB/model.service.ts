@@ -22,23 +22,14 @@ export interface Model {
   requestType?: 'OpenAI' | 'Http';
   method?: 'POST';
   url?: string;
-  headers?: Header[];
-  body?: string;
+  headersFunction?: string;
+  bodyFunction?: string;
   tags?: string[];
-}
-
-export interface Header {
-  id?: string;
-  enabled?: boolean;
-  key?: string;
-  value?: string;
-  valueFunction?: string;
-  description?: string;
 }
 
 export const ModelTable = `++id, manufacturerId, name, code, description, createdAt, updatedAt, 
 isActive, usePrompt, useUploadImage, useUploadVideo, requestType, inputTranslation, inputFunction, 
-outputTranslation, outputFunction, method, url, headers, body`;
+outputTranslation, outputFunction, method, url, headersFunction, bodyFunction`;
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

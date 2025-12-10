@@ -1,9 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
-  XCheckboxComponent,
   XDialogModule,
   XDialogRef,
   XDialogService,
@@ -20,12 +19,11 @@ import {
   XTextareaComponent
 } from '@ng-nest/ui';
 import { EditorComponent } from '@ui/components';
-import { Header, ModelService } from '@ui/core';
+import { ModelService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 import { HelpComponent } from '../../help/help';
 import { XSliderComponent } from '@ng-nest/ui/slider';
 import { NgTemplateOutlet } from '@angular/common';
-import { ValueFunction } from '../../value-function/value-function';
 
 @Component({
   selector: 'app-model',
@@ -40,7 +38,6 @@ import { ValueFunction } from '../../value-function/value-function';
     XSwitchComponent,
     XRadioComponent,
     XSelectComponent,
-    XCheckboxComponent,
     XSliderComponent,
     XIconComponent,
     EditorComponent,
@@ -79,14 +76,10 @@ export class ModelComponent {
     outputFunction: [''],
     method: ['POST'],
     url: [],
-    headers: this.fb.array([]),
-    body: [],
+    headersFunction: [''],
+    bodyFunction: [''],
     tags: []
   });
-
-  get headers() {
-    return this.form.get('headers') as FormArray;
-  }
 
   $destroy = new Subject<void>();
 
@@ -144,9 +137,22 @@ export class ModelComponent {
       }
     ],
     [
-      'body',
+      'body-function',
       {
-        title: 'Body（json）',
+        title: 'BodyFunction',
+        content: `
+### 内置变量
+
+- \`\${apiKey}\`: 服务商中配置的密钥
+- \`\${code}\`: 模型编码
+- \`\${content}\`: 发送的内容
+        `
+      }
+    ],
+    [
+      'headers-function',
+      {
+        title: 'HeadersFunction',
         content: `
 ### 内置变量
 
@@ -227,16 +233,6 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
 \`\`\`
         `
       }
-    ],
-    [
-      'header-value-function',
-      {
-        title: 'Header value function',
-        content: `
-### 请求头 value 函数
-
-        `
-      }
     ]
   ]);
 
@@ -250,26 +246,20 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
     if (this.id()) {
       req.push(
         this.service.getById(this.id()!).pipe(
-          tap((x) => {
+          tap((x: any) => {
             if (!x) return;
-            if (x.headers) {
-              for (let header of x.headers!) {
-                this.add(header);
-              }
-            }
 
             this.form.patchValue(x!);
           })
         )
       );
     } else {
-      const defaultHeaders = [
-        { id: crypto.randomUUID(), enabled: true, key: 'Content-Type', value: 'application/json' },
-        { id: crypto.randomUUID(), enabled: true, key: 'Authorization', value: 'Bearer ${apiKey}' }
-      ];
-      for (let header of defaultHeaders) {
-        this.add(header);
-      }
+      const defaultHeaders = `return {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer xxxx"
+}`;
+      const defaultBody = `return {}`;
+      this.form.patchValue({ headersFunction: defaultHeaders, bodyFunction: defaultBody });
     }
     if (req.length > 0) {
       this.formLoading.set(true);
@@ -327,35 +317,6 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
       data: {
         title,
         content
-      }
-    });
-  }
-
-  add(header?: Header) {
-    this.headers.push(
-      this.fb.group({
-        id: [header?.id ?? crypto.randomUUID()],
-        enabled: [header?.enabled ?? true],
-        key: [header?.key ?? ''],
-        value: [header?.value ?? ''],
-        valueFunction: [header?.valueFunction ?? ''],
-        description: [header?.description ?? '']
-      })
-    );
-  }
-
-  remove(i: number) {
-    this.headers.removeAt(i);
-  }
-
-  showFunction(control: FormGroup) {
-    const { valueFunction, key } = control.getRawValue();
-    this.dialogService.create(ValueFunction, {
-      width: '40rem',
-      data: {
-        title: key,
-        content: valueFunction,
-        helpContent: this.helpMap.get('header-value-function')?.content || ''
       }
     });
   }

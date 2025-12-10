@@ -5,7 +5,6 @@ import {
   ElementRef,
   OnDestroy,
   Renderer2,
-  booleanAttribute,
   computed,
   effect,
   forwardRef,

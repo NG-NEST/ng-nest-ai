@@ -18,9 +18,57 @@
       <x-sender
         formControlName="content"
         [placeholder]="'Enter 发送，Alt + Enter 换行'"
+        [footer]="footerTpl"
+        [header]="headerTpl"
         [suffix]="suffixTpl"
         (submit)="onSubmit()"
       ></x-sender>
+      <ng-template #headerTpl>
+        <div class="sender-header">
+          @if (file()) {
+            <x-file-card
+              variant="filled"
+              [name]="file().name"
+              [size]="file().size!"
+              [description]="file().description"
+              [url]="file().url"
+            ></x-file-card>
+          }
+        </div>
+      </ng-template>
+      <ng-template #footerTpl>
+        <div class="sender-footer">
+          @if (activeModel()?.usePrompt && (data().length === 0 || (data().length > 0 && selectedPrompt()))) {
+            <x-button plain flat (click)="onTool()" [icon]="selectedPrompt() ? 'fto-user' : 'icon:prompt'">
+              @if (selectedPrompt()) {
+                {{ selectedPrompt().name }}
+              } @else {
+                提示词
+              }
+            </x-button>
+          }
+          @if (activeModel()?.useUploadImage && !activeModel()?.useUploadVideo) {
+            <x-attachments [accept]="'image/png, image/jpeg, image/gif, image/bmp'" formControlName="files">
+              <x-button plain flat icon="fto-image"></x-button>
+            </x-attachments>
+          }
+          @if (activeModel()?.useUploadVideo && !activeModel()?.useUploadImage) {
+            <x-attachments [accept]="'video/mp4, video/webm, video/avi, .mp4, .webm, .avi'" formControlName="files">
+              <x-button plain flat icon="fto-video"></x-button>
+            </x-attachments>
+          }
+          @if (activeModel()?.useUploadVideo && activeModel()?.useUploadImage) {
+            <x-attachments
+              [accept]="
+                'image/png, image/jpeg, image/gif, image/bmp, video/mp4, video/webm, video/avi, .mp4, .webm, .avi'
+              "
+              formControlName="files"
+            >
+              <x-button plain flat> <x-icon type="fto-image"></x-icon> / <x-icon type="fto-video"></x-icon> </x-button>
+            </x-attachments>
+          }
+        </div>
+      </ng-template>
       <ng-template #suffixTpl>
         <div class="buttons">
           @if (loading() || this.typing()) {

@@ -3,6 +3,8 @@ import { BrowserWindow, dialog, ipcMain, IpcMainInvokeEvent, shell } from 'elect
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import * as vm from 'vm';
+import * as timers from 'timers';
 
 export interface IWindowService {
   isMaximized(): boolean;
@@ -16,6 +18,7 @@ export interface IWindowService {
   previewHtml(html: string): void;
   selectDirectory(): string;
   openExternal(url: string): void;
+  executeJavaScript(code: string, context?: Record<string, any>, timeout?: number): any;
 }
 
 export class WindowService implements IWindowService {
@@ -129,6 +132,81 @@ export class WindowService implements IWindowService {
     throw new Error('Invalid external URL');
   }
 
+  // code = "return 'hihi';"
+  executeJavaScript(code: string, context: Record<string, any> = {}, timeout: number = 5000): any {
+    if (this.isDestroyed) {
+      throw new Error('Window service has been destroyed');
+    }
+
+    try {
+      // 创建基础沙箱环境
+      const sandbox = {
+        // 提供基本的全局对象
+        console: {
+          log: (...args: any[]) => console.log('[VM Log]', ...args),
+          warn: (...args: any[]) => console.warn('[VM Warning]', ...args),
+          error: (...args: any[]) => console.error('[VM Error]', ...args)
+        },
+        // 提供基本的定时器功能
+        setTimeout: timers.setTimeout,
+        clearTimeout: timers.clearTimeout,
+        setInterval: timers.setInterval,
+        clearInterval: timers.clearInterval,
+        setImmediate: timers.setImmediate,
+        clearImmediate: timers.clearImmediate,
+        // 提供基本的数据结构
+        Array: Array,
+        Object: Object,
+        String: String,
+        Number: Number,
+        Boolean: Boolean,
+        Date: Date,
+        RegExp: RegExp,
+        Math: Math,
+
+        JSON: JSON,
+        // 将传入的上下文对象合并到沙箱中
+        ...context,
+
+        crypto: crypto,
+
+        require: require,
+        process: undefined,
+        global: undefined,
+        Buffer: undefined
+      };
+
+      // 创建新的上下文
+      const vmContext = vm.createContext(sandbox);
+
+      // 将代码包装在一个函数中，以便正确处理 return 语句
+      const wrappedCode = `
+      (function() {
+        ${code}
+      })();
+    `;
+
+      // 创建脚本并执行
+      const script = new vm.Script(wrappedCode);
+
+      // 执行脚本并返回结果
+      const result = script.runInContext(vmContext, {
+        timeout: timeout,
+        displayErrors: true
+      });
+
+      return result;
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'ScriptTimeOutError') {
+          throw new Error(`JavaScript execution timed out after ${timeout}ms`);
+        }
+        throw new Error(`JavaScript execution failed: ${error.message}`);
+      }
+      throw new Error('Unknown error occurred during JavaScript execution');
+    }
+  }
+
   // 注册 IPC 处理程序
   private registerIpcHandlers(): void {
     const handlers = new Map<string, Function>([
@@ -141,7 +219,12 @@ export class WindowService implements IWindowService {
       [`ipc:window:reloadPage`, () => this.reloadPage()],
       [`ipc:window:previewHtml`, (_event: IpcMainInvokeEvent, html: string) => this.previewHtml(html)],
       [`ipc:window:selectDirectory`, () => this.selectDirectory()],
-      [`ipc:window:openExternal`, (_event: IpcMainInvokeEvent, url: string) => this.openExternal(url)]
+      [`ipc:window:openExternal`, (_event: IpcMainInvokeEvent, url: string) => this.openExternal(url)],
+      [
+        `ipc:window:executeJavaScript`,
+        (_event: IpcMainInvokeEvent, code: string, context?: Record<string, any>, timeout?: number) =>
+          this.executeJavaScript(code, context, timeout)
+      ]
     ]);
 
     handlers.forEach((handler, eventName) => {

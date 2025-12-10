@@ -38,6 +38,31 @@
         background-color: $x-background;
       }
 
+      .sender-header {
+        padding: 0rem 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        x-file-card {
+          margin-top: 0.75rem;
+        }
+      }
+
+      .sender-footer {
+        padding: 0rem 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        .checked {
+          margin-left: 0.5rem;
+          color: $x-primary;
+        }
+        x-button {
+          margin-bottom: 0.75rem;
+        }
+      }
+
       .project {
         padding: 1rem 0;
         .name {

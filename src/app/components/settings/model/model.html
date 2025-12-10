@@ -2,7 +2,7 @@
   <h4 x-dialog-title class="title">{{ id() ? '修改' : '新增' }}模型</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
-    <x-slider [data]="['基本信息', '请求方式']" [(activatedIndex)]="sliderBase"> </x-slider>
+    <x-slider class="slider" [data]="['基本信息', '请求方式']" [(activatedIndex)]="sliderBase"> </x-slider>
     @if (sliderBase() === 0) {
       <div class="list">
         <div class="item">
@@ -87,85 +87,65 @@
             <x-slider
               [style.margin]="'2rem 0 0.25rem 0'"
               size="mini"
-              [data]="['Headers', 'Body', '输入转换', '输出转换']"
+              [data]="['Headers', 'Body', '输出转换']"
               [(activatedIndex)]="sliderHttp"
             >
             </x-slider>
             @if (sliderHttp() === 0) {
-              <div class="attrs-table" formArrayName="headers">
-                <table>
-                  <thead>
-                    <tr>
-                      <th width="40"></th>
-                      <th>Key</th>
-                      <th>Value</th>
-                      <th width="35">
-                        <x-button size="mini" attrType="button" icon="fto-plus" flat plain (click)="add()"></x-button>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (control of headers.controls; track control) {
-                      <tr [formGroupName]="$index">
-                        <td class="button">
-                          <x-checkbox class="checkbox" [data]="['']" formControlName="enabled" single></x-checkbox>
-                        </td>
-                        <td>
-                          <x-input formControlName="key"></x-input>
-                        </td>
-                        <td>
-                          <x-input-group compact>
-                            <x-input formControlName="value"></x-input>
-                            <x-button icon="icon:function" (click)="showFunction(control)" [title]="'函数'"></x-button>
-                          </x-input-group>
-                          <input type="hidden" formControlName="valueFunction" />
-                        </td>
-                        <td class="button">
-                          <x-button
-                            icon="fto-trash-2"
-                            attrType="button"
-                            size="mini"
-                            flat
-                            plain
-                            (click)="remove($index)"
-                          >
-                          </x-button>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            } @else if (sliderHttp() === 1) {
               <div [style.height.rem]="16">
                 <app-editor
                   class="editor"
-                  [label]="bodyLabelTpl"
-                  [filename]="'.json'"
-                  [style.height.rem]="16"
+                  [label]="headersLabelTpl"
+                  [filename]="'.js'"
                   [style.width.%]="100"
+                  [style.height.rem]="16"
                   [options]="{
                     minimap: { enabled: false }
                   }"
-                  formControlName="body"
+                  formControlName="headersFunction"
                 ></app-editor>
-                <ng-template #bodyLabelTpl>
+                <ng-template #headersLabelTpl>
                   <div class="editor-label">
-                    <span>Body（json）</span>
+                    <span>HeadersFunction()</span>
                     <x-button
                       size="small"
                       text
                       class="help"
                       icon="fto-help-circle"
                       [title]="'帮助'"
-                      (click)="onHelp('body')"
+                      (click)="onHelp('headers-function')"
+                    ></x-button>
+                  </div>
+                </ng-template>
+              </div>
+            } @else if (sliderHttp() === 1) {
+              <div [style.height.rem]="16">
+                <app-editor
+                  class="editor"
+                  [label]="bodyLabelTpl"
+                  [filename]="'.js'"
+                  [style.height.rem]="16"
+                  [style.width.%]="100"
+                  [options]="{
+                    minimap: { enabled: false }
+                  }"
+                  formControlName="bodyFunction"
+                ></app-editor>
+                <ng-template #bodyLabelTpl>
+                  <div class="editor-label">
+                    <span>BodyFunction()</span>
+                    <x-button
+                      size="small"
+                      text
+                      class="help"
+                      icon="fto-help-circle"
+                      [title]="'帮助'"
+                      (click)="onHelp('body-function')"
                     ></x-button>
                   </div>
                 </ng-template>
               </div>
             } @else if (sliderHttp() === 2) {
-              <ng-container *ngTemplateOutlet="inputTpl; context: { helpType: 'http-input' }"></ng-container>
-            } @else if (sliderHttp() === 3) {
               <ng-container *ngTemplateOutlet="outputTpl; context: { helpType: 'http-output' }"></ng-container>
             }
           </div>

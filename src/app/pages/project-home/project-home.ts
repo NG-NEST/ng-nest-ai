@@ -1,11 +1,14 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  XAttachmentsComponent,
+  XBubbleModule,
+  XCollapseModule,
   XDialogService,
-  XDropdownComponent,
   XDropdownNode,
+  XFileCardComponent,
   XIconComponent,
   XMessageBoxAction,
   XMessageBoxService
@@ -14,11 +17,13 @@ import { XButtonComponent } from '@ng-nest/ui/button';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
 import { BubblesComponent, SessionComponent } from '@ui/components';
 import {
-  AppOpenAIService,
+  AppSendService,
   ChatMessage,
+  ChatSendParams,
   MessageService,
   Project,
   ProjectService,
+  Prompt,
   Session,
   SessionService
 } from '@ui/core';
@@ -28,14 +33,16 @@ import { finalize, Subject, Subscription } from 'rxjs';
   selector: 'app-project-home',
   imports: [
     FormsModule,
-    ReactiveFormsModule,
-    BubblesComponent,
-    XIconComponent,
     XSenderComponent,
     XButtonComponent,
     XSenderStopComponent,
-    DatePipe,
-    XDropdownComponent
+    ReactiveFormsModule,
+    XBubbleModule,
+    XCollapseModule,
+    BubblesComponent,
+    XAttachmentsComponent,
+    XFileCardComponent,
+    XIconComponent
   ],
   templateUrl: './project-home.html',
   styleUrl: './project-home.scss'
@@ -49,11 +56,12 @@ export class ProjectHome {
   projectService = inject(ProjectService);
   sessionService = inject(SessionService);
   messageService = inject(MessageService);
-  openAIService = inject(AppOpenAIService);
+  sendService = inject(AppSendService);
   projectId = signal<number | null>(null);
   formBuilder = inject(FormBuilder);
   formGroup = this.formBuilder.group({
-    content: ['', [Validators.required]]
+    content: ['', [Validators.required]],
+    files: []
   });
   loading = signal(false);
   data = signal<ChatMessage[]>([]);
@@ -65,6 +73,9 @@ export class ProjectHome {
   count = signal(0);
   sessions = signal<Session[]>([]);
   typing = signal(false);
+  selectedPrompt = signal<Prompt | null>(null);
+  activeModel = computed(() => this.sendService.activeModel());
+  file = signal<{ name: string; size: number; url: string; type: string } | null>(null);
 
   constructor() {}
   ngOnInit() {
@@ -83,11 +94,41 @@ export class ProjectHome {
         this.getData();
       }
     });
+    this.formGroup.controls.files.valueChanges.subscribe(async (files: any) => {
+      if (!files) {
+        this.file.set(null);
+        return;
+      }
+
+      const file = files[0];
+
+      const fileData = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader!.result as string).split(',')[1]); // 去掉data:*/*;base64,前缀
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const bucketName = 'ng-nest-ai';
+      const objectName = `${crypto.randomUUID()}/${file.name}`;
+
+      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData, file.type);
+
+      if (result) {
+        this.file.set({
+          name: file.name,
+          url: `https://cos.ngnest.com/${bucketName}/${objectName}`,
+          size: file.size,
+          type: file.type
+        });
+      }
+    });
   }
 
   ngOnDestory() {
     this.$destroy.next();
     this.$destroy.complete();
+    this.onStop();
   }
 
   loadSessionData(sessionId: number) {
@@ -110,11 +151,23 @@ export class ProjectHome {
     const { content } = this.formGroup.getRawValue();
     if (!content) return;
     this.loading.set(true);
+
+    const params: ChatSendParams = { content, data: this.data(), projectId: this.projectId()! };
+    if (this.selectedPrompt() && this.data().length === 0) {
+      params.prompt = this.selectedPrompt()!;
+    }
+    if (this.file() && this.isImageFile(this.file()?.type!)) {
+      params.image = this.file()?.url;
+    }
+    if (this.file() && this.isVideoFile(this.file()?.type!)) {
+      params.video = this.file()?.url;
+    }
+
     this.formGroup.patchValue({ content: '' });
     this.formGroup.disable();
 
-    this.sendSubscription = this.openAIService
-      .send({ content, data: this.data(), projectId: this.projectId()! })
+    this.sendSubscription = this.sendService
+      .send(params)
       .pipe(
         finalize(() => {
           this.loading.set(false);
@@ -172,5 +225,26 @@ export class ProjectHome {
 
   itemClick(item: Session) {
     this.router.navigate(['/project-home'], { queryParams: { projectId: this.projectId(), sessionId: item.id } });
+  }
+
+  isImageFile(fileType: string): boolean {
+    const imageTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+      'image/bmp',
+      'image/tiff'
+    ];
+
+    return imageTypes.includes(fileType.toLowerCase());
+  }
+
+  isVideoFile(fileType: string): boolean {
+    const videoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
+
+    return videoTypes.includes(fileType.toLowerCase());
   }
 }
