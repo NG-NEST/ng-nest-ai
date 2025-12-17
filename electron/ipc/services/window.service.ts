@@ -137,6 +137,9 @@ export class WindowService implements IWindowService {
     if (this.isDestroyed) {
       throw new Error('Window service has been destroyed');
     }
+    if (!code || code.trim() === '') {
+      return context;
+    }
 
     try {
       // 创建基础沙箱环境

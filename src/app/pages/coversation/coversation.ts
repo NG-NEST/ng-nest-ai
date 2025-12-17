@@ -63,6 +63,7 @@ export class Coversation {
   });
   sessionId = signal<number | null>(null);
   sendSubscription: Subscription | null = null;
+  cancel?: () => void;
   typing = signal(false);
   $destroy = new Subject<void>();
   data = signal<ChatMessage[]>([]);
@@ -174,12 +175,16 @@ export class Coversation {
         if (x?.start && this.loading()) {
           this.loading.set(false);
         }
+        if (x?.cancel) {
+          this.cancel = x.cancel;
+        }
         this.data.update((items) => [...items]);
       });
   }
 
   onStop() {
     this.sendSubscription?.unsubscribe();
+    this.cancel && this.cancel();
     this.formGroup.enable();
     this.loading.set(false);
     if (this.typing()) {

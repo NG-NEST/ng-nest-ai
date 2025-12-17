@@ -212,6 +212,14 @@ input {
         }
       }
 
+      &.end {
+        justify-content: flex-end;
+      }
+
+      &.center {
+        justify-content: center;
+      }
+
       x-input,
       x-input-group,
       x-select,
@@ -469,6 +477,7 @@ input {
 
   img {
     max-width: 36rem;
+    max-height: 28rem;
     height: auto;
     display: block;
     border-radius: 6px;
@@ -600,6 +609,13 @@ input {
 .x-button > x-icon[class^='icon:'],
 x-icon[class^='icon:'] {
   font-size: 1rem;
+}
+
+.cdk-overlay-popover .cdk-overlay-backdrop {
+  transition: backdrop-filter 0.3s;
+  background-color: rgba(36, 36, 36, 0.6);
+  -webkit-backdrop-filter: blur(0.0625rem);
+  backdrop-filter: blur(0.0625rem);
 }
 
 .app-no-padding-dialog {

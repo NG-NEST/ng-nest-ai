@@ -24,11 +24,21 @@
   .http {
     flex-direction: column;
     align-items: flex-start;
+    padding: 2rem 1rem 1rem 1rem;
+    border: $x-border-base;
+    border-radius: $x-border-radius;
+
     > * {
       width: 100%;
     }
     x-tabs {
       margin-top: 0.5rem;
     }
+  }
+
+  .requests {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 }

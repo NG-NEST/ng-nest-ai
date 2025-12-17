@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -19,7 +19,7 @@ import {
   XTextareaComponent
 } from '@ng-nest/ui';
 import { EditorComponent } from '@ui/components';
-import { ModelService } from '@ui/core';
+import { ModelService, Request } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 import { HelpComponent } from '../../help/help';
 import { XSliderComponent } from '@ng-nest/ui/slider';
@@ -78,10 +78,25 @@ export class ModelComponent {
     url: [],
     headersFunction: [''],
     bodyFunction: [''],
-    tags: []
+    paramsFunction: [''],
+    tags: [],
+    requests: this.fb.array([])
   });
 
+  defaultHeaders = `return {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer \${apiKey}"
+}`;
+  defaultBody = `return {}`;
+  defaultParams = `return {}`;
+
   $destroy = new Subject<void>();
+
+  httpTabMap = new Map<number, number>();
+
+  get requests() {
+    return this.form.get('requests') as FormArray<any>;
+  }
 
   helpMap = new Map<string, { title: string; content: string }>([
     [
@@ -137,28 +152,37 @@ export class ModelComponent {
       }
     ],
     [
-      'body-function',
+      'input-function',
       {
-        title: 'BodyFunction',
+        title: 'Function',
         content: `
 ### 内置变量
 
 - \`\${apiKey}\`: 服务商中配置的密钥
 - \`\${code}\`: 模型编码
 - \`\${content}\`: 发送的内容
+- \`\${image}\`: 发送的图片地址（如有图片上传）
+- \`\${video}\`: 发送的视频地址（如有视频上传）
         `
       }
     ],
     [
-      'headers-function',
+      'request-input-function',
       {
-        title: 'HeadersFunction',
+        title: 'ParamsFunction',
         content: `
 ### 内置变量
 
 - \`\${apiKey}\`: 服务商中配置的密钥
 - \`\${code}\`: 模型编码
 - \`\${content}\`: 发送的内容
+- \`\${image}\`: 发送的图片地址（如有图片上传）
+- \`\${video}\`: 发送的视频地址（如有视频上传）
+- 还包含前一个请求的响应的数据中的属性，如果使用输出转换函数，则是转换后的对象中的属性
+
+### input 参数
+
+- 前一个请求响应的数据，如果使用输出转换函数，则是转换后的数据
         `
       }
     ],
@@ -174,7 +198,7 @@ export class ModelComponent {
       {
         title: 'http-输出转换',
         content: `
-output 类型是实际使用模型的输出结果，需要根据这个结果再转化为 OpenAI 模型的输出结果
+1、output 类型是实际使用模型的输出结果，需要根据这个结果再转化为 OpenAI 模型的输出结果
 
 比如：\`qwen-image-plus\` 的模型输出结果为：
 
@@ -231,7 +255,32 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
   "id": "chatcmpl-427c8957-be4a-4f54-8cf5-341043693949"
 }
 \`\`\`
-        `
+
+2、如果添加了多次请求，本次的输出或者输出转换后的数据会成为下一次请求的输入参数，此数据中的属性也会添加到内置变量中。
+
+如返回了一个 json 的数据：
+
+\`\`\`json
+{
+  aa: 1,
+  bb: 2,
+}
+\`\`\`
+
+- 在下次请求的 url 中可以这样使用变量 http://example.com/api?aa=\${aa}&bb=\${bb}
+- 在 headers、body、params 和输出转换的函数中也可使用此变量
+
+3、如果添加了多次请求，从第二次开始输出转换的函数中可以返回指定的 json 对象来实现多次请求机制
+
+返回的格式如下：
+\`\`\`json
+{
+  retry: true,      // 是否重试，
+  interval: 10000,  // 多长时间后重试，单位毫秒
+  maxRetries: 100   // 最大重试次数
+}
+\`\`\`
+`
       }
     ]
   ]);
@@ -243,23 +292,29 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
 
     const req: Observable<any>[] = [];
 
+    this.form.getRawValue();
+
     if (this.id()) {
       req.push(
         this.service.getById(this.id()!).pipe(
           tap((x: any) => {
             if (!x) return;
-
+            const { requests } = x;
+            if (requests && requests.length > 0) {
+              for (let i = 0; i < requests.length; i++) {
+                this.addRequest(requests[i]);
+              }
+            }
             this.form.patchValue(x!);
           })
         )
       );
     } else {
-      const defaultHeaders = `return {
-  "Content-Type": "application/json",
-  "Authorization": "Bearer xxxx"
-}`;
-      const defaultBody = `return {}`;
-      this.form.patchValue({ headersFunction: defaultHeaders, bodyFunction: defaultBody });
+      this.form.patchValue({
+        headersFunction: this.defaultHeaders,
+        bodyFunction: this.defaultBody,
+        paramsFunction: this.defaultParams
+      });
     }
     if (req.length > 0) {
       this.formLoading.set(true);
@@ -319,5 +374,24 @@ output 类型是实际使用模型的输出结果，需要根据这个结果再�
         content
       }
     });
+  }
+
+  addRequest(request?: Request) {
+    this.httpTabMap.set(this.requests.length, 0);
+    this.requests.push(
+      this.fb.group({
+        id: [request?.id ?? crypto.randomUUID()],
+        method: [request?.method ?? 'POST'],
+        url: [request?.url ?? ''],
+        headersFunction: [request?.headersFunction ?? this.defaultHeaders],
+        bodyFunction: [request?.bodyFunction ?? this.defaultBody],
+        paramsFunction: [request?.paramsFunction ?? this.defaultParams],
+        outputFunction: [request?.outputFunction ?? '']
+      })
+    );
+  }
+
+  removeRequest(i: number) {
+    this.requests.removeAt(i);
   }
 }

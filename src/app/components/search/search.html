@@ -21,7 +21,7 @@
 
         <ng-template #nodeTpl let-node="$node">
           <div class="node">
-            <span x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.label">{{
+            <span class="name" x-keyword [text]="keywordText()" [caseSensitive]="false" [attr.title]="node.label">{{
               node.label
             }}</span>
             <span>{{ node.createdAt | date: 'yyyy-MM-dd HH:mm:ss' }}</span>

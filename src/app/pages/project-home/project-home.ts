@@ -67,6 +67,7 @@ export class ProjectHome {
   data = signal<ChatMessage[]>([]);
   projectDetail = signal<Project | null>(null);
   sendSubscription: Subscription | null = null;
+  cancel?: () => void;
   $destroy = new Subject<void>();
   page = signal(1);
   size = signal(20);
@@ -178,12 +179,16 @@ export class ProjectHome {
         if (x?.start && this.loading()) {
           this.loading.set(false);
         }
+        if (x?.cancel) {
+          this.cancel = x.cancel;
+        }
         this.data.update((items) => [...items]);
       });
   }
 
   onStop() {
     this.sendSubscription?.unsubscribe();
+    this.cancel && this.cancel();
     this.formGroup.enable();
     this.loading.set(false);
     if (this.typing()) {

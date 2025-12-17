@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { Manufacturer, Message, MessageService, Model, Prompt, SessionService } from '../indexedDB';
 import { XMessageService } from '@ng-nest/ui/message';
 import { Observable } from 'rxjs';
-import { v4 } from 'uuid';
 import { ChatCompletionChunk } from 'openai/resources';
 
 export interface ChatMessage {
@@ -36,7 +35,12 @@ export interface ChatSendParams {
   model?: Model;
 }
 
-export type ChatDelta = ChatCompletionChunk.Choice.Delta & { reasoning_content?: string; image?: string };
+export type ChatDelta = ChatCompletionChunk.Choice.Delta & {
+  reasoning_content?: string;
+  image?: string;
+  video?: string;
+  videoContent?: string;
+};
 
 @Injectable({ providedIn: 'root' })
 export class AppOpenAIService {
@@ -91,10 +95,14 @@ export class AppOpenAIService {
       const newSession = data?.length === 0;
       let sessionId = newSession ? null : data[0].sessionId;
 
+      let { apiKey } = manufacturer!;
       const manufacturerId = manufacturer.id;
       const modelId = model.id;
       const modelCode = model.code;
       const { inputFunction, outputFunction } = model;
+
+      let inputPromise: Promise<any>;
+      let outputPromise: Promise<any>;
 
       if (sessionId) {
         data.map((item) => {
@@ -104,14 +112,14 @@ export class AppOpenAIService {
       }
 
       const userMsg: ChatMessage = {
-        id: v4(),
+        id: crypto.randomUUID(),
         role: 'user',
         content: content!
       };
 
       if (prompt) {
         data.push({
-          id: v4(),
+          id: crypto.randomUUID(),
           role: 'system',
           content: prompt.content
         });
@@ -145,7 +153,7 @@ export class AppOpenAIService {
         ] as any;
       }
 
-      data.push(userMsg, { id: v4(), role: 'assistant', content: '' });
+      data.push(userMsg, { id: crypto.randomUUID(), role: 'assistant', content: '' });
 
       const saveMessage = (saveId: number) => {
         const saveMsg: any = {
@@ -197,128 +205,150 @@ export class AppOpenAIService {
       let aiReasoningContent = '';
       let completed = false;
 
-      const input = this.inputTranslation({ model: modelCode!, messages }, inputFunction);
+      const vars = { apiKey, code: modelCode, content };
+      const inputParam = { model: modelCode!, messages };
 
-      const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
-        input,
-        (msg: ChatCompletionChunk) => {
-          const output = this.outputTranslation(msg, outputFunction);
-
-          // 接收流信息
-          if (output.choices && output.choices.length > 0) {
-            const delta = output.choices[0].delta;
-
-            if (delta) {
-              const { content, reasoning_content } = delta as ChatDelta;
-              if (content) {
-                aiContent += delta.content;
-                const lastItemIndex = data.length - 1;
-                if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
-                  data[lastItemIndex].content = aiContent;
-                  data[lastItemIndex].typing = true;
-                }
+      try {
+        if (!inputFunction || inputFunction?.trim() === '') {
+          inputPromise = Promise.resolve(inputParam);
+        } else {
+          inputPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(inputFunction!, vars), {
+            input: { model: modelCode!, messages }
+          }) as Promise<any>;
+        }
+        inputPromise.then((input) => {
+          const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
+            input,
+            (msg: ChatCompletionChunk) => {
+              if (!outputFunction || outputFunction?.trim() === '') {
+                outputPromise = Promise.resolve(msg);
+              } else {
+                outputPromise = window.electronAPI.windowControls.executeJavaScript(
+                  this.replaceVars(outputFunction!, vars),
+                  {
+                    output: msg
+                  }
+                ) as Promise<any>;
               }
-              if (reasoning_content) {
-                aiReasoningContent += reasoning_content;
-                const lastItemIndex = data.length - 1;
-                if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
-                  data[lastItemIndex].reasoningContent = aiReasoningContent;
-                  data[lastItemIndex].typing = true;
+
+              outputPromise.then((output) => {
+                if (output.choices && output.choices.length > 0) {
+                  const delta = output.choices[0].delta;
+
+                  if (delta) {
+                    const { content, reasoning_content } = delta as ChatDelta;
+                    if (content) {
+                      aiContent += delta.content;
+                      const lastItemIndex = data.length - 1;
+                      if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                        data[lastItemIndex].content = aiContent;
+                        data[lastItemIndex].typing = true;
+                      }
+                    }
+                    if (reasoning_content) {
+                      aiReasoningContent += reasoning_content;
+                      const lastItemIndex = data.length - 1;
+                      if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                        data[lastItemIndex].reasoningContent = aiReasoningContent;
+                        data[lastItemIndex].typing = true;
+                      }
+                    }
+                  }
                 }
+                sub.next({
+                  start: true,
+                  content: aiContent,
+                  reasoningContent: aiReasoningContent
+                });
+              });
+
+              // 接收流信息
+            },
+            () => {
+              // 完成回调 - 保存AI回复到数据库
+              if (sessionId !== null) {
+                const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
+                  sessionId: sessionId!,
+                  manufacturerId: manufacturerId!,
+                  modelId: modelId!,
+                  role: 'assistant',
+                  content: aiContent,
+                  reasoningContent: aiReasoningContent
+                };
+                this.messageService.create(aiMessage).subscribe();
+              }
+
+              const lastItemIndex = data.length - 1;
+              if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                data[lastItemIndex] = {
+                  ...data[lastItemIndex]
+                };
+              }
+
+              completed = true;
+              sub.next({ done: true, data });
+              sub.complete();
+            },
+            (error: any) => {
+              // 完成回调 - 保存错误消息到数据库
+              if (sessionId !== null) {
+                const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
+                  sessionId: sessionId!,
+                  manufacturerId: manufacturerId!,
+                  modelId: modelId!,
+                  role: 'error',
+                  content: error
+                };
+
+                this.messageService.create(aiMessage).subscribe();
+              }
+              const lastItemIndex = data.length - 1;
+              if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
+                data[lastItemIndex].content = `${error}`;
+                data[lastItemIndex].role = 'error';
+              }
+
+              // 错误回调
+              completed = true;
+              sub.next({ error, data });
+              sub.error(error);
+            }
+          );
+          sub.next({
+            cancel: () => {
+              if (!completed) {
+                cancelFunc();
               }
             }
-          }
-          sub.next({
-            start: true,
-            content: aiContent,
-            reasoningContent: aiReasoningContent
           });
-        },
-        () => {
-          // 完成回调 - 保存AI回复到数据库
-          if (sessionId !== null) {
-            const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
-              sessionId: sessionId!,
-              manufacturerId: manufacturerId!,
-              modelId: modelId!,
-              role: 'assistant',
-              content: aiContent,
-              reasoningContent: aiReasoningContent
-            };
-            this.messageService.create(aiMessage).subscribe();
-          }
-
-          const lastItemIndex = data.length - 1;
-          if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
-            data[lastItemIndex] = {
-              ...data[lastItemIndex]
-            };
-          }
-
-          completed = true;
-          sub.next({ done: true, data });
-          sub.complete();
-        },
-        (error: any) => {
-          // 完成回调 - 保存错误消息到数据库
-          if (sessionId !== null) {
-            const aiMessage: Omit<Message, 'id' | 'createdAt'> = {
-              sessionId: sessionId!,
-              manufacturerId: manufacturerId!,
-              modelId: modelId!,
-              role: 'error',
-              content: error
-            };
-
-            this.messageService.create(aiMessage).subscribe();
-          }
-          const lastItemIndex = data.length - 1;
-          if (lastItemIndex >= 0 && data[lastItemIndex].role === 'assistant') {
-            data[lastItemIndex].content = `${error}`;
-            data[lastItemIndex].role = 'error';
-          }
-
-          // 错误回调
-          completed = true;
-          sub.next({ error, data });
-          sub.error(error);
-        }
-      );
-
-      // 清理函数
-      return () => {
-        if (!completed) {
-          cancelFunc();
-        }
-      };
+        });
+      } catch (error) {
+        sub.next({ error: '解析异常', data });
+        sub.error(error);
+      }
     });
   }
 
-  private inputTranslation(input: ChatCompletionOptions, inputFunction?: string) {
-    if (inputFunction && inputFunction.trim() !== '') {
-      try {
-        const transformFunction = new Function('input', `${inputFunction}`);
-        return transformFunction(input);
-      } catch (error) {
-        console.error('Input transformation function error:', error);
-        return input;
-      }
-    } else {
-      return input;
-    }
-  }
+  replaceVars(content: string, values: Record<string, any>) {
+    if (!content) return '';
 
-  private outputTranslation(output: ChatCompletionChunk, outputFunction?: string): ChatCompletionChunk {
-    if (outputFunction && outputFunction.trim() !== '') {
-      try {
-        const transformFunction = new Function('output', `${outputFunction}`);
-        return transformFunction(output);
-      } catch (error) {
-        console.error('Output transformation function error:', error);
-        return output;
+    // 创建映射关系
+    const replacements: Record<string, string> = {};
+
+    for (let key in values) {
+      if (typeof values[key] !== 'undefined') {
+        replacements[`\$\{${key}\}`] = values[key];
       }
-    } else {
-      return output;
     }
+
+    // 逐一替换每个变量
+    let result = content;
+    Object.keys(replacements).forEach((key) => {
+      const value = replacements[key];
+      // 使用更安全的字符串替换方法
+      result = result.split(key).join(value);
+    });
+
+    return result;
   }
 }

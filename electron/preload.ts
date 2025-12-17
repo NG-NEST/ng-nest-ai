@@ -95,13 +95,14 @@ const openAI: OpenAI = {
 
 // http
 interface Http {
-  get: (url: string, options?: RequestInit) => Promise<any>;
+  get: (url: string, params?: any, options?: RequestInit) => Promise<any>;
   post: (url: string, body: any, options?: RequestInit) => Promise<any>;
   put: (url: string, body: any, options?: RequestInit) => Promise<any>;
   delete: (url: string, options?: RequestInit) => Promise<any>;
 }
 const http: Http = {
-  get: (url: string, options?: RequestInit): Promise<any> => ipcRenderer.invoke('ipc:http:get', url, options),
+  get: (url: string, params?: any, options?: RequestInit): Promise<any> =>
+    ipcRenderer.invoke('ipc:http:get', url, params, options),
   post: (url: string, body: any, options?: RequestInit): Promise<any> =>
     ipcRenderer.invoke('ipc:http:post', url, body, options),
   put: (url: string, body: any, options?: RequestInit): Promise<any> =>

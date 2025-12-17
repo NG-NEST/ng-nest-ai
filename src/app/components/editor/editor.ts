@@ -73,9 +73,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
     });
   }
 
-  ngOnInit() {
-    // console.log('MonacoEnvironment:', (window as any).MonacoEnvironment);
-  }
+  ngOnInit() {}
 
   ngAfterViewInit(): void {
     // 动态加载 monaco editor

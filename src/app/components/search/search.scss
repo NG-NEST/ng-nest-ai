@@ -38,5 +38,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    .name {
+      padding-right: 1rem;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      word-break: break-all;
+
+      // 兼容性处理
+      white-space: nowrap;
+      width: 0; // 解决flex布局下的省略号问题
+    }
   }
 }

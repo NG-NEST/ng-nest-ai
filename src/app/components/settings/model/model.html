@@ -41,7 +41,7 @@
           <x-select
             [placeholder]="'标签'"
             [style.width.px]="300"
-            [data]="['深度思考', '文生图', '图生文', '视频理解']"
+            [data]="['深度思考', '文生图', '图生文', '视频理解', '文生视频', '图生视频']"
             formControlName="tags"
             multiple
           ></x-select>
@@ -78,7 +78,7 @@
             <x-input-group compact>
               <x-select
                 style="flex: initial; width: 6rem"
-                [data]="['POST']"
+                [data]="['POST', 'GET']"
                 clearable="false"
                 formControlName="method"
               ></x-select>
@@ -87,7 +87,7 @@
             <x-slider
               [style.margin]="'2rem 0 0.25rem 0'"
               size="mini"
-              [data]="['Headers', 'Body', '输出转换']"
+              [data]="['Headers', form.get('method')?.value === 'POST' ? 'Body' : 'Params', '输出转换']"
               [(activatedIndex)]="sliderHttp"
             >
             </x-slider>
@@ -113,41 +113,217 @@
                       class="help"
                       icon="fto-help-circle"
                       [title]="'帮助'"
-                      (click)="onHelp('headers-function')"
+                      (click)="onHelp('input-function')"
                     ></x-button>
                   </div>
                 </ng-template>
               </div>
             } @else if (sliderHttp() === 1) {
               <div [style.height.rem]="16">
-                <app-editor
-                  class="editor"
-                  [label]="bodyLabelTpl"
-                  [filename]="'.js'"
-                  [style.height.rem]="16"
-                  [style.width.%]="100"
-                  [options]="{
-                    minimap: { enabled: false }
-                  }"
-                  formControlName="bodyFunction"
-                ></app-editor>
-                <ng-template #bodyLabelTpl>
-                  <div class="editor-label">
-                    <span>BodyFunction()</span>
-                    <x-button
-                      size="small"
-                      text
-                      class="help"
-                      icon="fto-help-circle"
-                      [title]="'帮助'"
-                      (click)="onHelp('body-function')"
-                    ></x-button>
-                  </div>
-                </ng-template>
+                @if (form.get('method')?.value === 'POST') {
+                  <app-editor
+                    class="editor"
+                    [label]="bodyLabelTpl"
+                    [filename]="'.js'"
+                    [style.height.rem]="16"
+                    [style.width.%]="100"
+                    [options]="{
+                      minimap: { enabled: false }
+                    }"
+                    formControlName="bodyFunction"
+                  ></app-editor>
+                  <ng-template #bodyLabelTpl>
+                    <div class="editor-label">
+                      <span>BodyFunction()</span>
+                      <x-button
+                        size="small"
+                        text
+                        class="help"
+                        icon="fto-help-circle"
+                        [title]="'帮助'"
+                        (click)="onHelp('input-function')"
+                      ></x-button>
+                    </div>
+                  </ng-template>
+                } @else if (form.get('method')?.value === 'GET') {
+                  <app-editor
+                    class="editor"
+                    [label]="paramsLabelTpl"
+                    [filename]="'.js'"
+                    [style.height.rem]="16"
+                    [style.width.%]="100"
+                    [options]="{
+                      minimap: { enabled: false }
+                    }"
+                    formControlName="paramsFunction"
+                  ></app-editor>
+                  <ng-template #paramsLabelTpl>
+                    <div class="editor-label">
+                      <span>ParamsFunction()</span>
+                      <x-button
+                        size="small"
+                        text
+                        class="help"
+                        icon="fto-help-circle"
+                        [title]="'帮助'"
+                        (click)="onHelp('input-function')"
+                      ></x-button>
+                    </div>
+                  </ng-template>
+                }
               </div>
             } @else if (sliderHttp() === 2) {
               <ng-container *ngTemplateOutlet="outputTpl; context: { helpType: 'http-output' }"></ng-container>
             }
+          </div>
+
+          @if (requests.controls.length > 0) {
+            <div class="requests" formArrayName="requests">
+              @for (control of requests.controls; track control) {
+                <div class="item http attrs" [formGroupName]="$index">
+                  <x-input-group compact>
+                    <x-select
+                      style="flex: initial; width: 6rem"
+                      [data]="['POST', 'GET']"
+                      clearable="false"
+                      formControlName="method"
+                    ></x-select>
+                    <x-input floatLabel="on" label="请求地址" formControlName="url"></x-input>
+                  </x-input-group>
+                  <x-slider
+                    [style.margin]="'2rem 0 0.25rem 0'"
+                    size="mini"
+                    [data]="['Headers', control.get('method')?.value === 'POST' ? 'Body' : 'Params', '输出转换']"
+                    [activatedIndex]="httpTabMap.get($index)"
+                    (activatedIndexChange)="httpTabMap.set($index, $event)"
+                  >
+                  </x-slider>
+                  @if (httpTabMap.get($index) === 0) {
+                    <div [style.height.rem]="16">
+                      <app-editor
+                        class="editor"
+                        [label]="headersLabelTpl"
+                        [filename]="'.js'"
+                        [style.width.%]="100"
+                        [style.height.rem]="16"
+                        [options]="{
+                          minimap: { enabled: false }
+                        }"
+                        formControlName="headersFunction"
+                      ></app-editor>
+                      <ng-template #headersLabelTpl>
+                        <div class="editor-label">
+                          <span>HeadersFunction(input)</span>
+                          <x-button
+                            size="small"
+                            text
+                            class="help"
+                            icon="fto-help-circle"
+                            [title]="'帮助'"
+                            (click)="onHelp('request-input-function')"
+                          ></x-button>
+                        </div>
+                      </ng-template>
+                    </div>
+                  } @else if (httpTabMap.get($index) === 1) {
+                    <div [style.height.rem]="16">
+                      @if (control.get('method')?.value === 'POST') {
+                        <app-editor
+                          class="editor"
+                          [label]="bodyLabelTpl"
+                          [filename]="'.js'"
+                          [style.height.rem]="16"
+                          [style.width.%]="100"
+                          [options]="{
+                            minimap: { enabled: false }
+                          }"
+                          formControlName="bodyFunction"
+                        ></app-editor>
+                        <ng-template #bodyLabelTpl>
+                          <div class="editor-label">
+                            <span>BodyFunction(input)</span>
+                            <x-button
+                              size="small"
+                              text
+                              class="help"
+                              icon="fto-help-circle"
+                              [title]="'帮助'"
+                              (click)="onHelp('request-input-function')"
+                            ></x-button>
+                          </div>
+                        </ng-template>
+                      } @else if (control.get('method')?.value === 'GET') {
+                        <app-editor
+                          class="editor"
+                          [label]="paramsLabelTpl"
+                          [filename]="'.js'"
+                          [style.height.rem]="16"
+                          [style.width.%]="100"
+                          [options]="{
+                            minimap: { enabled: false }
+                          }"
+                          formControlName="paramsFunction"
+                        ></app-editor>
+                        <ng-template #paramsLabelTpl>
+                          <div class="editor-label">
+                            <span>ParamsFunction(input)</span>
+                            <x-button
+                              size="small"
+                              text
+                              class="help"
+                              icon="fto-help-circle"
+                              [title]="'帮助'"
+                              (click)="onHelp('request-input-function')"
+                            ></x-button>
+                          </div>
+                        </ng-template>
+                      }
+                    </div>
+                  } @else if (httpTabMap.get($index) === 2) {
+                    <div class="item">
+                      <app-editor
+                        class="editor"
+                        [label]="outputLabelTpl"
+                        [filename]="'.js'"
+                        [style.height.rem]="16"
+                        [style.width.%]="100"
+                        [options]="{
+                          minimap: { enabled: false }
+                        }"
+                        formControlName="outputFunction"
+                      ></app-editor>
+                      <ng-template #outputLabelTpl>
+                        <div class="editor-label">
+                          <span>OutputFunction(output) </span>
+                          <x-button
+                            size="small"
+                            text
+                            class="help"
+                            icon="fto-help-circle"
+                            [title]="'帮助'"
+                            (click)="onHelp('http-output')"
+                          ></x-button>
+                        </div>
+                      </ng-template>
+                    </div>
+                  }
+                  <div class="item center" [style.marginTop.rem]="1">
+                    <x-button
+                      flat
+                      plain
+                      icon="fto-dash"
+                      icon="fto-trash-2"
+                      attrType="button"
+                      (click)="removeRequest($index)"
+                      >删除</x-button
+                    >
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          <div class="item">
+            <x-button flat plain icon="fto-plus" (click)="addRequest()" attrType="button">添加请求</x-button>
           </div>
         }
       </div>

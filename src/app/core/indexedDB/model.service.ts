@@ -20,16 +20,29 @@ export interface Model {
   outputTranslation?: boolean;
   outputFunction?: string;
   requestType?: 'OpenAI' | 'Http';
-  method?: 'POST';
+  method?: 'POST' | 'GET';
   url?: string;
   headersFunction?: string;
   bodyFunction?: string;
+  paramsFunction?: string;
   tags?: string[];
+  requests?: Request[];
+}
+
+export interface Request {
+  id?: string;
+  method?: 'POST' | 'GET';
+  url?: string;
+  headersFunction?: string;
+  bodyFunction?: string;
+  paramsFunction?: string;
+  outputFunction?: string;
 }
 
 export const ModelTable = `++id, manufacturerId, name, code, description, createdAt, updatedAt, 
 isActive, usePrompt, useUploadImage, useUploadVideo, requestType, inputTranslation, inputFunction, 
-outputTranslation, outputFunction, method, url, headersFunction, bodyFunction`;
+outputTranslation, outputFunction, method, url, headersFunction, bodyFunction, paramsFunction, 
+requests`;
 
 @Injectable({ providedIn: 'root' })
 export class ModelService {

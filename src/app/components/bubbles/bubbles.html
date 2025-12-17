@@ -1,20 +1,48 @@
 <x-bubbles #bubbles class="app-markdown">
   @for (item of data(); track item.id) {
     @if (item.role === 'assistant') {
-      <x-bubble
-        placement="assistant"
-        [typing]="item.typing"
-        [renderer]="render"
-        [content]="item.image ? imageTpl : item.content"
-        [reasoningContent]="item.reasoningContent"
-        [loading]="$index === data().length - 1 && loading()"
-        (typingStart)="typingStart.emit()"
-        (typingEnd)="typingEnd.emit()"
-        variant="borderless"
-      ></x-bubble>
-      <ng-template #imageTpl>
-        <x-image [src]="item.image"></x-image>
-      </ng-template>
+      @if (item.image) {
+        <x-bubble
+          [typing]="item.typing"
+          [renderer]="render"
+          [content]="imageTpl"
+          [reasoningContent]="item.reasoningContent"
+          [loading]="$index === data().length - 1 && loading()"
+          (typingStart)="typingStart.emit()"
+          (typingEnd)="typingEnd.emit()"
+          variant="borderless"
+        ></x-bubble>
+        <ng-template #imageTpl>
+          <x-image [src]="item.image"></x-image>
+        </ng-template>
+      } @else if (item.video) {
+        <x-bubble
+          [typing]="item.typing"
+          [renderer]="render"
+          [content]="item.videoContent"
+          [loading]="$index === data().length - 1 && loading()"
+          (typingStart)="typingStart.emit()"
+          (typingEnd)="typingEnd.emit()"
+          variant="borderless"
+          [header]="headerTpl"
+        ></x-bubble>
+        <ng-template #headerTpl>
+          <video [src]="item.video" controls preload="metadata" width="640" height="360" playsinline muted>
+            Not supported video
+          </video>
+        </ng-template>
+      } @else {
+        <x-bubble
+          [typing]="item.typing"
+          [renderer]="render"
+          [content]="item.content"
+          [reasoningContent]="item.reasoningContent"
+          [loading]="$index === data().length - 1 && loading()"
+          (typingStart)="typingStart.emit()"
+          (typingEnd)="typingEnd.emit()"
+          variant="borderless"
+        ></x-bubble>
+      }
     } @else if (item.role === 'user') {
       @if (item.image) {
         <x-bubble
@@ -37,7 +65,7 @@
         ></x-bubble>
         <ng-template #headerTpl>
           <video [src]="item.video" controls preload="metadata" width="640" height="360" playsinline muted>
-            您的浏览器不支持 video 标签。
+            Not supported video
           </video>
         </ng-template>
       } @else {
@@ -50,7 +78,6 @@
       }
     } @else if (item.role === 'error') {
       <x-bubble
-        placement="start"
         [avatar]="{ icon: 'fto-aperture', backgroundColor: 'rgba(248, 113, 113, 0.5)' }"
         [typing]="item.typing"
         [content]="item.content"
