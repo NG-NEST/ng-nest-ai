@@ -14,7 +14,7 @@
     "build:electron-ts": "tsc -p tsconfig.electron.json",
     "build:all": "npm run build && npm run build:electron-ts",
     "start:prod": "npm run build:all && electron ./dist/electron/main.js",
-    "dist": "npm run build:all && npm run electron-builder",
+    "build:electron": "npm run build:all && npm run electron-builder",
     "electron-builder": "electron-builder"
   },
   "private": true,

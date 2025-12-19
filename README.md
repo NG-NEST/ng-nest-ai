@@ -1,59 +1,95 @@
-# NG-NEST-AI
+# NG-NEST AI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
+NG-NEST AI 是一个基于 Angular 和 Electron 构建的桌面端 AI 聊天应用。该项目提供了丰富的功能，包括项目管理、会话历史、多种媒体类型支持等。
 
-## Development server
+## 功能特性
 
-To start a local development server, run:
+### 核心功能
+
+- 💬 实时 AI 对话交互
+- 📁 项目管理系统
+- 🕒 会话历史记录
+- ⚙️ 多模型配置支持
+- 🌍 多语言国际化支持
+- 🎨 主题定制功能
+
+### 媒体支持
+
+- 🖼️ 图片上传
+- 🎥 视频上传
+
+### 技术特点
+
+- 🖥️ Electron 桌面应用
+- 🧠 IndexedDB 本地数据存储
+- ☁️ MinIO 对象存储集成
+- 🔧 OpenAI API 集成
+- 🎨 Angular 21 最新特性
+
+## 技术栈
+
+- **前端框架**: Angular 21
+- **UI 组件库**: @ng-nest/ui
+- **桌面应用**: Electron 39
+- **状态管理**: RxJS
+- **数据库**: IndexedDB (Dexie.js)
+- **对象存储**: MinIO
+- **AI 服务**: OpenAI
+- **构建工具**: Angular CLI
+
+## 核心模块
+
+### 项目管理
+
+- 创建和管理多个项目
+- 自定义项目图标和颜色
+- 工作区目录设置
+- 项目内会话管理
+
+### 会话系统
+
+- 实时聊天界面
+- 会话历史记录
+- 会话重命名和删除
+- 多媒体内容支持
+
+### AI 模型配置
+
+- 多厂商 API 支持
+- 多模型切换
+- 系统提示词配置
+- 深度思考模式
+- 多模态支持（文本、图像、视频）
+
+### 设置中心
+
+- 通用设置（语言等）
+- 主题定制（深色/浅色模式）
+- 厂商配置（API Key、Base URL）
+- 模型管理（OpenAI、自定义请求）
+
+## 安装与运行
+
+### 环境要求
+
+- Node.js >= 22
+- npm >= 10
+
+### 安装步骤
 
 ```bash
-ng serve
+# 克隆项目
+git clone https://github.com/ng-nest/ng-nest-ai.git
+
+# 安装依赖
+npm install
+
+# 开发模式运行
+npm run start
+
+# 构建应用
+npm run build
+
+# 打包为可执行文件
+npm run build:electron
 ```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
