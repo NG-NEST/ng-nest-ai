@@ -14,7 +14,7 @@
           [variant]="'borderless'"
           formControlName="title"
           size="big"
-          placeholder="系统提示词搜索"
+          [placeholder]="'$prompt.search' | xI18n"
         ></x-input>
       </div>
     }
@@ -53,7 +53,7 @@
     </div>
   </div>
   <div x-dialog-actions align="center" class="actions">
-    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>{{ '$base.cancel' | xI18n }}</x-button>
     <x-button
       flat
       icon="fto-save"
@@ -61,7 +61,7 @@
       attrType="submit"
       [loading]="saveLoading()"
       [disabled]="!form.valid || !selectedPrompt() || disabled()"
-      >确认</x-button
+      >{{ '$base.ok' | xI18n }}</x-button
     >
   </div>
 </form>

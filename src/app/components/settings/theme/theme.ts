@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { XColorPickerComponent, XDialogModule, XIconComponent, XSwitchComponent } from '@ng-nest/ui';
+import { XColorPickerComponent, XDialogModule, XI18nPipe, XIconComponent, XSwitchComponent } from '@ng-nest/ui';
 import { AppThemeService } from '@ui/core';
 
 @Component({
   selector: 'app-theme',
-  imports: [ReactiveFormsModule, XDialogModule, XIconComponent, XSwitchComponent, XColorPickerComponent],
+  imports: [ReactiveFormsModule, XDialogModule, XIconComponent, XSwitchComponent, XColorPickerComponent, XI18nPipe],
   templateUrl: './theme.html',
   styleUrl: './theme.scss'
 })

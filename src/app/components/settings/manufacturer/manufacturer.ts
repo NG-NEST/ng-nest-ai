@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -10,16 +10,26 @@ import {
   XMessageBoxAction,
   XMessageBoxService,
   XMessageService,
-  XSwitchComponent
+  XSwitchComponent,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { ManufacturerService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
 @Component({
   selector: 'app-manufacturer',
-  imports: [ReactiveFormsModule, XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent, XSwitchComponent],
+  imports: [
+    ReactiveFormsModule,
+    XInputComponent,
+    XDialogModule,
+    XButtonComponent,
+    XLoadingComponent,
+    XSwitchComponent,
+    XI18nPipe
+  ],
   templateUrl: './manufacturer.html',
-  styleUrl: './manufacturer.scss'
+  styleUrl: './manufacturer.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManufacturerComponent {
   data = inject<{ id: number; saveSuccess: () => void }>(X_DIALOG_DATA);

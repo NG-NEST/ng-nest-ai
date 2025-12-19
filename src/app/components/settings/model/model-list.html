@@ -1,12 +1,17 @@
 <form [formGroup]="formGroup">
-  <div class="sub-title">模型</div>
+  <div class="sub-title">{{ '$model.title' | xI18n }}</div>
 
   <div class="models">
     <div class="search">
-      <x-select [data]="manufacturerList()" floatLabel="on" label="服务商" formControlName="manufacturerId"></x-select>
+      <x-select
+        [data]="manufacturerList()"
+        floatLabel="on"
+        [label]="'$manufacturer.title' | xI18n"
+        formControlName="manufacturerId"
+      ></x-select>
       <x-input-group compact>
         <x-input #inputSearch formControlName="value" icon="fto-search" iconLayout="left" style="width: 100%"></x-input>
-        <x-button (click)="addModel()" icon="fto-plus" flat plain>新增</x-button>
+        <x-button (click)="addModel()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
       </x-input-group>
     </div>
 
@@ -34,7 +39,7 @@
                   color: 'var(--x-text-300)',
                   borderColor: 'var(--x-background-a500)'
                 }"
-                >{{ tag }}</x-tag
+                >{{ '$model.' + tag | xI18n }}</x-tag
               >
             }
           </div>

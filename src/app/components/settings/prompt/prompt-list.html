@@ -1,15 +1,15 @@
 <form [formGroup]="formGroup">
-  <div class="sub-title">系统提示词</div>
+  <div class="sub-title">{{ '$prompt.title' | xI18n }}</div>
   @if (allPromptList().length === 0) {
     <div class="empty">
       <x-empty></x-empty>
-      <x-button (click)="addPrompt()" icon="fto-plus" flat plain>新增</x-button>
+      <x-button (click)="addPrompt()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
     </div>
   } @else {
     <div class="prompts">
       <x-input-group compact class="search">
         <x-input #inputSearch formControlName="value" icon="fto-search" iconLayout="left" style="width: 100%"></x-input>
-        <x-button (click)="addPrompt()" icon="fto-plus" flat plain>新增</x-button>
+        <x-button (click)="addPrompt()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
       </x-input-group>
       @for (item of promptList(); track item.id) {
         <div class="prompt" (click)="updatePrompt(item)">

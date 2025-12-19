@@ -1,11 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { XButtonComponent, XDialogModule, XIconComponent } from '@ng-nest/ui';
+import { XButtonComponent, XDialogModule, XI18nPipe, XIconComponent } from '@ng-nest/ui';
 import { ManufacturerList } from './manufacturer/manufacturer-list';
 import { ModelList } from './model/model-list';
 import { Theme } from './theme/theme';
 import { PromptList } from './prompt/prompt-list';
-import { About } from './about/about';
+import { General } from './general/general';
 
 @Component({
   selector: 'app-settings',
@@ -14,26 +14,21 @@ import { About } from './about/about';
     XDialogModule,
     XIconComponent,
     XButtonComponent,
+    XI18nPipe,
     ManufacturerList,
     ModelList,
     Theme,
-    About,
+    General,
     PromptList
   ],
   templateUrl: './settings.html',
-  styleUrl: './settings.scss'
+  styleUrl: './settings.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Settings {
   selectedMenuId = signal('manufacturer');
 
-  menus = [
-    { id: 'manufacturer', label: '服务商', icon: 'icon:manufacturer' },
-    { id: 'model', label: '模型', icon: 'icon:model' },
-    { id: 'prompt', label: '系统提示词', icon: 'icon:prompt' },
-    { id: 'theme', label: '外观', icon: 'icon:theme' },
-    // { id: 'settings', label: '通用', icon: 'icon:settings' },
-    { id: 'about', label: '关于', icon: 'icon:about' }
-  ];
+  menus = [];
 
   selectMenu(menu: { id: string }) {
     this.selectedMenuId.set(menu.id);

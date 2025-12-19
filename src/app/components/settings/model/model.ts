@@ -6,6 +6,7 @@ import {
   XDialogModule,
   XDialogRef,
   XDialogService,
+  XI18nPipe,
   XIconComponent,
   XInputComponent,
   XInputGroupComponent,
@@ -40,6 +41,7 @@ import { NgTemplateOutlet } from '@angular/common';
     XSelectComponent,
     XSliderComponent,
     XIconComponent,
+    XI18nPipe,
     EditorComponent,
     NgTemplateOutlet
   ],

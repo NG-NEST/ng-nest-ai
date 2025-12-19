@@ -1,0 +1,29 @@
+<form [formGroup]="formGroup">
+  <div class="sub-title">{{ '$general.title' | xI18n }}</div>
+  <div class="general list">
+    <div class="item switch" [style.paddingRight.rem]="0">
+      <div class="label">{{ '$general.language' | xI18n }}</div>
+      <x-select
+        [style.width.rem]="6.75"
+        [style.flex]="'initial'"
+        [data]="[
+          { label: '简体中文', id: 'zh_CN' },
+          { label: 'English', id: 'en_US' }
+        ]"
+        variant="borderless"
+        formControlName="lang"
+        [clearable]="false"
+      ></x-select>
+    </div>
+    <div class="item switch">
+      <div class="label">{{ '$general.devtool' | xI18n }}</div>
+      <x-switch [checkedText]="enableTpl" [unCheckedText]="disableTpl" formControlName="switchDev"></x-switch>
+      <ng-template #enableTpl>
+        <div class="general-icon"><x-icon type="fto-check"></x-icon> {{ '$base.enable' | xI18n }}</div>
+      </ng-template>
+      <ng-template #disableTpl>
+        <div class="general-icon"><x-icon type="fto-x"> </x-icon> {{ '$base.disable' | xI18n }}</div>
+      </ng-template>
+    </div>
+  </div>
+</form>

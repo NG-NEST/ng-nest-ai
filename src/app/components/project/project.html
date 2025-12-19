@@ -1,5 +1,5 @@
 <form [x-loading]="formLoading()" [formGroup]="form" class="app-dialog-form" (ngSubmit)="save()">
-  <h4 x-dialog-title class="title">{{ id() ? '修改' : '新' }}项目</h4>
+  <h4 x-dialog-title class="title">{{ id() ? ('$project.edit' | xI18n) : ('$project.new' | xI18n) }}</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
     <div class="item required">
@@ -12,6 +12,7 @@
           [placement]="'bottom-start'"
           [panelClass]="'select-icon'"
           [minWidth]="'19.25rem'"
+          plain
         >
           <x-icon
             class="project-icon"
@@ -19,7 +20,7 @@
             [style.color]="form.get('iconColor')?.value"
           ></x-icon>
         </x-button>
-        <x-input floatLabel="on" label="名称" formControlName="name" required></x-input>
+        <x-input floatLabel="on" [label]="'$base.name' | xI18n" formControlName="name" required></x-input>
       </x-input-group>
     </div>
     <ng-template #contentTpl>
@@ -45,18 +46,26 @@
     </ng-template>
     <div class="item required">
       <x-input-group compact>
-        <x-button icon="fto-folder" (click)="selectDirectory()"> </x-button>
-        <x-input floatLabel="on" label="工作目录" formControlName="workspace" required></x-input>
+        <x-button icon="fto-folder" (click)="selectDirectory()" plain> </x-button>
+        <x-input floatLabel="on" [label]="'$project.workspace' | xI18n" formControlName="workspace" required></x-input>
       </x-input-group>
     </div>
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {
-      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">删除</x-button>
+      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">{{
+        '$base.delete' | xI18n
+      }}</x-button>
     }
-    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
-    <x-button flat icon="fto-save" type="primary" attrType="submit" [loading]="saveLoading()" [disabled]="!form.valid"
-      >保存</x-button
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>{{ '$base.cancel' | xI18n }}</x-button>
+    <x-button
+      flat
+      icon="fto-save"
+      type="primary"
+      attrType="submit"
+      [loading]="saveLoading()"
+      [disabled]="!form.valid"
+      >{{ '$base.save' | xI18n }}</x-button
     >
   </div>
 </form>

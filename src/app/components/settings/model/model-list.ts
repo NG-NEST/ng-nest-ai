@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -13,7 +13,8 @@ import {
   XInputGroupComponent,
   XInputComponent,
   XKeywordDirective,
-  XTagComponent
+  XTagComponent,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { ManufacturerService, Model, ModelService } from '@ui/core';
 import { ModelComponent } from './model';
@@ -32,10 +33,12 @@ import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription, s
     XInputGroupComponent,
     XInputComponent,
     XKeywordDirective,
-    XTagComponent
+    XTagComponent,
+    XI18nPipe
   ],
   templateUrl: './model-list.html',
-  styleUrl: './model-list.scss'
+  styleUrl: './model-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModelList {
   formBuilder = inject(FormBuilder);

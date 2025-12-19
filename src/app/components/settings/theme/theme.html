@@ -1,18 +1,18 @@
 <form [formGroup]="formGroup">
-  <div class="sub-title">外观</div>
+  <div class="sub-title">{{ '$theme.title' | xI18n }}</div>
   <div formGroupName="theme" class="theme list">
     <div class="item switch">
-      <div class="label">背景</div>
+      <div class="label">{{ '$theme.background' | xI18n }}</div>
       <x-switch [checkedText]="moonTpl" [unCheckedText]="sunTpl" formControlName="dark"></x-switch>
       <ng-template #moonTpl>
-        <div class="theme-icon"><x-icon type="fto-moon"></x-icon> 黑暗</div>
+        <div class="theme-icon"><x-icon type="fto-moon"></x-icon> {{ '$theme.dark' | xI18n }}</div>
       </ng-template>
       <ng-template #sunTpl>
-        <div class="theme-icon"><x-icon type="fto-sun"> </x-icon> 明亮</div>
+        <div class="theme-icon"><x-icon type="fto-sun"> </x-icon> {{ '$theme.light' | xI18n }}</div>
       </ng-template>
     </div>
     <div class="item switch" [style.paddingRight.rem]="0">
-      <div class="label">主色</div>
+      <div class="label">{{ '$theme.primaryColor' | xI18n }}</div>
       <x-color-picker
         [style.width.rem]="6.75"
         variant="borderless"

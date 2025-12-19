@@ -17,7 +17,7 @@
       </div>
       <x-sender
         formControlName="content"
-        [placeholder]="'Enter 发送，Alt + Enter 换行'"
+        [placeholder]="'$coversation.placeholder' | xI18n"
         [footer]="footerTpl"
         [header]="headerTpl"
         [suffix]="suffixTpl"
@@ -43,7 +43,7 @@
               @if (selectedPrompt()) {
                 {{ selectedPrompt().name }}
               } @else {
-                提示词
+                {{ '$prompt.title' | xI18n }}
               }
             </x-button>
           }
@@ -105,8 +105,14 @@
                 (click)="$event.stopPropagation()"
                 [trigger]="'click'"
                 [data]="[
-                  { id: 'rename', label: '重命名', icon: 'fto-edit' },
-                  { id: 'delete', label: '删除', icon: 'fto-trash-2', divided: true, style: { color: '#f56c6c' } }
+                  { id: 'rename', label: '$base.rename' | xI18n, icon: 'fto-edit' },
+                  {
+                    id: 'delete',
+                    label: '$base.delete' | xI18n,
+                    icon: 'fto-trash-2',
+                    divided: true,
+                    style: { color: '#f56c6c' }
+                  }
                 ]"
               >
                 <x-icon class="operation" type="fto-more-vertical"></x-icon>

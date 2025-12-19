@@ -1,3 +1,99 @@
 {
-  "locale": "en_US"
+  "locale": "en_US",
+  "$layout": {
+    "title": "Chat AI",
+    "shortTitle": "AI",
+    "refresh": "Refresh",
+    "devtool": "Developer Tool",
+    "settings": "Settings",
+    "minimize": "Minimize",
+    "recovery": "Recovery",
+    "maximize": "Maximize",
+    "close": "Close",
+    "new": "New",
+    "search": "Search",
+    "newProject": "New Project",
+    "chat": "Chat",
+    "searchByChat": "Search based on chat history",
+    "searchByModel": "Search based on model"
+  },
+  "$base": {
+    "enable": "Enable",
+    "disable": "Disable",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "save": "Save",
+    "name": "Name",
+    "code": "Code",
+    "help": "Help",
+    "more": "More",
+    "rename": "Rename",
+    "title": "Title",
+    "fullscreen": "Fullscreen",
+    "restore": "Restore",
+    "description": "Description",
+    "new": "New"
+  },
+  "$settings": {
+    "title": "Settings"
+  },
+  "$general": {
+    "title": "General",
+    "language": "Language",
+    "devtool": "Developer Tool"
+  },
+  "$theme": {
+    "title": "Theme",
+    "background": "Background",
+    "dark": "Dark",
+    "light": "Light",
+    "primaryColor": "Primary Color"
+  },
+  "$prompt": {
+    "title": "System Prompt",
+    "search": "System prompt word search"
+  },
+  "$manufacturer": {
+    "title": "Manufacturer",
+    "apiKey": "API Key",
+    "baseURL": "Base URL",
+    "isActive": "Switch Current Manufacturer"
+  },
+  "$model": {
+    "title": "Model",
+    "baseinfo": "Base Info",
+    "requestType": "Request Type",
+    "isActive": "Switch Model",
+    "usePrompt": "System Prompt",
+    "useUploadImage": "Upload Image",
+    "useUploadVideo": "Upload Video",
+    "tags": "Tags",
+    "deepThinking": "Deep Thinking",
+    "textToImage": "Text To Image",
+    "imageToText": "Image To Text",
+    "videoToText": "Video To Text",
+    "textToVideo": "Text To Video",
+    "imageToVideo": "Image To Video",
+    "inputTranslation": "Input Translation",
+    "outputTranslation": "Output Translation",
+    "url": "Url",
+    "addRequest": "Add Request"
+  },
+  "$project": {
+    "title": "Project",
+    "edit": "Edit Project",
+    "new": "New Project",
+    "workspace": "Workspace"
+  },
+  "$session": {
+    "search": "Chat word search",
+    "editChat": "Edit Chat",
+    "newChat": "New Chat"
+  },
+  "$coversation": {
+    "placeholder": "Enter to send, Alt + Enter to wrap"
+  }
 }

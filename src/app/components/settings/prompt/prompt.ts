@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
   XDialogModule,
   XDialogRef,
+  XI18nPipe,
   XInputComponent,
   XLoadingComponent,
   XMessageBoxAction,
@@ -25,10 +26,12 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
     XButtonComponent,
     XLoadingComponent,
     XTextareaComponent,
+    XI18nPipe,
     EditorComponent
   ],
   templateUrl: './prompt.html',
-  styleUrl: './prompt.scss'
+  styleUrl: './prompt.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PromptComponent {
   data = inject<{ id: number; saveSuccess: () => void }>(X_DIALOG_DATA);

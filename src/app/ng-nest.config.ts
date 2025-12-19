@@ -15,7 +15,7 @@ export const NgNestConfig: XConfig = {
       width: '40rem'
     },
     switch: {
-      size: 'mini'
+      size: 'medium'
     },
     popover: {
       minWidth: '1rem'

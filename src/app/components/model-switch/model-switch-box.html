@@ -10,7 +10,7 @@
         [variant]="'borderless'"
         formControlName="title"
         size="big"
-        placeholder="模型搜索"
+        [placeholder]="'$layout.searchByModel' | xI18n"
       ></x-input>
     </div>
     <div class="list" [x-loading]="loading()">
@@ -89,7 +89,7 @@
                       color: 'var(--x-text-300)',
                       borderColor: 'var(--x-background-a500)'
                     }"
-                    >{{ tag }}</x-tag
+                    >{{ '$model.' + tag | xI18n }}</x-tag
                   >
                 }
               </div>
@@ -100,9 +100,15 @@
     </div>
   </div>
   <div x-dialog-actions align="center" class="actions">
-    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
-    <x-button flat icon="fto-save" type="primary" attrType="submit" [loading]="saveLoading()" [disabled]="!form.valid"
-      >确认</x-button
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>{{ '$base.cancel' | xI18n }}</x-button>
+    <x-button
+      flat
+      icon="fto-save"
+      type="primary"
+      attrType="submit"
+      [loading]="saveLoading()"
+      [disabled]="!form.valid"
+      >{{ '$base.ok' | xI18n }}</x-button
     >
   </div>
 </form>

@@ -22,6 +22,9 @@ $aside-width: 12rem;
       .project {
         display: none;
       }
+      .title {
+        padding: 0 1rem;
+      }
     }
     header {
       width: calc(100% - #{$aside-width});
@@ -68,6 +71,12 @@ $aside-width: 12rem;
       height: 3rem;
       display: flex;
       align-items: center;
+      font-size: 1.125rem;
+      font-weight: 600;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .sticky {
       background-color: $x-background-a100;

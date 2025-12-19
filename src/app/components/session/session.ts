@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
@@ -8,16 +8,18 @@ import {
   XInputComponent,
   XLoadingComponent,
   XMessageBoxService,
-  XMessageService
+  XMessageService,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { Session, SessionService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
 @Component({
   selector: 'app-session',
-  imports: [ReactiveFormsModule, XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent],
+  imports: [ReactiveFormsModule, XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent, XI18nPipe],
   templateUrl: './session.html',
-  styleUrl: './session.scss'
+  styleUrl: './session.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SessionComponent {
   data = inject<{ id: number; saveSuccess: (session: Session) => void }>(X_DIALOG_DATA);

@@ -10,7 +10,7 @@
         [variant]="'borderless'"
         formControlName="title"
         size="big"
-        placeholder="根据聊天查找"
+        [placeholder]="'$layout.searchByChat' | xI18n"
       ></x-input>
     </div>
     <div class="list" [x-loading]="loading()">

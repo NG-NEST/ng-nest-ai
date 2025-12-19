@@ -1,47 +1,72 @@
 <form [x-loading]="formLoading()" [formGroup]="form" class="app-dialog-form" (ngSubmit)="save()">
-  <h4 x-dialog-title class="title">{{ id() ? '修改' : '新增' }}模型</h4>
+  <h4 x-dialog-title class="title">
+    {{ id() ? ('$base.edit' | xI18n) : ('$base.add' | xI18n) }} {{ '$model.title' | xI18n }}
+  </h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
-    <x-slider class="slider" [data]="['基本信息', '请求方式']" [(activatedIndex)]="sliderBase"> </x-slider>
+    <x-slider
+      class="slider"
+      [data]="['$model.baseinfo' | xI18n, '$model.requestType' | xI18n]"
+      [(activatedIndex)]="sliderBase"
+    >
+    </x-slider>
     @if (sliderBase() === 0) {
       <div class="list">
         <div class="item">
-          <x-input floatLabel="on" label="名称" formControlName="name" required></x-input>
+          <x-input floatLabel="on" [label]="'$base.name' | xI18n" formControlName="name" required></x-input>
         </div>
         <div class="item">
-          <x-input floatLabel="on" label="编码" formControlName="code" required></x-input>
+          <x-input floatLabel="on" [label]="'$base.code' | xI18n" formControlName="code" required></x-input>
         </div>
         <div class="item">
-          <x-textarea floatLabel="on" label="描述" height="8rem" formControlName="description"></x-textarea>
+          <x-textarea
+            floatLabel="on"
+            [label]="'$base.description' | xI18n"
+            height="8rem"
+            formControlName="description"
+          ></x-textarea>
         </div>
         <div class="row">
           <div class="item required switch">
-            <label>切换成当前模型</label>
+            <label>{{ '$model.isActive' | xI18n }}</label>
             <x-switch formControlName="isActive" required></x-switch>
           </div>
           <div class="item switch">
             <label class="label">
               <x-icon type="icon:prompt"></x-icon>
-              <span class="text">支持系统提示词</span>
+              <span class="text">{{ '$model.usePrompt' | xI18n }}</span>
             </label>
             <x-switch formControlName="usePrompt"></x-switch>
           </div>
         </div>
         <div class="row">
           <div class="item switch">
-            <label class="label"><x-icon type="fto-image"></x-icon> <span class="text">支持图片上传</span></label>
+            <label class="label"
+              ><x-icon type="fto-image"></x-icon>
+              <span class="text">{{ '$model.useUploadImage' | xI18n }}</span></label
+            >
             <x-switch formControlName="useUploadImage"></x-switch>
           </div>
           <div class="item switch">
-            <label class="label"><x-icon type="fto-video"></x-icon> <span class="text">支持视频上传</span></label>
+            <label class="label"
+              ><x-icon type="fto-video"></x-icon>
+              <span class="text">{{ '$model.useUploadVideo' | xI18n }}</span></label
+            >
             <x-switch formControlName="useUploadVideo"></x-switch>
           </div>
         </div>
         <div class="item">
           <x-select
-            [placeholder]="'标签'"
+            [placeholder]="'$model.tags' | xI18n"
             [style.width.px]="300"
-            [data]="['深度思考', '文生图', '图生文', '视频理解', '文生视频', '图生视频']"
+            [data]="[
+              { label: '$model.deepThinking' | xI18n, id: 'deepThinking' },
+              { label: '$model.textToImage' | xI18n, id: 'textToImage' },
+              { label: '$model.imageToText' | xI18n, id: 'imageToText' },
+              { label: '$model.videoToText' | xI18n, id: 'videoToText' },
+              { label: '$model.textToVideo' | xI18n, id: 'textToVideo' },
+              { label: '$model.imageToVideo' | xI18n, id: 'imageToVideo' }
+            ]"
             formControlName="tags"
             multiple
           ></x-select>
@@ -51,7 +76,7 @@
       <div class="list">
         <div class="item required">
           <x-radio
-            label="请求方式："
+            [label]="'$model.requestType' | xI18n"
             [data]="['OpenAI', 'Http']"
             direction="row"
             formControlName="requestType"
@@ -62,7 +87,7 @@
           <div class="column">
             <x-slider
               [style.marginBottom]="'0.25rem'"
-              [data]="['输入转换', '输出转换']"
+              [data]="['$model.inputTranslation' | xI18n, '$model.outputTranslation' | xI18n]"
               size="mini"
               [(activatedIndex)]="sliderFunction"
             >
@@ -82,12 +107,16 @@
                 clearable="false"
                 formControlName="method"
               ></x-select>
-              <x-input floatLabel="on" label="请求地址" formControlName="url"></x-input>
+              <x-input floatLabel="on" [label]="'$model.url' | xI18n" formControlName="url"></x-input>
             </x-input-group>
             <x-slider
               [style.margin]="'2rem 0 0.25rem 0'"
               size="mini"
-              [data]="['Headers', form.get('method')?.value === 'POST' ? 'Body' : 'Params', '输出转换']"
+              [data]="[
+                'Headers',
+                form.get('method')?.value === 'POST' ? 'Body' : 'Params',
+                '$model.outputTranslation' | xI18n
+              ]"
               [(activatedIndex)]="sliderHttp"
             >
             </x-slider>
@@ -112,7 +141,7 @@
                       text
                       class="help"
                       icon="fto-help-circle"
-                      [title]="'帮助'"
+                      [title]="'$base.help' | xI18n"
                       (click)="onHelp('input-function')"
                     ></x-button>
                   </div>
@@ -140,7 +169,7 @@
                         text
                         class="help"
                         icon="fto-help-circle"
-                        [title]="'帮助'"
+                        [title]="'$base.help' | xI18n"
                         (click)="onHelp('input-function')"
                       ></x-button>
                     </div>
@@ -165,7 +194,7 @@
                         text
                         class="help"
                         icon="fto-help-circle"
-                        [title]="'帮助'"
+                        [title]="'$base.help' | xI18n"
                         (click)="onHelp('input-function')"
                       ></x-button>
                     </div>
@@ -188,12 +217,16 @@
                       clearable="false"
                       formControlName="method"
                     ></x-select>
-                    <x-input floatLabel="on" label="请求地址" formControlName="url"></x-input>
+                    <x-input floatLabel="on" [label]="'$model.url' | xI18n" formControlName="url"></x-input>
                   </x-input-group>
                   <x-slider
                     [style.margin]="'2rem 0 0.25rem 0'"
                     size="mini"
-                    [data]="['Headers', control.get('method')?.value === 'POST' ? 'Body' : 'Params', '输出转换']"
+                    [data]="[
+                      'Headers',
+                      control.get('method')?.value === 'POST' ? 'Body' : 'Params',
+                      '$model.outputTranslation' | xI18n
+                    ]"
                     [activatedIndex]="httpTabMap.get($index)"
                     (activatedIndexChange)="httpTabMap.set($index, $event)"
                   >
@@ -219,7 +252,7 @@
                             text
                             class="help"
                             icon="fto-help-circle"
-                            [title]="'帮助'"
+                            [title]="'$base.help' | xI18n"
                             (click)="onHelp('request-input-function')"
                           ></x-button>
                         </div>
@@ -247,7 +280,7 @@
                               text
                               class="help"
                               icon="fto-help-circle"
-                              [title]="'帮助'"
+                              [title]="'$base.help' | xI18n"
                               (click)="onHelp('request-input-function')"
                             ></x-button>
                           </div>
@@ -272,7 +305,7 @@
                               text
                               class="help"
                               icon="fto-help-circle"
-                              [title]="'帮助'"
+                              [title]="'$base.help' | xI18n"
                               (click)="onHelp('request-input-function')"
                             ></x-button>
                           </div>
@@ -300,7 +333,7 @@
                             text
                             class="help"
                             icon="fto-help-circle"
-                            [title]="'帮助'"
+                            [title]="'$base.help' | xI18n"
                             (click)="onHelp('http-output')"
                           ></x-button>
                         </div>
@@ -315,7 +348,7 @@
                       icon="fto-trash-2"
                       attrType="button"
                       (click)="removeRequest($index)"
-                      >删除</x-button
+                      >{{ '$base.delete' | xI18n }}</x-button
                     >
                   </div>
                 </div>
@@ -323,7 +356,9 @@
             </div>
           }
           <div class="item">
-            <x-button flat plain icon="fto-plus" (click)="addRequest()" attrType="button">添加请求</x-button>
+            <x-button flat plain icon="fto-plus" (click)="addRequest()" attrType="button">{{
+              '$model.addRequest' | xI18n
+            }}</x-button>
           </div>
         }
       </div>
@@ -350,7 +385,7 @@
               text
               class="help"
               icon="fto-help-circle"
-              [title]="'帮助'"
+              [title]="'$base.help' | xI18n"
               (click)="onHelp(helpType)"
             ></x-button>
           </div>
@@ -379,7 +414,7 @@
               text
               class="help"
               icon="fto-help-circle"
-              [title]="'帮助'"
+              [title]="'$base.help' | xI18n"
               (click)="onHelp(helpType)"
             ></x-button>
           </div>
@@ -389,11 +424,19 @@
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {
-      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">删除</x-button>
+      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">{{
+        '$base.delete' | xI18n
+      }}</x-button>
     }
-    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
-    <x-button flat icon="fto-save" type="primary" attrType="submit" [loading]="saveLoading()" [disabled]="!form.valid"
-      >保存</x-button
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>{{ '$base.cancel' | xI18n }}</x-button>
+    <x-button
+      flat
+      icon="fto-save"
+      type="primary"
+      attrType="submit"
+      [loading]="saveLoading()"
+      [disabled]="!form.valid"
+      >{{ '$base.save' | xI18n }}</x-button
     >
   </div>
 </form>

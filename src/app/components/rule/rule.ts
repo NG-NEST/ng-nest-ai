@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -11,8 +11,8 @@ import {
   XInputComponent,
   XKeywordDirective,
   XListComponent,
-  XListNode,
-  XLoadingComponent
+  XLoadingComponent,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { Prompt, PromptService } from '@ui/core';
 import { debounceTime, distinctUntilChanged, finalize, fromEvent, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
@@ -31,10 +31,12 @@ import { MarkdownPipe } from '../markdown/markdown.pipe';
     XEmptyComponent,
     XListComponent,
     XKeywordDirective,
+    XI18nPipe,
     MarkdownPipe
   ],
   templateUrl: './rule.html',
-  styleUrl: './rule.scss'
+  styleUrl: './rule.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RuleComponent {
   dialogRef = inject(XDialogRef<RuleComponent>);

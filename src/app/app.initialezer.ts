@@ -8,6 +8,7 @@ export const AppInitializer = (): Observable<boolean> => {
   const icon = inject(AppIconService);
   const theme = inject(AppThemeService);
   return locale.init().pipe(
+    concatMap(() => prism.init()),
     concatMap(() => database.init()),
     concatMap(() => theme.init()),
     concatMap(() => icon.init()),

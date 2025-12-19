@@ -11,7 +11,7 @@
     <div #wrapper class="wrapper">
       <x-sender
         formControlName="content"
-        [placeholder]="'Enter 发送，Alt + Enter 换行'"
+        [placeholder]="'$coversation.placeholder' | xI18n"
         [footer]="footerTpl"
         [header]="headerTpl"
         [suffix]="suffixTpl"
@@ -37,7 +37,7 @@
               @if (selectedPrompt()) {
                 {{ selectedPrompt().name }}
               } @else {
-                提示词
+                {{ '$prompt.title' | xI18n }}
               }
             </x-button>
           }

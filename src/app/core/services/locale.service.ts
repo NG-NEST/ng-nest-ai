@@ -4,6 +4,7 @@ import { XI18nLanguage, XI18nProperty, XI18nService, en_US, zh_CN } from '@ng-ne
 import { Platform } from '@angular/cdk/platform';
 import { HttpClient } from '@angular/common/http';
 import { map, of } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 
 @Injectable({ providedIn: 'root' })
 export class AppLocaleService {
@@ -11,11 +12,13 @@ export class AppLocaleService {
   storage = inject(XStorageService);
   i18n = inject(XI18nService);
   config = inject(XConfigService);
+  title = inject(Title);
   platform = inject(Platform);
   http = inject(HttpClient);
   defaultLang = signal<XI18nLanguage>(this.i18n.getLocaleId());
   langs = signal(['zh_CN', 'en_US']);
   cacheLangs = signal<{ [lang: string]: XI18nProperty }>({});
+
   get lang(): XI18nLanguage {
     let lg = this.storage.getLocal(this.langKey);
     if (!lg) {
@@ -29,12 +32,20 @@ export class AppLocaleService {
     this.storage.setLocal(this.langKey, value);
   }
 
+  constructor() {
+    this.i18n.localeChange.subscribe((x) => {
+      const { $title } = x;
+      this.title.setTitle($title);
+    });
+  }
+
   init() {
     return this.setLocale();
   }
 
   setLocale(lang?: XI18nLanguage) {
     if (!lang) lang = this.lang;
+    
     if (this.cacheLangs()[lang]) {
       this.lang = lang as string;
       this.i18n.setLocale(this.cacheLangs()[lang], true);

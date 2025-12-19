@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -8,6 +8,7 @@ import {
   XDialogRef,
   XEmptyComponent,
   XGroupBy,
+  XI18nPipe,
   XIconComponent,
   XInputComponent,
   XKeywordDirective,
@@ -45,10 +46,12 @@ import {
     XEmptyComponent,
     XListComponent,
     XKeywordDirective,
-    XTagComponent
+    XTagComponent,
+    XI18nPipe
   ],
   templateUrl: './model-switch-box.html',
-  styleUrl: './model-switch-box.scss'
+  styleUrl: './model-switch-box.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModelSwitchBoxComponent {
   dialogRef = inject(XDialogRef<ModelSwitchBoxComponent>);

@@ -1,10 +1,11 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   XButtonComponent,
   XDialogModule,
   XDialogService,
   XEmptyComponent,
+  XI18nPipe,
   XIconComponent,
   XInputComponent,
   XInputGroupComponent,
@@ -28,10 +29,12 @@ import { toObservable } from '@angular/core/rxjs-interop';
     MarkdownPipe,
     XInputGroupComponent,
     XInputComponent,
-    XKeywordDirective
+    XKeywordDirective,
+    XI18nPipe
   ],
   templateUrl: './prompt-list.html',
-  styleUrl: './prompt-list.scss'
+  styleUrl: './prompt-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PromptList {
   formBuilder = inject(FormBuilder);

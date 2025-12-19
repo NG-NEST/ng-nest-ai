@@ -2,9 +2,18 @@
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
     <div class="left">
-      <h4 class="title">设置</h4>
+      <h4 class="title">{{ '$settings.title' | xI18n }}</h4>
       <ul>
-        @for (menu of menus; track menu) {
+        @for (
+          menu of [
+            { id: 'manufacturer', label: '$manufacturer.title' | xI18n, icon: 'icon:manufacturer' },
+            { id: 'model', label: '$model.title' | xI18n, icon: 'icon:model' },
+            { id: 'prompt', label: '$prompt.title' | xI18n, icon: 'icon:prompt' },
+            { id: 'theme', label: '$theme.title' | xI18n, icon: 'icon:theme' },
+            { id: 'general', label: '$general.title' | xI18n, icon: 'icon:about' }
+          ];
+          track menu
+        ) {
           <li [class.selected]="selectedMenuId() === menu.id" (click)="selectMenu(menu)">
             <x-icon [type]="menu.icon"></x-icon> {{ menu.label }}
           </li>
@@ -20,8 +29,8 @@
         <app-theme></app-theme>
       } @else if (selectedMenuId() === 'prompt') {
         <app-prompt-list></app-prompt-list>
-      } @else if (selectedMenuId() === 'about') {
-        <app-about></app-about>
+      } @else if (selectedMenuId() === 'general') {
+        <app-general></app-general>
       }
     </div>
   </div>

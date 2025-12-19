@@ -1,5 +1,5 @@
 <div class="title" (click)="onToggle()">
-  项目
+  {{ '$project.title' | xI18n }}
   @if (!toggle()) {
     <x-icon type="fto-chevron-right"></x-icon>
   } @else {
@@ -25,8 +25,14 @@
           (click)="$event.stopPropagation()"
           [trigger]="'click'"
           [data]="[
-            { id: 'edit', label: '编辑', icon: 'fto-edit' },
-            { id: 'delete', label: '删除', icon: 'fto-trash-2', divided: true, style: { color: '#f56c6c' } }
+            { id: 'edit', label: '$base.edit' | xI18n, icon: 'fto-edit' },
+            {
+              id: 'delete',
+              label: '$base.delete' | xI18n,
+              icon: 'fto-trash-2',
+              divided: true,
+              style: { color: '#f56c6c' }
+            }
           ]"
         >
           <x-icon class="operation" type="fto-more-vertical"></x-icon>

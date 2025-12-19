@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   XButtonComponent,
@@ -6,16 +6,18 @@ import {
   XDialogService,
   XEmptyComponent,
   XIconComponent,
-  XOrderBy
+  XOrderBy,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { Manufacturer, ManufacturerService } from '@ui/core';
 import { ManufacturerComponent } from './manufacturer';
 
 @Component({
   selector: 'app-manufacturer-list',
-  imports: [ReactiveFormsModule, XDialogModule, XButtonComponent, XIconComponent, XEmptyComponent],
+  imports: [ReactiveFormsModule, XDialogModule, XButtonComponent, XIconComponent, XEmptyComponent, XI18nPipe],
   templateUrl: './manufacturer-list.html',
-  styleUrl: './manufacturer-list.scss'
+  styleUrl: './manufacturer-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManufacturerList {
   formBuilder = inject(FormBuilder);

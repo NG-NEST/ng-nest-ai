@@ -12,7 +12,8 @@ import {
   XKeywordDirective,
   XListComponent,
   XListNode,
-  XLoadingComponent
+  XLoadingComponent,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { SessionService } from '@ui/core';
 import { debounceTime, distinctUntilChanged, fromEvent, map, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
@@ -29,6 +30,7 @@ import { debounceTime, distinctUntilChanged, fromEvent, map, of, Subject, switch
     XEmptyComponent,
     XListComponent,
     XKeywordDirective,
+    XI18nPipe,
     DatePipe
   ],
   templateUrl: './more.html',

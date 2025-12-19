@@ -8,34 +8,59 @@
     <app-model-switch></app-model-switch>
   </div>
   <div class="tools">
-    <x-button size="small" x-popover content="刷新" text icon="fto-refresh-ccw" (click)="refresh()"></x-button>
     <x-button
       size="small"
       x-popover
-      content="切换开发人员工具"
+      [content]="'$layout.refresh' | xI18n"
+      text
+      icon="fto-refresh-ccw"
+      (click)="refresh()"
+    ></x-button>
+    <x-button
+      size="small"
+      x-popover
+      [content]="'$layout.devtool' | xI18n"
       text
       icon="fto-code"
       (click)="switchDevTools()"
     ></x-button>
-    <x-button size="small" x-popover content="设置" text icon="fto-settings" (click)="settings()"></x-button>
+    <x-button
+      size="small"
+      x-popover
+      [content]="'$layout.settings' | xI18n"
+      text
+      icon="fto-settings"
+      (click)="settings()"
+    ></x-button>
     &nbsp;
-    <x-button (click)="minimize()" title="最小化" text icon="icon:win-minimize"></x-button>
+    <x-button (click)="minimize()" [title]="'$layout.minimize' | xI18n" text icon="icon:win-minimize"></x-button>
     @if (isMaximized()) {
-      <x-button (click)="unmaximize()" title="恢复" text icon="icon:win-recovery"></x-button>
+      <x-button (click)="unmaximize()" [title]="'$layout.recovery' | xI18n" text icon="icon:win-recovery"></x-button>
     } @else {
-      <x-button (click)="maximize()" title="最大化" text icon="icon:win-maximize"></x-button>
+      <x-button (click)="maximize()" [title]="'$layout.maximize' | xI18n" text icon="icon:win-maximize"></x-button>
     }
-    <x-button (click)="close()" title="关闭" type="danger" text icon="icon:win-close"></x-button>
+    <x-button (click)="close()" [title]="'$layout.close' | xI18n" type="danger" text icon="icon:win-close"></x-button>
   </div>
 </header>
 <aside>
-  <x-scrollable [maxHeight]="'100vh'" >
+  <x-scrollable [maxHeight]="'100vh'">
     <div class="sticky">
       <div class="title">
-        <span></span>
+        @if (config.collapsed()) {
+          <span>{{ '$layout.shortTitle' | xI18n }}</span>
+        } @else {
+          <span>{{ '$layout.title' | xI18n }}</span>
+        }
       </div>
       <div class="menus">
-        @for (menu of menuData(); track menu.id) {
+        @for (
+          menu of [
+            { id: 'coversation', label: '$layout.new' | xI18n, icon: 'fto-plus' },
+            { id: 'search', label: '$layout.search' | xI18n, icon: 'fto-search' },
+            { id: 'project', label: '$layout.newProject' | xI18n, icon: 'fto-box' }
+          ];
+          track menu.id
+        ) {
           <div class="menu" x-ripple (click)="menuClick(menu)">
             <x-icon [type]="menu.icon"></x-icon>
             <span>{{ menu.label }}</span>

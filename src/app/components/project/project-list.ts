@@ -7,11 +7,11 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Project as ProjectComponent } from '../project/project';
 import { XDialogService } from '@ng-nest/ui/dialog';
-import { XRippleDirective } from '@ng-nest/ui';
+import { XI18nPipe, XRippleDirective } from '@ng-nest/ui';
 
 @Component({
   selector: 'app-project-list',
-  imports: [XIconComponent, XDropdownComponent, XRippleDirective],
+  imports: [XIconComponent, XDropdownComponent, XRippleDirective, XI18nPipe],
   templateUrl: './project-list.html',
   styleUrl: './project-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

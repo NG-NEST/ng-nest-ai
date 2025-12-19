@@ -14,7 +14,7 @@ import {
   viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { XButtonComponent, XOutletDirective, XTemplate } from '@ng-nest/ui';
+import { XButtonComponent, XI18nPipe, XOutletDirective, XTemplate } from '@ng-nest/ui';
 import type { editor } from 'monaco-editor';
 import { fromEvent, Subject, takeUntil } from 'rxjs';
 
@@ -23,7 +23,7 @@ import { fromEvent, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-editor',
-  imports: [XButtonComponent, XOutletDirective],
+  imports: [XButtonComponent, XOutletDirective, XI18nPipe],
   templateUrl: './editor.html',
   styleUrls: ['./editor.scss'],
   host: {

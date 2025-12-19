@@ -1,3 +1,99 @@
 {
-  "locale": "zh_CN"
+  "locale": "zh_CN",
+  "$layout": {
+    "title": "Chat AI",
+    "shortTitle": "AI",
+    "refresh": "刷新",
+    "devtool": "开发者工具",
+    "settings": "设置",
+    "minimize": "最小化",
+    "recovery": "恢复",
+    "maximize": "最大化",
+    "close": "关闭",
+    "new": "新建",
+    "search": "搜索",
+    "newProject": "新建项目",
+    "chat": "聊天",
+    "searchByChat": "基于聊天记录搜索",
+    "searchByModel": "基于模型搜索"
+  },
+  "$base": {
+    "enable": "启用",
+    "disable": "禁用",
+    "add": "添加",
+    "edit": "编辑",
+    "delete": "删除",
+    "cancel": "取消",
+    "ok": "确定",
+    "save": "保存",
+    "name": "名称",
+    "code": "编码",
+    "help": "帮助",
+    "more": "更多",
+    "rename": "重命名",
+    "title": "标题",
+    "fullscreen": "全屏",
+    "restore": "还原",
+    "description": "描述",
+    "new": "新建"
+  },
+  "$settings": {
+    "title": "设置"
+  },
+  "$general": {
+    "title": "通用",
+    "language": "语言",
+    "devtool": "开发者工具"
+  },
+  "$theme": {
+    "title": "主题",
+    "background": "背景",
+    "dark": "深色",
+    "light": "浅色",
+    "primaryColor": "主色调"
+  },
+  "$prompt": {
+    "title": "系统提示词",
+    "search": "系统提示词搜索"
+  },
+  "$manufacturer": {
+    "title": "厂商",
+    "apiKey": "API 密钥",
+    "baseURL": "基础 URL",
+    "isActive": "切换当前厂商"
+  },
+  "$model": {
+    "title": "模型",
+    "baseinfo": "基本信息",
+    "requestType": "请求类型",
+    "isActive": "切换模型",
+    "usePrompt": "系统提示词",
+    "useUploadImage": "上传图片",
+    "useUploadVideo": "上传视频",
+    "tags": "标签",
+    "deepThinking": "深度思考",
+    "textToImage": "文生图",
+    "imageToText": "图生文",
+    "videoToText": "视频转文字",
+    "textToVideo": "文生视频",
+    "imageToVideo": "图生视频",
+    "inputTranslation": "输入转换",
+    "outputTranslation": "输出转换",
+    "url": "链接",
+    "addRequest": "添加请求"
+  },
+  "$project": {
+    "title": "项目",
+    "edit": "编辑项目",
+    "new": "新建项目",
+    "workspace": "工作区"
+  },
+  "$session": {
+    "search": "聊天关键词搜索",
+    "editChat": "编辑聊天",
+    "newChat": "新建聊天"
+  },
+  "$coversation": {
+    "placeholder": "Enter 发送，Alt + Enter 换行"
+  }
 }

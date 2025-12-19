@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -9,13 +9,14 @@ import {
   XDialogService,
   XDropdownNode,
   XFileCardComponent,
+  XI18nPipe,
   XIconComponent,
   XMessageBoxAction,
   XMessageBoxService
 } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
-import { BubblesComponent, SessionComponent } from '@ui/components';
+import { BubblesComponent, RuleComponent, SessionComponent } from '@ui/components';
 import {
   AppSendService,
   ChatMessage,
@@ -42,10 +43,13 @@ import { finalize, Subject, Subscription } from 'rxjs';
     BubblesComponent,
     XAttachmentsComponent,
     XFileCardComponent,
-    XIconComponent
+    XIconComponent,
+    XI18nPipe,
+    DatePipe
   ],
   templateUrl: './project-home.html',
-  styleUrl: './project-home.scss'
+  styleUrl: './project-home.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProjectHome {
   router = inject(Router);
@@ -198,6 +202,20 @@ export class ProjectHome {
       });
       this.typing.set(false);
     }
+  }
+
+  onTool() {
+    this.dialogService.create(RuleComponent, {
+      className: 'app-no-padding-dialog',
+      width: '40rem',
+      data: {
+        promptId: this.selectedPrompt()?.id,
+        disabled: this.data().length > 0,
+        save: (prompt: Prompt) => {
+          this.selectedPrompt.set(prompt);
+        }
+      }
+    });
   }
 
   operation(event: XDropdownNode, item: Session) {

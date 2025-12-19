@@ -1,13 +1,13 @@
 <div class="title">
   <span class="toggle" (click)="onToggle()">
-    聊天
+    {{ '$layout.chat' | xI18n }}
     @if (!toggle()) {
       <x-icon type="fto-chevron-right"></x-icon>
     } @else {
       <x-icon type="fto-chevron-down"></x-icon>
     }
   </span>
-  <span class="more" (click)="onMore()">更多</span>
+  <span class="more" (click)="onMore()">{{ '$base.more' | xI18n }}</span>
 </div>
 @if (toggle()) {
   <div class="list">
@@ -25,8 +25,14 @@
           (click)="$event.stopPropagation()"
           [trigger]="'click'"
           [data]="[
-            { id: 'rename', label: '重命名', icon: 'fto-edit' },
-            { id: 'delete', label: '删除', icon: 'fto-trash-2', divided: true, style: { color: '#f56c6c' } }
+            { id: 'rename', label: '$base.rename' | xI18n, icon: 'fto-edit' },
+            {
+              id: 'delete',
+              label: '$base.delete' | xI18n,
+              icon: 'fto-trash-2',
+              divided: true,
+              style: { color: '#f56c6c' }
+            }
           ]"
         >
           <x-icon class="operation" type="fto-more-vertical"></x-icon>

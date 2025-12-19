@@ -7,6 +7,7 @@ import {
   XCollapseModule,
   XDialogService,
   XFileCardComponent,
+  XI18nPipe,
   XIconComponent
 } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
@@ -38,7 +39,8 @@ import { finalize, Subject, Subscription } from 'rxjs';
     BubblesComponent,
     XAttachmentsComponent,
     XFileCardComponent,
-    XIconComponent
+    XIconComponent,
+    XI18nPipe
   ],
   templateUrl: './coversation.html',
   styleUrl: './coversation.scss',

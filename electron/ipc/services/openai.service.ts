@@ -64,32 +64,6 @@ function electronFetch(input: string | URL | Request, options?: RequestInit): Pr
   });
 }
 
-async function resolveSystemProxy(targetUrl: string): Promise<string | null> {
-  const proxy = await session.defaultSession.resolveProxy(targetUrl);
-
-  // 示例：
-  // "DIRECT"
-  // "PROXY 127.0.0.1:7890; DIRECT"
-  // "SOCKS5 127.0.0.1:1080; DIRECT"
-
-  if (!proxy || proxy === 'DIRECT') {
-    return null;
-  }
-
-  const match = proxy.match(/PROXY\s+([^\s;]+)/) || proxy.match(/SOCKS5?\s+([^\s;]+)/);
-
-  if (!match) return null;
-
-  const host = match[1];
-
-  // undici 需要 schema
-  if (proxy.startsWith('SOCKS')) {
-    return `socks://${host}`;
-  }
-
-  return `http://${host}`;
-}
-
 export class OpenAIService {
   private openai: OpenAI | null = null;
   private activeStreams: Map<string, { cancel: boolean; abortController: AbortController }> = new Map();
@@ -108,19 +82,6 @@ export class OpenAIService {
             return { success: false, error: 'Invalid API key' };
           }
 
-          const targetUrl = baseURL || 'https://api.openai.com';
-
-          // 🔑 自动检测系统代理
-          const proxyUrl = await resolveSystemProxy(targetUrl);
-
-          if (proxyUrl) {
-            // const agent = new ProxyAgent(proxyUrl);
-            // setGlobalDispatcher(agent);
-            // console.log('[OpenAI] Using proxy:', proxyUrl);
-          } else {
-            console.log('[OpenAI] No proxy detected, direct connection');
-          }
-
           this.openai = new OpenAI({
             apiKey: apiKey.trim(),
             baseURL: baseURL?.trim(),
@@ -128,8 +89,7 @@ export class OpenAIService {
           });
 
           return {
-            success: true,
-            proxy: proxyUrl ?? 'DIRECT'
+            success: true
           };
         } catch (error: any) {
           this.openai = null;

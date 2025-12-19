@@ -7,12 +7,12 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { SessionComponent } from '../session/session';
 import { XDialogService } from '@ng-nest/ui/dialog';
-import { XRippleDirective } from '@ng-nest/ui';
+import { XI18nPipe, XRippleDirective } from '@ng-nest/ui';
 import { More } from './more/more';
 
 @Component({
   selector: 'app-history',
-  imports: [XIconComponent, XDropdownComponent, XRippleDirective],
+  imports: [XIconComponent, XDropdownComponent, XRippleDirective, XI18nPipe],
   templateUrl: './history.html',
   styleUrl: './history.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

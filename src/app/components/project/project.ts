@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
@@ -12,7 +12,8 @@ import {
   XMessageBoxAction,
   XMessageBoxService,
   XMessageService,
-  XPopoverDirective
+  XPopoverDirective,
+  XI18nPipe
 } from '@ng-nest/ui';
 import { ProjectService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
@@ -27,10 +28,12 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
     XButtonComponent,
     XLoadingComponent,
     XPopoverDirective,
-    XIconComponent
+    XIconComponent,
+    XI18nPipe
   ],
   templateUrl: './project.html',
-  styleUrl: './project.scss'
+  styleUrl: './project.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Project {
   data = inject<{ id: number; saveSuccess: (project: Project) => void }>(X_DIALOG_DATA);

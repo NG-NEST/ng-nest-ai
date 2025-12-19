@@ -1,28 +1,38 @@
 <form [x-loading]="formLoading()" [formGroup]="form" class="app-dialog-form" (ngSubmit)="save()">
-  <h4 x-dialog-title class="title">{{ id() ? '修改' : '新增' }}服务商</h4>
+  <h4 x-dialog-title class="title">
+    {{ id() ? ('$base.edit' | xI18n) : ('$base.add' | xI18n) }} {{ '$manufacturer.title' | xI18n }}
+  </h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
     <div class="item required">
-      <x-input floatLabel="on" label="名称" formControlName="name" required></x-input>
+      <x-input floatLabel="on" [label]="'$base.name' | xI18n" formControlName="name" required></x-input>
     </div>
     <div class="item required">
-      <x-input floatLabel="on" label="密钥" formControlName="apiKey" required></x-input>
+      <x-input floatLabel="on" [label]="'$manufacturer.apiKey' | xI18n" formControlName="apiKey" required></x-input>
     </div>
     <div class="item required">
-      <x-input floatLabel="on" label="API地址" formControlName="baseURL" required></x-input>
+      <x-input floatLabel="on" [label]="'$manufacturer.baseURL' | xI18n" formControlName="baseURL" required></x-input>
     </div>
-    <div class="item switch required">
-      <label>切换成当前服务商</label>
-      <x-switch formControlName="isActive" required></x-switch>
+    <div class="item switch">
+      <label>{{ '$manufacturer.isActive' | xI18n }}</label>
+      <x-switch formControlName="isActive"></x-switch>
     </div>
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {
-      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">删除</x-button>
+      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">{{
+        '$base.delete' | xI18n
+      }}</x-button>
     }
-    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>取消</x-button>
-    <x-button flat icon="fto-save" type="primary" attrType="submit" [loading]="saveLoading()" [disabled]="!form.valid"
-      >保存</x-button
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>{{ '$base.cancel' | xI18n }}</x-button>
+    <x-button
+      flat
+      icon="fto-save"
+      type="primary"
+      attrType="submit"
+      [loading]="saveLoading()"
+      [disabled]="!form.valid"
+      >{{ '$base.save' | xI18n }}</x-button
     >
   </div>
 </form>

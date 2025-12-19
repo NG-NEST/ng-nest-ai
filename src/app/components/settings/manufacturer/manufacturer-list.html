@@ -1,12 +1,14 @@
-<div class="sub-title">服务商</div>
+<div class="sub-title">{{ '$manufacturer.title' | xI18n }}</div>
 @if (manufacturerList().length === 0) {
   <div class="empty">
     <x-empty></x-empty>
-    <x-button (click)="addManufacturer()" text icon="fto-plus" size="mini" type="primary">新增</x-button>
+    <x-button (click)="addManufacturer()" text icon="fto-plus" size="mini" type="primary">{{
+      '$base.add' | xI18n
+    }}</x-button>
   </div>
 } @else {
   <div class="manufacturers">
-    <x-button (click)="addManufacturer()" icon="fto-plus" flat plain>新增</x-button>
+    <x-button (click)="addManufacturer()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
     @for (item of manufacturerList(); track item.id) {
       <div class="manufacturer" [class.checked]="item.isActive" (click)="updateManufacturer(item)">
         <div class="info">

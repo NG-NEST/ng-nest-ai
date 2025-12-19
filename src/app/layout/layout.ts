@@ -1,4 +1,4 @@
-import { Component, HostBinding, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { XScrollableComponent } from '@ng-nest/ui/scrollable';
 import { XButtonComponent } from '@ng-nest/ui/button';
@@ -13,10 +13,9 @@ import {
   Search,
   Settings
 } from '@ui/components';
-import { AppMenus } from '../app-menus';
 import { XIconComponent } from '@ng-nest/ui/icon';
-import { interval, merge } from 'rxjs';
-import { XPopoverDirective, XRippleDirective } from '@ng-nest/ui';
+import { merge } from 'rxjs';
+import { XI18nPipe, XPopoverDirective, XRippleDirective } from '@ng-nest/ui';
 
 // 扩展全局 Window 接口以包含你的 API
 declare global {
@@ -34,12 +33,14 @@ declare global {
     XScrollableComponent,
     XRippleDirective,
     XPopoverDirective,
+    XI18nPipe,
     ModelSwitchComponent,
     ProjectList,
     History
   ],
   templateUrl: './layout.html',
-  styleUrl: './layout.scss'
+  styleUrl: './layout.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Layout {
   dialogService = inject(XDialogService);
@@ -49,7 +50,6 @@ export class Layout {
   router = inject(Router);
   visible = signal(false);
   isMaximized = signal(false);
-  menuData = signal<XMenuNode[]>(AppMenus);
   selectedItem = signal<Session | Project | null>(null);
   sessionCount = signal(0);
   projectCount = signal(0);
