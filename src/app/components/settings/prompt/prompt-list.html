@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup">
+<form>
   <div class="sub-title">{{ '$prompt.title' | xI18n }}</div>
   @if (allPromptList().length === 0) {
     <div class="empty">
@@ -8,10 +8,10 @@
   } @else {
     <div class="prompts">
       <x-input-group compact class="search">
-        <x-input #inputSearch formControlName="value" icon="fto-search" iconLayout="left" style="width: 100%"></x-input>
+        <x-input #inputSearch [field]="form.value" icon="fto-search" iconLayout="left" style="width: 100%"></x-input>
         <x-button (click)="addPrompt()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
       </x-input-group>
-      @for (item of promptList(); track item.id) {
+      @for (item of promptList(); track item.id + item.name + item.content) {
         <div class="prompt" (click)="updatePrompt(item)">
           <div class="info">
             <div class="name" x-keyword [text]="keywordText()" [caseSensitive]="false">{{ item.name }}</div>

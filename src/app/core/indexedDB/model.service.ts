@@ -15,9 +15,7 @@ export interface Model {
   usePrompt?: boolean;
   useUploadImage?: boolean;
   useUploadVideo?: boolean;
-  inputTranslation?: boolean;
   inputFunction?: string;
-  outputTranslation?: boolean;
   outputFunction?: string;
   requestType?: 'OpenAI' | 'Http';
   method?: 'POST' | 'GET';

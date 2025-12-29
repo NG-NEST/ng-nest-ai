@@ -1,10 +1,19 @@
-import { ChangeDetectionStrategy, Component, HostBinding, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, HostBinding, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { XScrollableComponent } from '@ng-nest/ui/scrollable';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XDialogService } from '@ng-nest/ui/dialog';
 import { XMenuNode } from '@ng-nest/ui/menu';
-import { AppConfigService, ProjectService, Project, Session, SessionService } from '@ui/core';
+import {
+  AppConfigService,
+  ProjectService,
+  Project,
+  Session,
+  SessionService,
+  ManufacturerService,
+  ModelService,
+  PromptService
+} from '@ui/core';
 import {
   History,
   ModelSwitchComponent,
@@ -46,6 +55,9 @@ export class Layout {
   dialogService = inject(XDialogService);
   config = inject(AppConfigService);
   sessionService = inject(SessionService);
+  manufacturerService = inject(ManufacturerService);
+  modelService = inject(ModelService);
+  promptService = inject(PromptService);
   projectService = inject(ProjectService);
   router = inject(Router);
   visible = signal(false);
@@ -71,6 +83,16 @@ export class Layout {
 
   async ngAfterViewInit() {
     this.isMaximized.set(await window.electronAPI.windowControls.isMaximized());
+
+    this.manufacturerService.getAll().subscribe((x) => {
+      console.log(JSON.stringify(x));
+    });
+    this.modelService.getAll().subscribe((x) => {
+      console.log(JSON.stringify(x));
+    });
+    this.promptService.getAll().subscribe((x) => {
+      console.log(JSON.stringify(x));
+    });
   }
 
   async switchDevTools() {

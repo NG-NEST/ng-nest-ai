@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
   XDialogModule,
   XDialogRef,
   XI18nPipe,
+  XI18nService,
   XInputComponent,
   XLoadingComponent,
   XMessageBoxAction,
@@ -14,20 +14,22 @@ import {
   XTextareaComponent
 } from '@ng-nest/ui';
 import { EditorComponent } from '@ui/components';
-import { PromptService } from '@ui/core';
+import { Prompt, PromptService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
+
+import { form, Field, required, submit } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-prompt',
   imports: [
-    ReactiveFormsModule,
     XInputComponent,
     XDialogModule,
     XButtonComponent,
     XLoadingComponent,
     XTextareaComponent,
     XI18nPipe,
-    EditorComponent
+    EditorComponent,
+    Field
   ],
   templateUrl: './prompt.html',
   styleUrl: './prompt.scss',
@@ -36,19 +38,23 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 export class PromptComponent {
   data = inject<{ id: number; saveSuccess: () => void }>(X_DIALOG_DATA);
   dialogRef = inject(XDialogRef<PromptComponent>);
+  i18n = inject(XI18nService);
   message = inject(XMessageService);
   messageBox = inject(XMessageBoxService);
   service = inject(PromptService);
-  fb = inject(FormBuilder);
   id = signal<number | null>(null);
 
   formLoading = signal(false);
   saveLoading = signal(false);
 
-  form: FormGroup<any> = this.fb.group({
-    name: ['', [Validators.required]],
-    content: ['', [Validators.required]],
-    description: ['']
+  model = signal<Prompt>({
+    name: '',
+    content: '',
+    description: ''
+  });
+  form = form(this.model, (schema) => {
+    required(schema.name);
+    required(schema.content);
   });
 
   $destroy = new Subject<void>();
@@ -63,7 +69,7 @@ export class PromptComponent {
       req.push(
         this.service.getById(this.id()!).pipe(
           tap((x) => {
-            this.form.patchValue(x!);
+            this.model.set(x!);
           })
         )
       );
@@ -81,12 +87,13 @@ export class PromptComponent {
     this.$destroy.complete();
   }
 
-  save() {
+  save(event?: Event) {
+    event?.preventDefault();
     let rq!: Observable<number>;
     if (!this.id()) {
-      rq = this.service.create(this.form.value);
+      rq = this.service.create(this.model());
     } else {
-      rq = this.service.update(this.id()!, { ...this.form.value });
+      rq = this.service.update(this.id()!, { ...this.model() });
     }
     this.saveLoading.set(true);
     rq.pipe(
@@ -102,8 +109,8 @@ export class PromptComponent {
 
   delete() {
     this.messageBox.confirm({
-      title: '删除服务商',
-      content: `确认删除此服务商吗？ [${this.form.value.name}]`,
+      title: this.i18n.L('$prompt.deletePrompt'),
+      content: `${this.i18n.L('$prompt.sureDeletePrompt')} [${this.form.name().value()}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;

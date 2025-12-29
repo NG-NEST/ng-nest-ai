@@ -48,7 +48,6 @@ export class ModelList {
   manufacturerList = signal<XSelectNode[]>([]);
   inputSearch = viewChild<XInputComponent>('inputSearch');
   inputSearchChange = toObservable(this.inputSearch);
-  inputKeydown: Subscription | null = null;
   loading = signal(false);
   keywordText = signal('');
 
@@ -70,14 +69,9 @@ export class ModelList {
         this.getData();
       }
     });
-    this.inputSearchChange.pipe(takeUntil(this.$destroy)).subscribe((x) => {
-      if (this.inputSearch()) {
-        this.inputKeydown?.unsubscribe();
-        this.setInputSearch();
-      }
-    });
     this.formGroup.controls.manufacturerId.valueChanges.subscribe((x) => {
       if (x) {
+        this.keywordText.set('');
         this.formGroup.patchValue({ value: '' });
         this.getData();
       }
@@ -89,26 +83,27 @@ export class ModelList {
     this.$destroy.complete();
   }
 
+  ngAfterViewInit() {
+    this.setInputSearch();
+  }
+
   setInputSearch() {
-    if (!this.inputSearch() || !this.formGroup.getRawValue().manufacturerId) return;
     const inputElement = this.inputSearch()!.inputRef().nativeElement;
-    this.inputKeydown = fromEvent<KeyboardEvent>(inputElement, 'keydown')
+    fromEvent<KeyboardEvent>(inputElement, 'keydown')
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((_event: KeyboardEvent) => {
-          let value = this.formGroup.controls.value.getRawValue();
-          if (value && value.trim().length > 0) {
+          let { value, manufacturerId } = this.formGroup.getRawValue();
+          if (manufacturerId && value && value.trim().length > 0) {
             value = value.trim();
             this.loading.set(true);
             this.keywordText.set(value);
-            return this.service
-              .getListByManufacturerAndNameOrCode(this.formGroup.getRawValue().manufacturerId!, value)
-              .pipe(
-                tap(() => {
-                  this.loading.set(false);
-                })
-              );
+            return this.service.getListByManufacturerAndNameOrCode(manufacturerId!, value).pipe(
+              tap(() => {
+                this.loading.set(false);
+              })
+            );
           } else {
             this.keywordText.set('');
             this.modelList.set(this.allModelList());

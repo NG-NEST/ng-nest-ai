@@ -13,7 +13,8 @@ import {
   XMessageBoxService,
   XMessageService,
   XPopoverDirective,
-  XI18nPipe
+  XI18nPipe,
+  XI18nService
 } from '@ng-nest/ui';
 import { ProjectService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
@@ -42,6 +43,7 @@ export class Project {
   messageBox = inject(XMessageBoxService);
   service = inject(ProjectService);
   fb = inject(FormBuilder);
+  i18n = inject(XI18nService);
   id = signal<number | null>(null);
   visible = signal(false);
 
@@ -150,8 +152,8 @@ export class Project {
 
   delete() {
     this.messageBox.confirm({
-      title: '删除项目',
-      content: `确认删除此项目吗？ [${this.form.value.name}]`,
+      title: this.i18n.L('$project.deleteProject'),
+      content: `${this.i18n.L('$project.sureDeleteProject')} [${this.form.value.name}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;

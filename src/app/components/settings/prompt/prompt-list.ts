@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   XButtonComponent,
   XDialogModule,
@@ -17,11 +16,11 @@ import { PromptComponent } from './prompt';
 import { MarkdownPipe } from '@ui/components';
 import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { form, Field } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-prompt-list',
   imports: [
-    ReactiveFormsModule,
     XDialogModule,
     XButtonComponent,
     XIconComponent,
@@ -30,14 +29,14 @@ import { toObservable } from '@angular/core/rxjs-interop';
     XInputGroupComponent,
     XInputComponent,
     XKeywordDirective,
-    XI18nPipe
+    XI18nPipe,
+    Field
   ],
   templateUrl: './prompt-list.html',
   styleUrl: './prompt-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PromptList {
-  formBuilder = inject(FormBuilder);
   dialogService = inject(XDialogService);
   service = inject(PromptService);
   inputSearch = viewChild<XInputComponent>('inputSearch');
@@ -46,9 +45,10 @@ export class PromptList {
   loading = signal(false);
   keywordText = signal('');
 
-  formGroup = this.formBuilder.group({
-    value: ['']
+  model = signal({
+    value: ''
   });
+  form = form(this.model);
 
   promptList = signal<Prompt[]>([]);
   allPromptList = signal<Prompt[]>([]);
@@ -74,7 +74,7 @@ export class PromptList {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((_event: KeyboardEvent) => {
-          let value = this.formGroup.controls.value.getRawValue();
+          let value = this.model().value;
           if (value && value.trim().length > 0) {
             value = value.trim();
             this.loading.set(true);

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   XDialogModule,
@@ -20,7 +20,6 @@ import { AppLocaleService, AppThemeService } from '@ui/core';
 export class General {
   theme = inject(AppThemeService);
   locale = inject(AppLocaleService);
-  cdr = inject(ChangeDetectorRef);
   formBuilder = inject(FormBuilder);
   setDarking = signal(false);
 
@@ -34,9 +33,7 @@ export class General {
       await window.electronAPI.windowControls.switchDevTools();
     });
     this.formGroup.controls.lang.valueChanges.subscribe((x) => {
-      this.locale.setLocale(x as XI18nLanguage).subscribe(() => {
-        this.cdr.detectChanges();
-      });
+      this.locale.setLocale(x as XI18nLanguage).subscribe();
     });
   }
 }

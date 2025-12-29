@@ -1,5 +1,5 @@
 // electron/ipc/services/openai.service.ts
-import { ipcMain, IpcMainInvokeEvent, net, session } from 'electron';
+import { ipcMain, IpcMainInvokeEvent, net } from 'electron';
 import OpenAI from 'openai';
 import { Stream } from 'openai/core/streaming';
 
@@ -66,10 +66,31 @@ function electronFetch(input: string | URL | Request, options?: RequestInit): Pr
 
 export class OpenAIService {
   private openai: OpenAI | null = null;
+  private openaiInstances: Map<string, OpenAI> = new Map(); // 使用 Map 存储多个实例，以 baseURL 作为键
   private activeStreams: Map<string, { cancel: boolean; abortController: AbortController }> = new Map();
 
   constructor() {
     this.registerIpcHandlers();
+  }
+
+  private getOrCreateOpenAIInstance(apiKey: string, baseURL?: string): OpenAI {
+    // 如果没有提供 baseURL，默认使用 OpenAI 官方地址
+    const instanceKey = baseURL || 'default';
+
+    // 如果实例已存在，直接返回
+    if (this.openaiInstances.has(instanceKey)) {
+      return this.openaiInstances.get(instanceKey)!;
+    }
+
+    // 创建新实例并存储
+    const openai = new OpenAI({
+      apiKey: apiKey.trim(),
+      baseURL: baseURL?.trim(),
+      fetch: electronFetch
+    });
+
+    this.openaiInstances.set(instanceKey, openai);
+    return openai;
   }
 
   private registerIpcHandlers() {
@@ -82,11 +103,7 @@ export class OpenAIService {
             return { success: false, error: 'Invalid API key' };
           }
 
-          this.openai = new OpenAI({
-            apiKey: apiKey.trim(),
-            baseURL: baseURL?.trim(),
-            fetch: electronFetch
-          });
+          this.openai = this.getOrCreateOpenAIInstance(apiKey, baseURL);
 
           return {
             success: true

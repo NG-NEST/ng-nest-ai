@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
 import { FormBuilder, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -8,7 +17,10 @@ import {
   XDialogService,
   XFileCardComponent,
   XI18nPipe,
-  XIconComponent
+  XIconComponent,
+  XResize,
+  XResizeObserver,
+  XScrollableComponent
 } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XMessageService } from '@ng-nest/ui/message';
@@ -22,9 +34,10 @@ import {
   ChatSendParams,
   PromptService,
   SessionService,
-  AppSendService
+  AppSendService,
+  AppConfigService
 } from '@ui/core';
-import { finalize, Subject, Subscription } from 'rxjs';
+import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-coversation',
@@ -40,7 +53,8 @@ import { finalize, Subject, Subscription } from 'rxjs';
     XAttachmentsComponent,
     XFileCardComponent,
     XIconComponent,
-    XI18nPipe
+    XI18nPipe,
+    XScrollableComponent
   ],
   templateUrl: './coversation.html',
   styleUrl: './coversation.scss',
@@ -48,6 +62,7 @@ import { finalize, Subject, Subscription } from 'rxjs';
 })
 export class Coversation {
   loading = signal(false);
+  config = inject(AppConfigService);
   message = inject(XMessageService);
   dialogService = inject(XDialogService);
   router = inject(Router);
@@ -72,6 +87,9 @@ export class Coversation {
   selectedPrompt = signal<Prompt | null>(null);
   activeModel = computed(() => this.sendService.activeModel());
   file = signal<{ name: string; size: number; url: string; type: string } | null>(null);
+  formElementRef = viewChild.required<ElementRef<HTMLElement>>('formElementRef');
+  scrollableMaxHeight = signal('calc(100vh - 8.125rem)');
+  private resizeObserver!: XResizeObserver;
 
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(({ sessionId, time }) => {
@@ -114,12 +132,23 @@ export class Coversation {
         });
       }
     });
+    XResize(this.formElementRef().nativeElement)
+      .pipe(
+        debounceTime(10),
+        tap(({ resizeObserver }) => {
+          this.resizeObserver = resizeObserver;
+          this.scrollableMaxHeight.set(`calc(100vh - 2.25rem - ${this.formElementRef().nativeElement.clientHeight}px)`);
+        }),
+        takeUntil(this.$destroy)
+      )
+      .subscribe();
   }
 
   ngOnDestroy(): void {
+    this.onStop();
     this.$destroy.next();
     this.$destroy.complete();
-    this.onStop();
+    this.resizeObserver?.disconnect();
   }
 
   loadSessionData(sessionId: number) {

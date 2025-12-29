@@ -1,5 +1,14 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -7,12 +16,16 @@ import {
   XBubbleModule,
   XCollapseModule,
   XDialogService,
+  XDropdownComponent,
   XDropdownNode,
   XFileCardComponent,
   XI18nPipe,
   XIconComponent,
   XMessageBoxAction,
-  XMessageBoxService
+  XMessageBoxService,
+  XResize,
+  XResizeObserver,
+  XScrollableComponent
 } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
@@ -28,7 +41,7 @@ import {
   Session,
   SessionService
 } from '@ui/core';
-import { finalize, Subject, Subscription } from 'rxjs';
+import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-project-home',
@@ -45,7 +58,9 @@ import { finalize, Subject, Subscription } from 'rxjs';
     XFileCardComponent,
     XIconComponent,
     XI18nPipe,
-    DatePipe
+    XDropdownComponent,
+    DatePipe,
+    XScrollableComponent
   ],
   templateUrl: './project-home.html',
   styleUrl: './project-home.scss',
@@ -81,6 +96,9 @@ export class ProjectHome {
   selectedPrompt = signal<Prompt | null>(null);
   activeModel = computed(() => this.sendService.activeModel());
   file = signal<{ name: string; size: number; url: string; type: string } | null>(null);
+  formElementRef = viewChild.required<ElementRef<HTMLElement>>('formElementRef');
+  scrollableMaxHeight = signal('calc(100vh - 8.125rem)');
+  private resizeObserver!: XResizeObserver;
 
   constructor() {}
   ngOnInit() {
@@ -128,12 +146,23 @@ export class ProjectHome {
         });
       }
     });
+    XResize(this.formElementRef().nativeElement)
+      .pipe(
+        debounceTime(10),
+        tap(({ resizeObserver }) => {
+          this.resizeObserver = resizeObserver;
+          this.scrollableMaxHeight.set(`calc(100vh - 2.25rem - ${this.formElementRef().nativeElement.clientHeight}px)`);
+        }),
+        takeUntil(this.$destroy)
+      )
+      .subscribe();
   }
 
   ngOnDestory() {
+    this.onStop();
     this.$destroy.next();
     this.$destroy.complete();
-    this.onStop();
+    this.resizeObserver?.disconnect();
   }
 
   loadSessionData(sessionId: number) {

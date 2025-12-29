@@ -54,13 +54,17 @@
   },
   "$prompt": {
     "title": "System Prompt",
-    "search": "System prompt word search"
+    "search": "System prompt word search",
+    "deletePrompt": "Delete prompt",
+    "sureDeletePrompt": "Sure to delete this prompt?"
   },
   "$manufacturer": {
     "title": "Manufacturer",
     "apiKey": "API Key",
     "baseURL": "Base URL",
-    "isActive": "Switch Current Manufacturer"
+    "isActive": "Switch Current Manufacturer",
+    "deleteManufacturer": "Delete Manufacturer",
+    "sureDeleteManufacturer": "Sure to delete this manufacturer?"
   },
   "$model": {
     "title": "Model",
@@ -80,18 +84,24 @@
     "inputTranslation": "Input Translation",
     "outputTranslation": "Output Translation",
     "url": "Url",
-    "addRequest": "Add Request"
+    "addRequest": "Add Request",
+    "deleteModel": "Delete Model",
+    "sureDeleteModel": "Sure to delete this model?"
   },
   "$project": {
     "title": "Project",
     "edit": "Edit Project",
     "new": "New Project",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "deleteProject": "Delete Project",
+    "sureDeleteProject": "Sure to delete this project?"
   },
   "$session": {
     "search": "Chat word search",
     "editChat": "Edit Chat",
-    "newChat": "New Chat"
+    "newChat": "New Chat",
+    "deleteSession": "Delete chat",
+    "sureDeleteSession": "Sure to delete this chat?"
   },
   "$coversation": {
     "placeholder": "Enter to send, Alt + Enter to wrap"

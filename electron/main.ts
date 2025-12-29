@@ -1,12 +1,15 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import dotenv from 'dotenv';
 import { WindowService } from './ipc/services/window.service';
 import { OpenAIService } from './ipc/services/openai.service';
 import { HttpService } from './ipc/services/http.service';
 import { MinioService } from './ipc/services/minio.service';
 
-require('dotenv').config();
+const envPath = app.isPackaged ? path.join(process.resourcesPath, '.env') : path.join(__dirname, '../../.env');
+
+dotenv.config({ path: envPath });
 
 let win: BrowserWindow | null = null;
 let windowService: WindowService | null = null;

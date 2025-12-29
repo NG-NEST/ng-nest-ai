@@ -11,7 +11,8 @@ import {
   XMessageBoxService,
   XMessageService,
   XSwitchComponent,
-  XI18nPipe
+  XI18nPipe,
+  XI18nService
 } from '@ng-nest/ui';
 import { ManufacturerService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
@@ -38,6 +39,7 @@ export class ManufacturerComponent {
   messageBox = inject(XMessageBoxService);
   service = inject(ManufacturerService);
   fb = inject(FormBuilder);
+  i18n = inject(XI18nService);
   id = signal<number | null>(null);
 
   formLoading = signal(false);
@@ -101,8 +103,8 @@ export class ManufacturerComponent {
 
   delete() {
     this.messageBox.confirm({
-      title: '删除服务商',
-      content: `确认删除此服务商吗？ [${this.form.value.name}]`,
+      title: this.i18n.L('$manufacturer.deleteManufacturer'),
+      content: `${this.i18n.L('$manufacturer.sureDeleteManufacturer')} [${this.form.value.name}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;

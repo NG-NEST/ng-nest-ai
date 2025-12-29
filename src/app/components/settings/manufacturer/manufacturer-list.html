@@ -9,7 +9,7 @@
 } @else {
   <div class="manufacturers">
     <x-button (click)="addManufacturer()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
-    @for (item of manufacturerList(); track item.id) {
+    @for (item of manufacturerList(); track item.id + item.name + item.baseURL) {
       <div class="manufacturer" [class.checked]="item.isActive" (click)="updateManufacturer(item)">
         <div class="info">
           <span class="name">{{ item.name }}</span>

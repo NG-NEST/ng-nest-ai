@@ -106,7 +106,7 @@ export class ManufacturerService {
       (async () => {
         const config = await this.getById(id).toPromise(); // 需要将 Observable 转回 Promise
         if (config && config.isActive) {
-          throw new Error('不能删除激活的服务商');
+          throw new Error('不能删除激活的厂商');
         }
 
         await this.db.manufacturers.delete(id);

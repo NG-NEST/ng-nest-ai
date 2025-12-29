@@ -15,7 +15,7 @@
       </x-input-group>
     </div>
 
-    @for (item of modelList(); track item.id) {
+    @for (item of modelList(); track item.id + item.name + item.code) {
       <div class="model" [class.checked]="item.isActive" (click)="updateModel(item)">
         <div class="info">
           <div class="name">

@@ -65,7 +65,7 @@ export class AppSendService {
 
   private verify() {
     if (this.activeManufacturer() === null) {
-      this.message.warning('请设置并激活一个服务商！');
+      this.message.warning('请设置并激活一个厂商！');
       return false;
     }
     if (this.activeModel() === null) {

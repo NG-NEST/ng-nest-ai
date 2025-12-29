@@ -1,13 +1,20 @@
 <form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0" [formGroup]="formGroup">
   <div class="content">
-    <app-bubbles
-      [data]="data()"
-      [loading]="loading()"
-      (typingStart)="typing.set(true)"
-      (typingEnd)="typing.set(false)"
-    ></app-bubbles>
+    <x-scrollable
+      #scrollable
+      [maxHeight]="scrollableMaxHeight()"
+      [class.has-top-shadow]="scrollable.hasVerticalScrollbar() && !scrollable.isAtTop()"
+      [class.has-bottom-shadow]="scrollable.hasVerticalScrollbar() && !scrollable.isAtBottom()"
+    >
+      <app-bubbles
+        [data]="data()"
+        [loading]="loading()"
+        (typingStart)="typing.set(true)"
+        (typingEnd)="typing.set(false)"
+      ></app-bubbles>
+    </x-scrollable>
   </div>
-  <div class="form">
+  <div class="form" #formElementRef>
     <div class="wrapper">
       <div class="project">
         <div class="name">

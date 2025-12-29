@@ -11,7 +11,6 @@ export const AppInitializer = (): Observable<boolean> => {
     concatMap(() => prism.init()),
     concatMap(() => database.init()),
     concatMap(() => theme.init()),
-    concatMap(() => icon.init()),
-    concatMap(() => theme.init())
+    concatMap(() => icon.init())
   );
 };

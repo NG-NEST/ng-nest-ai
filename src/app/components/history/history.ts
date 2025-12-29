@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { SessionComponent } from '../session/session';
 import { XDialogService } from '@ng-nest/ui/dialog';
-import { XI18nPipe, XRippleDirective } from '@ng-nest/ui';
+import { XI18nPipe, XI18nService, XRippleDirective } from '@ng-nest/ui';
 import { More } from './more/more';
 
 @Component({
@@ -23,6 +23,7 @@ export class History {
   dialogService = inject(XDialogService);
   cdr = inject(ChangeDetectorRef);
   router = inject(Router);
+  i18n = inject(XI18nService);
   data = signal<Session[]>([]);
   page = signal(1);
   size = signal(10);
@@ -70,8 +71,8 @@ export class History {
       });
     } else if (id === 'delete') {
       this.messageBox.confirm({
-        title: '删除聊天',
-        content: `确认删除此聊天吗？ [${item.title}]`,
+        title: this.i18n.L('$session.deleteSession'),
+        content: `${this.i18n.L('$session.sureDeleteSession')} [${item.title}]`,
         type: 'warning',
         callback: (data: XMessageBoxAction) => {
           if (data !== 'confirm') return;

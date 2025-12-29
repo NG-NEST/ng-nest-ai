@@ -7,6 +7,7 @@ import {
   XDialogRef,
   XDialogService,
   XI18nPipe,
+  XI18nService,
   XIconComponent,
   XInputComponent,
   XInputGroupComponent,
@@ -56,6 +57,7 @@ export class ModelComponent {
   dialogService = inject(XDialogService);
   service = inject(ModelService);
   fb = inject(FormBuilder);
+  i18n = inject(XI18nService);
   id = signal<number | null>(null);
   sliderBase = signal(0);
   sliderHttp = signal(0);
@@ -160,7 +162,7 @@ export class ModelComponent {
         content: `
 ### 内置变量
 
-- \`\${apiKey}\`: 服务商中配置的密钥
+- \`\${apiKey}\`: 厂商中配置的密钥
 - \`\${code}\`: 模型编码
 - \`\${content}\`: 发送的内容
 - \`\${image}\`: 发送的图片地址（如有图片上传）
@@ -175,7 +177,7 @@ export class ModelComponent {
         content: `
 ### 内置变量
 
-- \`\${apiKey}\`: 服务商中配置的密钥
+- \`\${apiKey}\`: 厂商中配置的密钥
 - \`\${code}\`: 模型编码
 - \`\${content}\`: 发送的内容
 - \`\${image}\`: 发送的图片地址（如有图片上传）
@@ -352,8 +354,8 @@ export class ModelComponent {
 
   delete() {
     this.messageBox.confirm({
-      title: '删除模型',
-      content: `确认删除此模型吗？ [${this.form.value.name}]`,
+      title: this.i18n.L('$model.deleteModel'),
+      content: `${this.i18n.L('$model.sureDeleteModel')} [${this.form.value.name}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;

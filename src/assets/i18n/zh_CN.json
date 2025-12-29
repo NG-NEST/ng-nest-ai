@@ -54,13 +54,17 @@
   },
   "$prompt": {
     "title": "系统提示词",
-    "search": "系统提示词搜索"
+    "search": "系统提示词搜索",
+    "deletePrompt": "删除提示词",
+    "sureDeletePrompt": "确认删除此提示词吗？"
   },
   "$manufacturer": {
     "title": "厂商",
     "apiKey": "API 密钥",
     "baseURL": "基础 URL",
-    "isActive": "切换当前厂商"
+    "isActive": "切换当前厂商",
+    "deleteManufacturer": "删除厂商",
+    "sureDeleteManufacturer": "确认删除此厂商吗？"
   },
   "$model": {
     "title": "模型",
@@ -80,18 +84,24 @@
     "inputTranslation": "输入转换",
     "outputTranslation": "输出转换",
     "url": "链接",
-    "addRequest": "添加请求"
+    "addRequest": "添加请求",
+    "deleteModel": "删除模型",
+    "sureDeleteModel": "确认删除此模型吗？"
   },
   "$project": {
     "title": "项目",
     "edit": "编辑项目",
     "new": "新建项目",
-    "workspace": "工作区"
+    "workspace": "工作区",
+    "deleteProject": "删除项目",
+    "sureDeleteProject": "确认删除此项目吗？"
   },
   "$session": {
     "search": "聊天关键词搜索",
     "editChat": "编辑聊天",
-    "newChat": "新建聊天"
+    "newChat": "新建聊天",
+    "deleteSession": "删除聊天",
+    "sureDeleteSession": "确认删除此聊天吗？"
   },
   "$coversation": {
     "placeholder": "Enter 发送，Alt + Enter 换行"
