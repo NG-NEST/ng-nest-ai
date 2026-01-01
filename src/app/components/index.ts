@@ -10,3 +10,5 @@ export * from './session/session';
 export * from './editor/editor';
 export * from './markdown/markdown.pipe';
 export * from './rule/rule';
+export * from './file-tree';
+export * from './drag-resize';

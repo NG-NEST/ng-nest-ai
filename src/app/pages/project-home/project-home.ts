@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -29,7 +29,14 @@ import {
 } from '@ng-nest/ui';
 import { XButtonComponent } from '@ng-nest/ui/button';
 import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
-import { BubblesComponent, RuleComponent, SessionComponent } from '@ui/components';
+import {
+  BubblesComponent,
+  DragResizeDirective,
+  FileTreeCompoennt,
+  FileTreeService,
+  RuleComponent,
+  SessionComponent
+} from '@ui/components';
 import {
   AppSendService,
   ChatMessage,
@@ -60,7 +67,9 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
     XI18nPipe,
     XDropdownComponent,
     DatePipe,
-    XScrollableComponent
+    XScrollableComponent,
+    FileTreeCompoennt,
+    DragResizeDirective
   ],
   templateUrl: './project-home.html',
   styleUrl: './project-home.scss',
@@ -76,6 +85,7 @@ export class ProjectHome {
   sessionService = inject(SessionService);
   messageService = inject(MessageService);
   sendService = inject(AppSendService);
+  fileTreeService = inject(FileTreeService);
   projectId = signal<number | null>(null);
   formBuilder = inject(FormBuilder);
   formGroup = this.formBuilder.group({
@@ -99,12 +109,15 @@ export class ProjectHome {
   formElementRef = viewChild.required<ElementRef<HTMLElement>>('formElementRef');
   scrollableMaxHeight = signal('calc(100vh - 8.125rem)');
   private resizeObserver!: XResizeObserver;
+  private fileDispose?: () => void;
 
   constructor() {}
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(({ projectId, sessionId }) => {
-      this.projectId.set(Number(projectId));
-      this.getData();
+      if (Number(projectId) !== this.projectId()) {
+        this.projectId.set(Number(projectId));
+        this.getData();
+      }
 
       if (sessionId) {
         this.loadSessionData(Number(sessionId));
@@ -113,6 +126,7 @@ export class ProjectHome {
       }
     });
     this.projectService.updated.subscribe(({ id }) => {
+      console.log(id);
       if (id === this.projectId()) {
         this.getData();
       }
@@ -158,11 +172,19 @@ export class ProjectHome {
       .subscribe();
   }
 
-  ngOnDestory() {
+  async ngOnDestory() {
     this.onStop();
     this.$destroy.next();
     this.$destroy.complete();
     this.resizeObserver?.disconnect();
+    await this.unwatch();
+  }
+
+  async unwatch() {
+    this.fileDispose && this.fileDispose();
+    if (this.projectDetail()?.workspace) {
+      await window.electronAPI.fileSystem.unwatch(this.projectDetail()?.workspace);
+    }
   }
 
   loadSessionData(sessionId: number) {
@@ -172,8 +194,16 @@ export class ProjectHome {
   }
 
   getData() {
-    this.projectService.getById(this.projectId()!).subscribe((x) => {
+    this.projectService.getById(this.projectId()!).subscribe(async (x) => {
+      await this.unwatch();
       this.projectDetail.set(x!);
+      if (x?.workspace) {
+        this.fileDispose = await window.electronAPI.fileSystem.onDidChange((event: any) => {
+          console.log(event);
+          this.fileTreeService.applyFsEvent(event);
+        });
+        await window.electronAPI.fileSystem.watch(x?.workspace);
+      }
     });
     this.sessionService.getProjectByPage(this.page(), this.size(), this.projectId()!).subscribe(({ data, count }) => {
       this.sessions.set(data);

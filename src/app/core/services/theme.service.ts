@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { XThemeService, XStorageService, XColorsTheme, XVarsTheme } from '@ng-nest/ui/core';
-import { delay, of, tap } from 'rxjs';
+import { of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AppThemeService {
@@ -9,6 +10,7 @@ export class AppThemeService {
   colors = signal<XColorsTheme>({});
   vars = signal<XVarsTheme>({});
   dark = signal(false);
+  darkChange = toObservable(this.dark);
 
   colorsKey = 'XThemeColors';
   varsKey = 'XThemeVars';

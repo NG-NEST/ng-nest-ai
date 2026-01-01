@@ -83,16 +83,6 @@ export class Layout {
 
   async ngAfterViewInit() {
     this.isMaximized.set(await window.electronAPI.windowControls.isMaximized());
-
-    this.manufacturerService.getAll().subscribe((x) => {
-      console.log(JSON.stringify(x));
-    });
-    this.modelService.getAll().subscribe((x) => {
-      console.log(JSON.stringify(x));
-    });
-    this.promptService.getAll().subscribe((x) => {
-      console.log(JSON.stringify(x));
-    });
   }
 
   async switchDevTools() {

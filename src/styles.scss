@@ -599,6 +599,14 @@ input {
   -webkit-app-region: no-drag;
 }
 
+.cdk-overlay-container {
+  .x-popover-portal {
+    > .x-popover-portal-inner {
+      padding: 0.25rem 0.5rem;
+    }
+  }
+}
+
 .x-button {
   line-height: initial !important;
   display: inline-flex;
@@ -625,13 +633,7 @@ x-scrollable {
       content: '';
       pointer-events: none;
       z-index: 10;
-      mask-image: linear-gradient(
-        to right,
-        transparent 0,
-        black 2rem,
-        black calc(100% - 2rem),
-        transparent calc(100%)
-      );
+      mask-image: linear-gradient(to right, transparent 0, black 2rem, black calc(100% - 2rem), transparent calc(100%));
     }
   }
   &.has-bottom-shadow {
@@ -646,13 +648,7 @@ x-scrollable {
       content: '';
       pointer-events: none;
       z-index: 10;
-      mask-image: linear-gradient(
-        to right,
-        transparent 0,
-        black 2rem,
-        black calc(100% - 2rem),
-        transparent calc(100%)
-      );
+      mask-image: linear-gradient(to right, transparent 0, black 2rem, black calc(100% - 2rem), transparent calc(100%));
     }
   }
 }

@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { XButtonComponent, XI18nPipe, XOutletDirective, XTemplate } from '@ng-nest/ui';
+import { AppThemeService } from '@ui/core';
 import type { editor } from 'monaco-editor';
 import { fromEvent, Subject, takeUntil } from 'rxjs';
 
@@ -39,7 +40,7 @@ import { fromEvent, Subject, takeUntil } from 'rxjs';
 })
 export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnDestroy {
   filename = input<string>('.plaintext');
-  theme = input<string>('vs');
+
   options = input<editor.IStandaloneEditorConstructionOptions>({});
   disabled = input<boolean>(false);
   label = input<XTemplate>('');
@@ -47,6 +48,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
 
   document = inject(DOCUMENT);
   renderer = inject(Renderer2);
+  themeService = inject(AppThemeService);
 
   editorRef = viewChild.required<ElementRef<HTMLDivElement>>('editorRef');
 
@@ -55,6 +57,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   });
 
   fullscreen = signal(false);
+  theme = signal<string>('vs');
 
   value: any = '';
 
@@ -73,10 +76,17 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.themeService.darkChange.subscribe((isDark) => {
+      if (this.editor && this.monacoInstance) {
+        this.theme.set(isDark ? 'vs-dark' : 'vs');
+        this.monacoInstance.editor.setTheme(this.theme());
+      }
+    });
+    this.theme.set(this.themeService.dark() ? 'vs-dark' : 'vs');
+  }
 
   ngAfterViewInit(): void {
-    // 动态加载 monaco editor
     this.loadMonaco().then(() => {
       this.initializeEditor();
 
@@ -94,7 +104,7 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
           if (this.fullscreen() && this.editor) {
             setTimeout(() => {
               this.editor.layout();
-            }, 100);
+            }, 16);
           }
         });
     });

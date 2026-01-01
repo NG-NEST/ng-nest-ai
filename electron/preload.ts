@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { Chat } from 'openai/resources';
+import type { FsEvent, FsFile } from './ipc/services/file-system.service';
 
 // window controls
 interface WindowControls {
@@ -119,16 +120,47 @@ const minio: Minio = {
     ipcRenderer.invoke('ipc:minio:uploadFile', bucketName, objectName, fileData)
 };
 
+// file system
+interface FileSystem {
+  watch: (root: string) => Promise<boolean>;
+  watchWithoutScan: (root: string) => Promise<boolean>; // 不扫描初始文件的监听
+  unwatch: (root: string) => Promise<boolean>;
+  getContents: (dirPath: string) => Promise<FsFile[]>; // 获取目录内容
+  pathExists: (dirPath: string) => Promise<boolean>; // 检查路径是否存在
+  getFileInfo: (filePath: string) => Promise<FsFile | null>; // 获取文件信息
+  onDidChange(listener: (event: FsEvent) => void): () => void;
+}
+
+const fsListeners = new Set<(e: FsEvent) => void>();
+ipcRenderer.on('fs:event', (_e, event: FsEvent) => {
+  fsListeners.forEach((fn) => fn(event));
+});
+
+const fileSystem: FileSystem = {
+  watch: (root: string) => ipcRenderer.invoke('ipc:fs:watch', root),
+  watchWithoutScan: (root: string) => ipcRenderer.invoke('ipc:fs:watch-without-scan', root),
+  unwatch: (root: string) => ipcRenderer.invoke('ipc:fs:unwatch', root),
+  getContents: (dirPath: string) => ipcRenderer.invoke('ipc:fs:get-contents', dirPath),
+  pathExists: (dirPath: string) => ipcRenderer.invoke('ipc:fs:path-exists', dirPath),
+  getFileInfo: (filePath: string) => ipcRenderer.invoke('ipc:fs:get-file-info', filePath),
+  onDidChange(listener) {
+    fsListeners.add(listener);
+    return () => fsListeners.delete(listener);
+  }
+};
+
 interface IElectronAPI {
   windowControls: WindowControls;
   openAI: OpenAI;
   http: Http;
   minio: Minio;
+  fileSystem: FileSystem;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
   windowControls,
   openAI,
   http,
-  minio
+  minio,
+  fileSystem
 } as IElectronAPI);

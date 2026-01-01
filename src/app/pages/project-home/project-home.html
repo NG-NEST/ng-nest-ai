@@ -1,133 +1,148 @@
 <form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0" [formGroup]="formGroup">
   <div class="content">
-    <x-scrollable
-      #scrollable
-      [maxHeight]="scrollableMaxHeight()"
-      [class.has-top-shadow]="scrollable.hasVerticalScrollbar() && !scrollable.isAtTop()"
-      [class.has-bottom-shadow]="scrollable.hasVerticalScrollbar() && !scrollable.isAtBottom()"
-    >
-      <app-bubbles
-        [data]="data()"
-        [loading]="loading()"
-        (typingStart)="typing.set(true)"
-        (typingEnd)="typing.set(false)"
-      ></app-bubbles>
-    </x-scrollable>
-  </div>
-  <div class="form" #formElementRef>
-    <div class="wrapper">
-      <div class="project">
-        <div class="name">
-          <x-icon [type]="projectDetail()?.icon" [style.color]="projectDetail()?.iconColor"></x-icon>
-          <span>{{ projectDetail()?.name }}</span>
-        </div>
-      </div>
-      <x-sender
-        formControlName="content"
-        [placeholder]="'$coversation.placeholder' | xI18n"
-        [footer]="footerTpl"
-        [header]="headerTpl"
-        [suffix]="suffixTpl"
-        (submit)="onSubmit()"
-      ></x-sender>
-      <ng-template #headerTpl>
-        <div class="sender-header">
-          @if (file()) {
-            <x-file-card
-              variant="filled"
-              [name]="file().name"
-              [size]="file().size!"
-              [description]="file().description"
-              [url]="file().url"
-            ></x-file-card>
-          }
-        </div>
-      </ng-template>
-      <ng-template #footerTpl>
-        <div class="sender-footer">
-          @if (activeModel()?.usePrompt && (data().length === 0 || (data().length > 0 && selectedPrompt()))) {
-            <x-button plain flat (click)="onTool()" [icon]="selectedPrompt() ? 'fto-user' : 'icon:prompt'">
-              @if (selectedPrompt()) {
-                {{ selectedPrompt().name }}
-              } @else {
-                {{ '$prompt.title' | xI18n }}
+    <div class="files">
+      <x-scrollable
+        #filesScrollable
+        [maxHeight]="'calc(100vh - 2.25rem - 0.125rem)'"
+        [class.has-top-shadow]="filesScrollable.hasVerticalScrollbar() && !filesScrollable.isAtTop()"
+        [class.has-bottom-shadow]="filesScrollable.hasVerticalScrollbar() && !filesScrollable.isAtBottom()"
+      >
+        <app-file-tree [data]="fileTreeService.viewTree()"> </app-file-tree>
+      </x-scrollable>
+    </div>
+    <div class="resize-handle" appDragResize [min]="200" [max]="340"></div>
+    <div class="chat">
+      <x-scrollable
+        #chatScrollable
+        [maxHeight]="scrollableMaxHeight()"
+        [class.has-top-shadow]="chatScrollable.hasVerticalScrollbar() && !chatScrollable.isAtTop()"
+        [class.has-bottom-shadow]="chatScrollable.hasVerticalScrollbar() && !chatScrollable.isAtBottom()"
+      >
+        <app-bubbles
+          [data]="data()"
+          [loading]="loading()"
+          (typingStart)="typing.set(true)"
+          (typingEnd)="typing.set(false)"
+        ></app-bubbles>
+      </x-scrollable>
+      <div class="form" #formElementRef>
+        <div class="wrapper">
+          <div class="project">
+            <div class="name">
+              <x-icon [type]="projectDetail()?.icon" [style.color]="projectDetail()?.iconColor"></x-icon>
+              <span>{{ projectDetail()?.name }}</span>
+            </div>
+          </div>
+          <x-sender
+            formControlName="content"
+            [placeholder]="'$coversation.placeholder' | xI18n"
+            [footer]="footerTpl"
+            [header]="headerTpl"
+            [suffix]="suffixTpl"
+            (submit)="onSubmit()"
+          ></x-sender>
+          <ng-template #headerTpl>
+            <div class="sender-header">
+              @if (file()) {
+                <x-file-card
+                  variant="filled"
+                  [name]="file().name"
+                  [size]="file().size!"
+                  [description]="file().description"
+                  [url]="file().url"
+                ></x-file-card>
               }
-            </x-button>
-          }
-          @if (activeModel()?.useUploadImage && !activeModel()?.useUploadVideo) {
-            <x-attachments [accept]="'image/png, image/jpeg, image/gif, image/bmp'" formControlName="files">
-              <x-button plain flat icon="fto-image"></x-button>
-            </x-attachments>
-          }
-          @if (activeModel()?.useUploadVideo && !activeModel()?.useUploadImage) {
-            <x-attachments [accept]="'video/mp4, video/webm, video/avi, .mp4, .webm, .avi'" formControlName="files">
-              <x-button plain flat icon="fto-video"></x-button>
-            </x-attachments>
-          }
-          @if (activeModel()?.useUploadVideo && activeModel()?.useUploadImage) {
-            <x-attachments
-              [accept]="
-                'image/png, image/jpeg, image/gif, image/bmp, video/mp4, video/webm, video/avi, .mp4, .webm, .avi'
-              "
-              formControlName="files"
-            >
-              <x-button plain flat> <x-icon type="fto-image"></x-icon> / <x-icon type="fto-video"></x-icon> </x-button>
-            </x-attachments>
-          }
-        </div>
-      </ng-template>
-      <ng-template #suffixTpl>
-        <div class="buttons">
-          @if (loading() || this.typing()) {
-            <x-sender-stop (click)="onStop()"></x-sender-stop>
-          } @else {
-            <x-button
-              type="primary"
-              icon="fto-send"
-              [disabled]="formGroup.invalid"
-              circle
-              (click)="onSubmit()"
-            ></x-button>
-          }
-        </div>
-      </ng-template>
-
-      @if (count() > 0) {
-        <div class="project-sessions">
-          @for (item of sessions(); track item.id) {
-            <div
-              class="item"
-              (mouseenter)="item.hover = true"
-              (mouseleave)="item.hover = false"
-              (click)="itemClick(item)"
-            >
-              <span>{{ item.title }}</span>
-              @if (!item.hover) {
-                <span class="time">{{ item.createdAt | date: 'yyyy-MM-dd HH:mm' }}</span>
-              }
-              <x-dropdown
-                [hidden]="!item.hover"
-                (nodeClick)="operation($event, item)"
-                portalMinWidth="8rem"
-                (click)="$event.stopPropagation()"
-                [trigger]="'click'"
-                [data]="[
-                  { id: 'rename', label: '$base.rename' | xI18n, icon: 'fto-edit' },
-                  {
-                    id: 'delete',
-                    label: '$base.delete' | xI18n,
-                    icon: 'fto-trash-2',
-                    divided: true,
-                    style: { color: '#f56c6c' }
+            </div>
+          </ng-template>
+          <ng-template #footerTpl>
+            <div class="sender-footer">
+              @if (activeModel()?.usePrompt && (data().length === 0 || (data().length > 0 && selectedPrompt()))) {
+                <x-button plain flat (click)="onTool()" [icon]="selectedPrompt() ? 'fto-user' : 'icon:prompt'">
+                  @if (selectedPrompt()) {
+                    {{ selectedPrompt().name }}
+                  } @else {
+                    {{ '$prompt.title' | xI18n }}
                   }
-                ]"
-              >
-                <x-icon class="operation" type="fto-more-vertical"></x-icon>
-              </x-dropdown>
+                </x-button>
+              }
+              @if (activeModel()?.useUploadImage && !activeModel()?.useUploadVideo) {
+                <x-attachments [accept]="'image/png, image/jpeg, image/gif, image/bmp'" formControlName="files">
+                  <x-button plain flat icon="fto-image"></x-button>
+                </x-attachments>
+              }
+              @if (activeModel()?.useUploadVideo && !activeModel()?.useUploadImage) {
+                <x-attachments [accept]="'video/mp4, video/webm, video/avi, .mp4, .webm, .avi'" formControlName="files">
+                  <x-button plain flat icon="fto-video"></x-button>
+                </x-attachments>
+              }
+              @if (activeModel()?.useUploadVideo && activeModel()?.useUploadImage) {
+                <x-attachments
+                  [accept]="
+                    'image/png, image/jpeg, image/gif, image/bmp, video/mp4, video/webm, video/avi, .mp4, .webm, .avi'
+                  "
+                  formControlName="files"
+                >
+                  <x-button plain flat>
+                    <x-icon type="fto-image"></x-icon> / <x-icon type="fto-video"></x-icon>
+                  </x-button>
+                </x-attachments>
+              }
+            </div>
+          </ng-template>
+          <ng-template #suffixTpl>
+            <div class="buttons">
+              @if (loading() || this.typing()) {
+                <x-sender-stop (click)="onStop()"></x-sender-stop>
+              } @else {
+                <x-button
+                  type="primary"
+                  icon="fto-send"
+                  [disabled]="formGroup.invalid"
+                  circle
+                  (click)="onSubmit()"
+                ></x-button>
+              }
+            </div>
+          </ng-template>
+
+          @if (count() > 0) {
+            <div class="project-sessions">
+              @for (item of sessions(); track item.id) {
+                <div
+                  class="item"
+                  (mouseenter)="item.hover = true"
+                  (mouseleave)="item.hover = false"
+                  (click)="itemClick(item)"
+                >
+                  <span>{{ item.title }}</span>
+                  @if (!item.hover) {
+                    <span class="time">{{ item.createdAt | date: 'yyyy-MM-dd HH:mm' }}</span>
+                  }
+                  <x-dropdown
+                    [hidden]="!item.hover"
+                    (nodeClick)="operation($event, item)"
+                    portalMinWidth="8rem"
+                    (click)="$event.stopPropagation()"
+                    [trigger]="'click'"
+                    [data]="[
+                      { id: 'rename', label: '$base.rename' | xI18n, icon: 'fto-edit' },
+                      {
+                        id: 'delete',
+                        label: '$base.delete' | xI18n,
+                        icon: 'fto-trash-2',
+                        divided: true,
+                        style: { color: '#f56c6c' }
+                      }
+                    ]"
+                  >
+                    <x-icon class="operation" type="fto-more-vertical"></x-icon>
+                  </x-dropdown>
+                </div>
+              }
             </div>
           }
         </div>
-      }
+      </div>
     </div>
   </div>
 </form>
