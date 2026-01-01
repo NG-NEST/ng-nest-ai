@@ -2,6 +2,8 @@
 
 NG-NEST AI 是一个基于 Angular 和 Electron 构建的桌面端 AI 聊天应用。该项目提供了丰富的功能，包括项目管理、会话历史、多种媒体类型支持等。
 
+<img style="border: 1px solid #fefefe" src="https://github.com/NG-NEST/ng-nest-ai/blob/main/src/assets/images/111222.png" />
+
 ## 功能特性
 
 ### 核心功能
