@@ -20,9 +20,12 @@ import {
   XDropdownNode,
   XFileCardComponent,
   XI18nPipe,
+  XI18nService,
   XIconComponent,
+  XLinkComponent,
   XMessageBoxAction,
   XMessageBoxService,
+  XPopoverDirective,
   XResize,
   XResizeObserver,
   XScrollableComponent
@@ -68,6 +71,7 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
     XDropdownComponent,
     DatePipe,
     XScrollableComponent,
+    XPopoverDirective,
     FileTreeCompoennt,
     DragResizeDirective
   ],
@@ -79,6 +83,7 @@ export class ProjectHome {
   router = inject(Router);
   dialogService = inject(XDialogService);
   cdr = inject(ChangeDetectorRef);
+  i18n = inject(XI18nService);
   messageBox = inject(XMessageBoxService);
   activatedRoute = inject(ActivatedRoute);
   projectService = inject(ProjectService);
@@ -292,8 +297,8 @@ export class ProjectHome {
       });
     } else if (id === 'delete') {
       this.messageBox.confirm({
-        title: '删除聊天',
-        content: `确认删除此聊天吗？ [${item.title}]`,
+        title: this.i18n.L('$session.deleteSession'),
+        content: `${this.i18n.L('$session.sureDeleteSession')} [${item.title}]`,
         type: 'warning',
         callback: (data: XMessageBoxAction) => {
           if (data !== 'confirm') return;
@@ -328,5 +333,48 @@ export class ProjectHome {
     const videoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
 
     return videoTypes.includes(fileType.toLowerCase());
+  }
+
+  async createNewFile() {
+    const workspacePath = this.projectDetail()?.workspace;
+    if (!workspacePath) return;
+
+    const fileName = 'filename';
+
+    const filePath = `${workspacePath}/${fileName}`;
+    try {
+      await window.electronAPI.fileSystem.createFile(filePath);
+    } catch (error) {
+      console.error('Create file error.', error);
+    }
+  }
+
+  async createNewFolder() {
+    const workspacePath = this.projectDetail()?.workspace;
+    if (!workspacePath) return;
+
+    const folderName = 'foldername';
+
+    const folderPath = `${workspacePath}/${folderName}`;
+    try {
+      await window.electronAPI.fileSystem.createFolder(folderPath);
+    } catch (error) {
+      console.error('Create folder error.', error);
+    }
+  }
+
+  async refreshFileTree() {
+    const workspacePath = this.projectDetail()?.workspace;
+    if (!workspacePath) return;
+
+    try {
+      await window.electronAPI.fileSystem.initialScan(workspacePath);
+    } catch (error) {
+      console.error('Refresh folder error.', error);
+    }
+  }
+
+  foldUpFileTree() {
+    this.fileTreeService.foldUp(1);
   }
 }

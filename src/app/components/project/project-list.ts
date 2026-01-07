@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Project as ProjectComponent } from '../project/project';
 import { XDialogService } from '@ng-nest/ui/dialog';
-import { XI18nPipe, XRippleDirective } from '@ng-nest/ui';
+import { XI18nPipe, XI18nService, XRippleDirective } from '@ng-nest/ui';
 
 @Component({
   selector: 'app-project-list',
@@ -22,6 +22,7 @@ export class ProjectList {
   dialogService = inject(XDialogService);
   cdr = inject(ChangeDetectorRef);
   router = inject(Router);
+  i18n = inject(XI18nService);
   data = signal<Project[]>([]);
   page = signal(1);
   size = signal(10);
@@ -69,8 +70,8 @@ export class ProjectList {
       });
     } else if (id === 'delete') {
       this.messageBox.confirm({
-        title: '删除项目',
-        content: `确认删除此项目吗？ [${item.name}]`,
+        title: this.i18n.L('$project.deleteProject'),
+        content: `${this.i18n.L('$project.sureDeleteProject')} [${item.name}]`,
         type: 'warning',
         callback: (data: XMessageBoxAction) => {
           if (data !== 'confirm') return;

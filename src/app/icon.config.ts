@@ -14,6 +14,10 @@ export const IconConfig: { [key: string]: string } = {
   devtools: './assets/icons/devtools.svg',
   file: './assets/icons/file.svg',
   function: './assets/icons/function.svg',
+  'new-file': './assets/icons/new-file.svg',
+  'new-folder': './assets/icons/new-folder.svg',
+  'fold-up': './assets/icons/fold-up.svg',
+  refresh: './assets/icons/refresh.svg',
 
   folder: './assets/icons/files/folder.svg',
   'folder-open': './assets/icons/files/folder-open.svg',

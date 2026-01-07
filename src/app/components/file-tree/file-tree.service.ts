@@ -283,6 +283,27 @@ export class FileTreeService {
     }
   }
 
+  foldUp(level = 0): void {
+    // 遍历所有根节点及其子节点，将指定层级及以下的目录节点设置为折叠状态
+    const walkWithLevel = (nodes: FileNode[], currentLevel: number) => {
+      for (const node of nodes) {
+        // 如果当前层级大于等于指定层级且节点类型为目录，则折叠它
+        if (node.type === 'dir' && currentLevel >= level) {
+          node.expanded = false;
+        }
+
+        if (node.children) {
+          walkWithLevel(node.children, currentLevel + 1);
+        }
+      }
+    };
+
+    walkWithLevel(this._roots(), 0);
+
+    // 触发 _roots 信号更新以使计算信号重新计算
+    this._roots.set([...this._roots()]);
+  }
+
   select(node: FileNode): void {
     const prev = this._selectedPath();
     if (prev) {

@@ -18,6 +18,7 @@ export type FsFile = {
   isDir: boolean;
   size?: number;
   mtime?: Date;
+  ctime?: Date;
 };
 
 export class FileSystemService {
@@ -155,7 +156,8 @@ export class FileSystemService {
               name: entry.name,
               isDir: false,
               size: stat.size,
-              mtime: stat.mtime
+              mtime: stat.mtime,
+              ctime: stat.ctime
             });
           } catch (err) {
             // 如果无法获取文件状态，仍然添加基本信息
@@ -314,11 +316,41 @@ export class FileSystemService {
         name,
         isDir: stat.isDirectory(),
         size: stat.isFile() ? stat.size : undefined,
-        mtime: stat.mtime
+        mtime: stat.mtime,
+        ctime: stat.ctime
       };
     } catch (error) {
       console.error(`Error getting file info for ${filePath}:`, error);
       return null;
+    }
+  }
+
+  /**
+   * 创建新文件
+   */
+  public async createFile(filePath: string): Promise<void> {
+    try {
+      // 确保父目录存在
+      const dir = path.dirname(filePath);
+      await fs.mkdir(dir, { recursive: true });
+
+      // 创建空文件
+      await fs.writeFile(filePath, '');
+    } catch (error) {
+      console.error(`Error creating file ${filePath}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * 创建新目录
+   */
+  public async createDirectory(dirPath: string): Promise<void> {
+    try {
+      await fs.mkdir(dirPath, { recursive: true });
+    } catch (error) {
+      console.error(`Error creating directory ${dirPath}:`, error);
+      throw error;
     }
   }
 
@@ -362,6 +394,24 @@ export class FileSystemService {
         'ipc:fs:get-file-info',
         async (_e: Electron.IpcMainInvokeEvent, filePath: string) => {
           return this.getFileInfo(path.resolve(filePath));
+        }
+      ],
+      [
+        'ipc:fs:initial-scan',
+        async (e: Electron.IpcMainInvokeEvent, root: string) => {
+          return this.sendInitialScan(path.resolve(root), e.sender);
+        }
+      ],
+      [
+        'ipc:fs:create-file',
+        async (_e: Electron.IpcMainInvokeEvent, filePath: string) => {
+          return this.createFile(path.resolve(filePath));
+        }
+      ],
+      [
+        'ipc:fs:create-folder',
+        async (_e: Electron.IpcMainInvokeEvent, dirPath: string) => {
+          return this.createDirectory(path.resolve(dirPath));
         }
       ]
     ]);

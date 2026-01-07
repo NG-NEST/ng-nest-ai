@@ -35,7 +35,11 @@
     "fullscreen": "全屏",
     "restore": "还原",
     "description": "描述",
-    "new": "新建"
+    "new": "新建",
+    "newFile": "新建文件",
+    "newFolder": "新建文件夹",
+    "foldUp": "折叠文件夹",
+    "refresh": "刷新"
   },
   "$settings": {
     "title": "设置"

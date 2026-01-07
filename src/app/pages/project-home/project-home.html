@@ -1,6 +1,6 @@
 <form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0" [formGroup]="formGroup">
   <div class="content">
-    <div class="files">
+    <div class="files" [class.has-vertical-scrollbar]="filesScrollable.hasVerticalScrollbar()">
       <x-scrollable
         #filesScrollable
         [maxHeight]="'calc(100vh - 2.25rem - 0.125rem)'"
@@ -8,6 +8,40 @@
         [class.has-bottom-shadow]="filesScrollable.hasVerticalScrollbar() && !filesScrollable.isAtBottom()"
       >
         <app-file-tree [data]="fileTreeService.viewTree()"> </app-file-tree>
+        <div class="btns">
+          <x-button
+            icon="icon:new-file"
+            size="mini"
+            text
+            x-popover
+            [content]="'$base.newFile' | xI18n"
+            (click)="createNewFile()"
+          ></x-button>
+          <x-button
+            icon="icon:new-folder"
+            size="mini"
+            text
+            x-popover
+            [content]="'$base.newFolder' | xI18n"
+            (click)="createNewFolder()"
+          ></x-button>
+          <x-button
+            icon="icon:refresh"
+            size="mini"
+            text
+            x-popover
+            [content]="'$base.refresh' | xI18n"
+            (click)="refreshFileTree()"
+          ></x-button>
+          <x-button
+            icon="icon:fold-up"
+            size="mini"
+            text
+            x-popover
+            [content]="'$base.foldUp' | xI18n"
+            (click)="foldUpFileTree()"
+          ></x-button>
+        </div>
       </x-scrollable>
     </div>
     <div class="resize-handle" appDragResize [min]="200" [max]="340"></div>

@@ -1,7 +1,8 @@
 <ul ngTree #tree="ngTree" [(values)]="selected" class="basic-tree">
-  <ng-template [ngTemplateOutlet]="treeNodes" [ngTemplateOutletContext]="{ nodes: data(), parent: tree }" />
+  <ng-template [ngTemplateOutlet]="treeNodes" [ngTemplateOutletContext]="{ nodes: data(), parent: tree, level: 0 }" />
 </ul>
-<ng-template #treeNodes let-nodes="nodes" let-parent="parent">
+
+<ng-template #treeNodes let-nodes="nodes" let-parent="parent" let-level="level">
   @for (node of nodes; track node.id) {
     <li
       ngTreeItem
@@ -11,12 +12,24 @@
       [disabled]="node.disabled"
       [(expanded)]="node.expanded"
       #treeItem="ngTreeItem"
+      [class.tree-item-sticky]="node.children && node.expanded"
+      [style.top.rem]="node.children && node.expanded ? level * 1.5 : null"
+      [style.z-index]="999 - level"
+      [style.paddingLeft.rem]="level * 0.85 + 0.125"
     >
       @if (node.children) {
-        <span aria-hidden="true" translate="no" (click)="node.expanded = !node.expanded" class="icon expand-icon">
-          <x-icon type="fto-chevron-right"></x-icon>
+        <span aria-hidden="true" translate="no" class="icon expand-icon">
+          <x-icon type="fto-chevron-right" (click)="node.expanded = !node.expanded"></x-icon>
+        </span>
+        <span aria-hidden="true" translate="no" class="icon folder">
+          @if (node.expanded) {
+            <x-icon type="icon:folder-open" (click)="node.expanded = !node.expanded"></x-icon>
+          } @else {
+            <x-icon type="icon:folder" (click)="node.expanded = !node.expanded"></x-icon>
+          }
         </span>
       } @else {
+        <span aria-hidden="true" translate="no" class="icon"></span>
         <span aria-hidden="true" translate="no" class="icon">
           <x-icon [type]="node.name | appFileIcon"></x-icon>
         </span>
@@ -28,7 +41,7 @@
         <ng-template ngTreeItemGroup [ownedBy]="treeItem" #group="ngTreeItemGroup">
           <ng-template
             [ngTemplateOutlet]="treeNodes"
-            [ngTemplateOutletContext]="{ nodes: node.children, parent: group }"
+            [ngTemplateOutletContext]="{ nodes: node.children, parent: group, level: level + 1 }"
           />
         </ng-template>
       </ul>

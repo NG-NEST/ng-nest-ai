@@ -1,0 +1,9 @@
+<svg viewBox="0 0 1024 1024" version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    width="200" height="200">
+    <path
+        d="M427.16 122H152a60 60 0 0 0-60 60v660a60 60 0 0 0 60 60h720a60 60 0 0 0 60-60V302a60 60 0 0 0-60-60h-275.13a59.97 59.97 0 0 1-42.42-17.58l-84.9-84.84A60 60 0 0 0 427.19 122m0 60L512 266.87A119.22 119.22 0 0 0 596.87 302h275.1v540H152V182h275.19"
+        fill="currentColor"></path>
+    <path d="M662 572H362a30 30 0 0 1 0-60h300a30 30 0 0 1 0 60" fill="currentColor"></path>
+    <path d="M482 692V392a30 30 0 0 1 60 0v300a30 30 0 0 1-60 0" fill="currentColor"></path>
+</svg>

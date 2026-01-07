@@ -7,6 +7,9 @@
 
   [ngTree] {
     width: 100%;
+    background: $x-background;
+    padding: 0;
+    margin: 0;
   }
   [ngTreeItem] {
     cursor: pointer;
@@ -15,8 +18,11 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.0625rem 0.25rem;
-    line-height: 1.35rem;
+    padding: 0 0.25rem;
+    line-height: 1.5rem;
+    height: 1.5rem;
+    border: $x-border-width solid transparent;
+    outline: none;
     .icon {
       font-size: 1rem;
       width: 1rem;
@@ -50,7 +56,7 @@
     background-color: $x-background-a100;
   }
   [ngTreeItem]:focus {
-    outline: $x-border-width solid color-mix(in srgb, $x-primary 60%, transparent);
+    border: $x-border-width solid $x-primary;
   }
   [ngTreeItem][aria-selected='true'],
   [ngTreeItem][aria-selected='true'] .expand-icon {
@@ -71,9 +77,16 @@
     visibility: visible;
   }
   ul[role='group'] {
-    padding-left: 1rem;
+    padding-left: 0;
   }
   li[aria-expanded='false'] + ul[role='group'] {
     display: none;
+  }
+
+  .tree-item-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: $x-background;
   }
 }

@@ -35,7 +35,11 @@
     "fullscreen": "Fullscreen",
     "restore": "Restore",
     "description": "Description",
-    "new": "New"
+    "new": "New",
+    "newFile": "New File",
+    "newFolder": "New Folder",
+    "foldUp": "Fold Up Folder",
+    "refresh": "Refresh"
   },
   "$settings": {
     "title": "Settings"

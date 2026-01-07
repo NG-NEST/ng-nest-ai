@@ -128,7 +128,10 @@ interface FileSystem {
   getContents: (dirPath: string) => Promise<FsFile[]>; // 获取目录内容
   pathExists: (dirPath: string) => Promise<boolean>; // 检查路径是否存在
   getFileInfo: (filePath: string) => Promise<FsFile | null>; // 获取文件信息
-  onDidChange(listener: (event: FsEvent) => void): () => void;
+  onDidChange(listener: (event: FsEvent) => void): () => void; // 监听文件系统事件
+  initialScan: (root: string) => Promise<void>; // 初始扫描
+  createFile: (filePath: string) => Promise<void>; // 创建文件
+  createFolder: (dirPath: string) => Promise<void>; // 创建文件夹
 }
 
 const fsListeners = new Set<(e: FsEvent) => void>();
@@ -146,7 +149,10 @@ const fileSystem: FileSystem = {
   onDidChange(listener) {
     fsListeners.add(listener);
     return () => fsListeners.delete(listener);
-  }
+  },
+  initialScan: (root: string) => ipcRenderer.invoke('ipc:fs:initial-scan', root),
+  createFile: (filePath: string) => ipcRenderer.invoke('ipc:fs:create-file', filePath),
+  createFolder: (dirPath: string) => ipcRenderer.invoke('ipc:fs:create-folder', dirPath)
 };
 
 interface IElectronAPI {
