@@ -1,4 +1,4 @@
-import { ipcMain, WebContents } from 'electron';
+import { ipcMain, WebContents, shell } from 'electron';
 import chokidar, { FSWatcher } from 'chokidar';
 import path from 'path';
 import fs from 'fs/promises';
@@ -354,6 +354,55 @@ export class FileSystemService {
     }
   }
 
+  /**
+   * 重命名文件/目录
+   */
+  public async rename(oldPath: string, newPath: string): Promise<void> {
+    try {
+      await fs.rename(oldPath, newPath);
+    } catch (error) {
+      console.error(`Error renaming ${oldPath} to ${newPath}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * 删除文件/目录
+   */
+  public async delete(filePath: string): Promise<void> {
+    try {
+      const stat = await fs.stat(filePath);
+      if (stat.isDirectory()) {
+        await fs.rm(filePath, { recursive: true, force: true });
+      } else {
+        await fs.unlink(filePath);
+      }
+    } catch (error) {
+      console.error(`Error deleting ${filePath}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * 复制文件/目录
+   */
+  public async copy(source: string, destination: string): Promise<void> {
+    try {
+      // @ts-ignore: fs.cp is available in Node 16.7.0+
+      await fs.cp(source, destination, { recursive: true });
+    } catch (error) {
+      console.error(`Error copying ${source} to ${destination}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * 在资源管理器中显示
+   */
+  public async showInExplorer(filePath: string): Promise<void> {
+    shell.showItemInFolder(filePath);
+  }
+
   /* ------------------------------------------------------------------ */
   /* IPC handlers                                                       */
   /* ------------------------------------------------------------------ */
@@ -412,6 +461,30 @@ export class FileSystemService {
         'ipc:fs:create-folder',
         async (_e: Electron.IpcMainInvokeEvent, dirPath: string) => {
           return this.createDirectory(path.resolve(dirPath));
+        }
+      ],
+      [
+        'ipc:fs:rename',
+        async (_e: Electron.IpcMainInvokeEvent, oldPath: string, newPath: string) => {
+          return this.rename(path.resolve(oldPath), path.resolve(newPath));
+        }
+      ],
+      [
+        'ipc:fs:delete',
+        async (_e: Electron.IpcMainInvokeEvent, filePath: string) => {
+          return this.delete(path.resolve(filePath));
+        }
+      ],
+      [
+        'ipc:fs:copy',
+        async (_e: Electron.IpcMainInvokeEvent, source: string, destination: string) => {
+          return this.copy(path.resolve(source), path.resolve(destination));
+        }
+      ],
+      [
+        'ipc:fs:show-in-explorer',
+        async (_e: Electron.IpcMainInvokeEvent, filePath: string) => {
+          return this.showInExplorer(path.resolve(filePath));
         }
       ]
     ]);

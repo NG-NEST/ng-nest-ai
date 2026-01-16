@@ -132,6 +132,10 @@ interface FileSystem {
   initialScan: (root: string) => Promise<void>; // 初始扫描
   createFile: (filePath: string) => Promise<void>; // 创建文件
   createFolder: (dirPath: string) => Promise<void>; // 创建文件夹
+  rename: (oldPath: string, newPath: string) => Promise<void>; // 重命名
+  delete: (filePath: string) => Promise<void>; // 删除文件或文件夹
+  copy: (source: string, destination: string) => Promise<void>; // 复制文件或文件夹
+  showInExplorer: (filePath: string) => Promise<void>; // 显示文件或文件夹在文件资源管理器中
 }
 
 const fsListeners = new Set<(e: FsEvent) => void>();
@@ -152,7 +156,11 @@ const fileSystem: FileSystem = {
   },
   initialScan: (root: string) => ipcRenderer.invoke('ipc:fs:initial-scan', root),
   createFile: (filePath: string) => ipcRenderer.invoke('ipc:fs:create-file', filePath),
-  createFolder: (dirPath: string) => ipcRenderer.invoke('ipc:fs:create-folder', dirPath)
+  createFolder: (dirPath: string) => ipcRenderer.invoke('ipc:fs:create-folder', dirPath),
+  rename: (oldPath: string, newPath: string) => ipcRenderer.invoke('ipc:fs:rename', oldPath, newPath),
+  delete: (filePath: string) => ipcRenderer.invoke('ipc:fs:delete', filePath),
+  copy: (source: string, destination: string) => ipcRenderer.invoke('ipc:fs:copy', source, destination),
+  showInExplorer: (filePath: string) => ipcRenderer.invoke('ipc:fs:show-in-explorer', filePath)
 };
 
 interface IElectronAPI {

@@ -16,6 +16,9 @@ export class FileTreeService {
   private _selectedPath = signal<string | null>(null);
   readonly selectedPath = this._selectedPath.asReadonly();
 
+  private clipboard = signal<{ path: string; op: 'copy' | 'cut' } | null>(null);
+  readonly clipboardState = this.clipboard.asReadonly();
+
   /* ------------------------------------------------------------------ */
   /* FS Event entry                                                     */
   /* ------------------------------------------------------------------ */
@@ -42,6 +45,57 @@ export class FileTreeService {
         console.error('File system error:', event.error);
         break;
     }
+  }
+  /* ------------------------------------------------------------------ */
+  /* FS Operations                                                      */
+  /* ------------------------------------------------------------------ */
+
+  async rename(oldPath: string, newPath: string): Promise<void> {
+    await (window as any).electronAPI.fileSystem.rename(oldPath, newPath);
+  }
+
+  async delete(path: string): Promise<void> {
+    await (window as any).electronAPI.fileSystem.delete(path);
+  }
+
+  cut(path: string) {
+    this.clipboard.set({ path, op: 'cut' });
+  }
+
+  copy(path: string) {
+    this.clipboard.set({ path, op: 'copy' });
+  }
+
+  async paste(destinationDir: string): Promise<void> {
+    const clip = this.clipboard();
+    if (!clip) return;
+
+    const fileName = basename(clip.path);
+    // 简单的路径拼接，假设 destinationDir 不包含末尾斜杠（或者 normalizePath 处理）
+    // 实际上 normalizePath 会处理 /
+    const destinationPath = normalizePath(`${destinationDir}/${fileName}`);
+
+    if (destinationPath === clip.path) return;
+
+    try {
+      if (clip.op === 'copy') {
+        await (window as any).electronAPI.fileSystem.copy(clip.path, destinationPath);
+      } else {
+        await (window as any).electronAPI.fileSystem.rename(clip.path, destinationPath);
+      }
+      this.clipboard.set(null);
+    } catch (error) {
+      console.error('Paste failed', error);
+      throw error;
+    }
+  }
+
+  async showInExplorer(path: string): Promise<void> {
+    await (window as any).electronAPI.fileSystem.showInExplorer(path);
+  }
+
+  hasClipboard(): boolean {
+    return this.clipboard() !== null;
   }
 
   /**

@@ -5,6 +5,7 @@
 <ng-template #treeNodes let-nodes="nodes" let-parent="parent" let-level="level">
   @for (node of nodes; track node.id) {
     <li
+      [cdkContextMenuTriggerFor]="menus"
       ngTreeItem
       [parent]="parent"
       [value]="node.id"
@@ -16,6 +17,7 @@
       [style.top.rem]="node.children && node.expanded ? level * 1.5 : null"
       [style.z-index]="999 - level"
       [style.paddingLeft.rem]="level * 0.85 + 0.125"
+      [class.tree-item-cut]="service.clipboardState()?.type === 'cut' && node.id === service.clipboardState()?.path"
     >
       @if (node.children) {
         <span aria-hidden="true" translate="no" class="icon expand-icon">
@@ -36,6 +38,31 @@
       }
       <span class="filename" [title]="node.id">{{ node.name }}</span>
     </li>
+
+    <ng-template #menus>
+      <div cdkMenu class="context-menu">
+        <div cdkMenuItem class="context-menu-item" (click)="onShowInExplorer(node)">
+          <x-icon type="fto-folder"></x-icon> 在文件资源管理器中打开
+        </div>
+        <div class="context-menu-separator"></div>
+        <div cdkMenuItem class="context-menu-item" (click)="onCut(node)">
+          <x-icon type="fto-scissors"></x-icon> 剪切
+        </div>
+        @if (service.hasClipboard()) {
+          <div cdkMenuItem class="context-menu-item" (click)="onPaste(node)">
+            <x-icon type="fto-clipboard"></x-icon> 粘贴
+          </div>
+        }
+        <div cdkMenuItem class="context-menu-item" (click)="onCopy(node)"><x-icon type="fto-copy"></x-icon> 复制</div>
+        <div class="context-menu-separator"></div>
+        <div cdkMenuItem class="context-menu-item" (click)="onRename(node)">
+          <x-icon type="fto-edit"></x-icon> 重命名
+        </div>
+        <div cdkMenuItem class="context-menu-item" (click)="onDelete(node)">
+          <x-icon type="fto-trash-2"></x-icon> 删除
+        </div>
+      </div>
+    </ng-template>
     @if (node.children) {
       <ul role="group">
         <ng-template ngTreeItemGroup [ownedBy]="treeItem" #group="ngTreeItemGroup">

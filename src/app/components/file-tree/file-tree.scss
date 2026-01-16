@@ -89,4 +89,40 @@
     z-index: 999;
     background: $x-background;
   }
+  .tree-item-cut {
+    opacity: 0.5;
+  }
+}
+
+.context-menu {
+  margin: 0.0625rem 0;
+  color: $x-text;
+  width: 100%;
+  background-color: $x-background-100;
+  border-radius: $x-border-radius;
+  box-shadow: $x-box-shadow;
+  border: $x-border-width solid $x-border-200;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem;
+  &-item {
+    border-radius: $x-border-small-radius;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    height: 2rem;
+    transition: 0.3s all;
+    cursor: pointer;
+    > x-icon {
+      margin-right: 0.25rem;
+    }
+    &:hover {
+      background-color: $x-background-a200;
+    }
+  }
+  &-separator {
+    margin: 0.125rem 0;
+    border-top: $x-border-width solid $x-border-200;
+  }
 }

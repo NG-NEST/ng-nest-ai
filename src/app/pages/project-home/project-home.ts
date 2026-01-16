@@ -35,7 +35,7 @@ import { XSenderComponent, XSenderStopComponent } from '@ng-nest/ui/sender';
 import {
   BubblesComponent,
   DragResizeDirective,
-  FileTreeCompoennt,
+  FileTreeComponent,
   FileTreeService,
   RuleComponent,
   SessionComponent
@@ -72,7 +72,7 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
     DatePipe,
     XScrollableComponent,
     XPopoverDirective,
-    FileTreeCompoennt,
+    FileTreeComponent,
     DragResizeDirective
   ],
   templateUrl: './project-home.html',
