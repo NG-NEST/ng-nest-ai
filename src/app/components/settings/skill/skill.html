@@ -1,0 +1,83 @@
+<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save($event)">
+  <h4 x-dialog-title class="title">
+    {{ id() ? ('$base.edit' | xI18n) : ('$base.add' | xI18n) }} {{ '$skill.title' | xI18n }}
+  </h4>
+  <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
+  <div x-dialog-content class="content">
+    <div class="item required">
+      <x-input floatLabel="on" [label]="'$base.name' | xI18n" [field]="form.name" required></x-input>
+    </div>
+
+    <div class="item required">
+      <x-input floatLabel="on" [label]="'$skill.displayName' | xI18n" [field]="form.displayName" required></x-input>
+    </div>
+
+    <div class="item required">
+      <app-editor
+        class="editor"
+        [label]="'$skill.description' | xI18n"
+        required
+        [filename]="'.markdown'"
+        [style.height.rem]="6"
+        [style.width.%]="100"
+        [options]="{
+          lineNumbers: 'off',
+          minimap: { enabled: false }
+        }"
+        [field]="form.description"
+      ></app-editor>
+    </div>
+
+    <div class="item">
+      <x-input floatLabel="on" [label]="'$skill.category' | xI18n" [field]="form.category!"></x-input>
+    </div>
+
+    <div class="item">
+      <app-editor
+        class="editor"
+        [label]="'$skill.parameters' | xI18n"
+        [filename]="'.json'"
+        [style.height.rem]="8"
+        [style.width.%]="100"
+        [options]="{
+          lineNumbers: 'off',
+          minimap: { enabled: false }
+        }"
+        [field]="form.schema.parameters!"
+      ></app-editor>
+    </div>
+
+    <div class="item required">
+      <app-editor
+        class="editor"
+        [label]="'$skill.executeCode' | xI18n"
+        required
+        [filename]="'.js'"
+        [style.height.rem]="12"
+        [style.width.%]="100"
+        [options]="{
+          lineNumbers: 'on',
+          minimap: { enabled: false }
+        }"
+        [field]="form.runtime.code!"
+      ></app-editor>
+    </div>
+  </div>
+  <div x-dialog-actions align="center" class="actions">
+    @if (id()) {
+      <x-button icon="fto-trash-2" attrType="button" type="danger" flat plain (click)="delete()">{{
+        '$base.delete' | xI18n
+      }}</x-button>
+    }
+    <x-button icon="fto-x" attrType="button" flat plain x-dialog-close>{{ '$base.cancel' | xI18n }}</x-button>
+    <x-button
+      flat
+      icon="fto-save"
+      type="primary"
+      attrType="submit"
+      [loading]="saveLoading()"
+      [disabled]="form().invalid()"
+      >{{ '$base.save' | xI18n }}</x-button
+    >
+  </div>
+</form>

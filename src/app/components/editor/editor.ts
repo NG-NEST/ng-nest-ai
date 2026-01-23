@@ -238,9 +238,19 @@ export class EditorComponent implements ControlValueAccessor, AfterViewInit, OnD
   writeValue(value: string) {
     this.value = value;
     if (this.editor) {
-      this.editor.setValue(value || '');
-      this.editor.setScrollTop(0);
-      this.editor.setScrollLeft(0);
+      // 保存当前光标位置
+      const position = this.editor.getPosition();
+      
+      // 只有当值真正改变时才更新编辑器
+      const currentValue = this.editor.getValue();
+      if (currentValue !== value) {
+        this.editor.setValue(value || '');
+        
+        // 恢复光标位置（如果位置有效）
+        if (position) {
+          this.editor.setPosition(position);
+        }
+      }
     }
   }
 

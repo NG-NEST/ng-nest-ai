@@ -5,3 +5,4 @@ export * from './session.service';
 export * from './database.service';
 export * from './project.service';
 export * from './prompt.service';
+export * from './skill.service';

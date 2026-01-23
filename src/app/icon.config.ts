@@ -18,6 +18,7 @@ export const IconConfig: { [key: string]: string } = {
   'new-folder': './assets/icons/new-folder.svg',
   'fold-up': './assets/icons/fold-up.svg',
   refresh: './assets/icons/refresh.svg',
+  skill: './assets/icons/skill.svg',
 
   folder: './assets/icons/files/folder.svg',
   'folder-open': './assets/icons/files/folder-open.svg',

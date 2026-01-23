@@ -5,6 +5,7 @@ import { ManufacturerList } from './manufacturer/manufacturer-list';
 import { ModelList } from './model/model-list';
 import { Theme } from './theme/theme';
 import { PromptList } from './prompt/prompt-list';
+import { SkillList } from './skill/skill-list';
 import { General } from './general/general';
 
 @Component({
@@ -19,7 +20,8 @@ import { General } from './general/general';
     ModelList,
     Theme,
     General,
-    PromptList
+    PromptList,
+    SkillList
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',

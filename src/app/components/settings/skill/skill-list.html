@@ -1,0 +1,36 @@
+<form>
+  <div class="sub-title">{{ '$skill.title' | xI18n }}</div>
+  @if (allSkillList().length === 0) {
+    <div class="empty">
+      <x-empty></x-empty>
+      <x-button (click)="addSkill()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
+    </div>
+  } @else {
+    <div class="skills">
+      <x-input-group compact class="search">
+        <x-input #inputSearch [field]="form.value" icon="fto-search" iconLayout="left" style="width: 100%"></x-input>
+        <x-button (click)="addSkill()" icon="fto-plus" flat plain>{{ '$base.add' | xI18n }}</x-button>
+      </x-input-group>
+      @for (item of skillList(); track item.id + item.name + item.displayName) {
+        <div class="skill" (click)="updateSkill(item)">
+          <div class="info">
+            <div class="name" x-keyword [text]="keywordText()" [caseSensitive]="false">{{ item.name }}</div>
+            <div
+              class="sub-content truncated app-markdown"
+              [title]="item.displayName"
+              [innerHTML]="item.displayName | markdown"
+            ></div>
+          </div>
+          <!-- @if (item.isActive) {
+            <x-icon class="check" type="fto-check"></x-icon>
+          } -->
+        </div>
+      }
+      @if (skillList().length === 0) {
+        <div class="empty">
+          <x-empty></x-empty>
+        </div>
+      }
+    </div>
+  }
+</form>

@@ -34,15 +34,19 @@ const windowControls: WindowControls = {
 // openai
 interface OpenAI {
   initialize: (param: { apiKey: string; baseURL: string }) => Promise<void>;
+  loadSkills: (skills: any[]) => Promise<{ success: boolean; count?: number; error?: string }>;
   chatCompletionStream: (
     options: Chat.Completions.ChatCompletionCreateParamsStreaming,
     onData: (data: any) => void,
     onDone: () => void,
     onError: (error: any) => void
   ) => () => void;
+  // 注册 IndexedDB 查询处理器
+  registerIndexedDBHandler: (handler: (args: any) => Promise<any>) => void;
 }
 const openAI: OpenAI = {
   initialize: (param: { apiKey: string; baseURL: string }) => ipcRenderer.invoke('ipc:openai:initialize', param),
+  loadSkills: (skills: any[]) => ipcRenderer.invoke('ipc:openai:loadSkills', skills),
   chatCompletionStream: (
     options: Chat.Completions.ChatCompletionCreateParamsStreaming,
     onData: (data: any) => void,
@@ -91,6 +95,20 @@ const openAI: OpenAI = {
     return () => {
       ipcRenderer.invoke('ipc:openai:chatCompletionStream:cancel', streamId);
     };
+  },
+  // 注册 IndexedDB 查询处理器，由渲染进程调用
+  registerIndexedDBHandler: (handler: (args: any) => Promise<any>) => {
+    ipcRenderer.on('ipc:openai:query-indexeddb', async (_event, args) => {
+      try {
+        const result = await handler(args);
+        ipcRenderer.send('ipc:openai:query-indexeddb-result', { success: true, data: result });
+      } catch (error) {
+        ipcRenderer.send('ipc:openai:query-indexeddb-result', {
+          success: false,
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
   }
 };
 

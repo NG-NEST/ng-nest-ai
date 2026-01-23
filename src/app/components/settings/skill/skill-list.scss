@@ -1,0 +1,87 @@
+@use '../../../../../node_modules/@ng-nest/ui/style/params/index.scss' as *;
+
+:host {
+  .sub-title {
+    font-size: 1rem;
+    padding: 1rem;
+    margin: 0;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: $x-border-base;
+    border-radius: $x-border-radius;
+    padding: 0.25rem 1rem;
+    .label {
+    }
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+  .empty {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .skills {
+    padding: 0 1rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 7.875rem);
+    position: relative;
+    .search {
+      position: sticky;
+      top: 0;
+      padding: 1rem 0 0 0;
+      background-color: $x-background;
+    }
+    .skill {
+      padding: 0.5rem 0.75rem;
+      border: $x-border-base;
+      border-radius: $x-border-radius;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s all;
+      cursor: pointer;
+      &.checked {
+        background-color: $x-primary-900;
+        border-color: $x-primary;
+      }
+      &:hover:not(.checked) {
+        background-color: $x-primary-900;
+        border-color: $x-primary-700;
+      }
+      .info {
+        display: flex;
+        flex-direction: column;
+      }
+      .name {
+        font-weight: 500;
+      }
+      .sub-content {
+        color: $x-text-600;
+        font-size: 0.75rem;
+        margin-top: 1rem;
+        &.truncated {
+          display: -webkit-box;
+          -webkit-line-clamp: 4; /* 显示4行后截断 */
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 1.4em;
+        }
+      }
+      .check {
+        font-size: 1.25rem;
+        color: $x-primary;
+      }
+    }
+  }
+}

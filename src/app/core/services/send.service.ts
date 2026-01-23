@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { AppOpenAIService, ChatSendParams } from './openai.service';
-import { Manufacturer, ManufacturerService, Model, ModelService } from '../indexedDB';
+import { Manufacturer, ManufacturerService, Model, ModelService, SkillService } from '../indexedDB';
 import { XMessageService } from '@ng-nest/ui';
 import { of } from 'rxjs';
 import { AppHttpService } from './http.service';
@@ -12,6 +12,7 @@ export class AppSendService {
   httpService = inject(AppHttpService);
   manufacturerService = inject(ManufacturerService);
   modelService = inject(ModelService);
+  skillService = inject(SkillService);
   activeManufacturer = signal<Manufacturer | null>(null);
   activeModel = signal<Model | null>(null);
 
@@ -28,9 +29,26 @@ export class AppSendService {
         this.activeModel.set(x);
       }
     });
+    
+    // 监听 skill 变更，重新加载
+    this.skillService.skillChange.subscribe(() => {
+      this.loadSkills();
+    });
   }
 
-  private setActiveManufacturer(manufacturer: Manufacturer) {
+  private async loadSkills() {
+    this.skillService.getAll().subscribe(async (skills) => {
+      const activeSkills = skills.filter(x => x.status === 'active');
+      const result = await window.electronAPI.openAI.loadSkills(activeSkills);
+      if (result.success) {
+        console.log(`Loaded ${result.count} skills`);
+      } else {
+        console.error('Failed to load skills:', result.error);
+      }
+    });
+  }
+
+  private async setActiveManufacturer(manufacturer: Manufacturer) {
     if (!manufacturer) return;
     this.activeManufacturer.set(manufacturer!);
     this.modelService.getActive(manufacturer!.id!).subscribe((model) => {
@@ -40,7 +58,11 @@ export class AppSendService {
 
     const { baseURL, apiKey } = manufacturer;
 
-    window.electronAPI.openAI.initialize({ baseURL, apiKey });
+    // 初始化 OpenAI
+    await window.electronAPI.openAI.initialize({ baseURL, apiKey });
+
+    // 加载 skills
+    this.loadSkills();
   }
 
   send(params: ChatSendParams) {

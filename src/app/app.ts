@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { IndexedDBBridgeService } from './core/services/indexeddb-bridge.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,10 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {}
+export class App implements OnInit {
+  private indexedDBBridge = inject(IndexedDBBridgeService);
+
+  ngOnInit() {
+    // IndexedDBBridgeService 会在构造函数中自动初始化监听器
+  }
+}

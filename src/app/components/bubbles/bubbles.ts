@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output, viewChild } 
 import { XBubbleModule, XBubblesComponent, XImageComponent, XMessageService } from '@ng-nest/ui';
 import { ChatMessage, AppPrismService } from '@ui/core';
 import { micromark } from 'micromark';
+import { gfm, gfmHtml } from 'micromark-extension-gfm';
 import { from, fromEvent, Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -24,7 +25,10 @@ export class BubblesComponent {
   bubbles = viewChild.required<XBubblesComponent>('bubbles');
 
   render = (value: string) => {
-    const html = micromark(value);
+    const html = micromark(value, {
+      extensions: [gfm()],
+      htmlExtensions: [gfmHtml()]
+    });
     return from(this.prismService.highlightCodeInHtml(html));
   };
 

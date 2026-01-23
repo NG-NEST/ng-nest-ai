@@ -9,6 +9,7 @@
             { id: 'manufacturer', label: '$manufacturer.title' | xI18n, icon: 'icon:manufacturer' },
             { id: 'model', label: '$model.title' | xI18n, icon: 'icon:model' },
             { id: 'prompt', label: '$prompt.title' | xI18n, icon: 'icon:prompt' },
+            { id: 'skill', label: '$skill.title' | xI18n, icon: 'icon:skill' },
             { id: 'theme', label: '$theme.title' | xI18n, icon: 'icon:theme' },
             { id: 'general', label: '$general.title' | xI18n, icon: 'icon:about' }
           ];
@@ -29,6 +30,8 @@
         <app-theme></app-theme>
       } @else if (selectedMenuId() === 'prompt') {
         <app-prompt-list></app-prompt-list>
+      } @else if (selectedMenuId() === 'skill') {
+        <app-skill-list></app-skill-list>
       } @else if (selectedMenuId() === 'general') {
         <app-general></app-general>
       }

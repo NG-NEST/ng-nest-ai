@@ -16,7 +16,7 @@ export class AppLocaleService {
   platform = inject(Platform);
   http = inject(HttpClient);
   defaultLang = signal<XI18nLanguage>(this.i18n.getLocaleId());
-  langs = signal(['zh_CN', 'en_US']);
+  langs = signal(['zh_CN', 'en_US', 'de_DE', 'zh_TW', 'ru_RU', 'ko_KR', 'ja_JP', 'fr_FR']);
   cacheLangs = signal<{ [lang: string]: XI18nProperty }>({});
 
   get lang(): XI18nLanguage {
@@ -67,10 +67,10 @@ export class AppLocaleService {
   private setLocaleProps(locale: XI18nProperty, lang: string): XI18nProperty {
     if (lang === 'zh_CN') {
       return { ...zh_CN, ...locale };
-    } else if (lang === 'en_US') {
-      return { ...en_US, ...locale };
+    } else if (lang === 'zh_TW') {
+      return { ...zh_CN, ...locale };
     } else {
-      return locale;
+      return { ...en_US, ...locale };
     }
   }
 }

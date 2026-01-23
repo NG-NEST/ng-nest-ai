@@ -460,19 +460,20 @@ input {
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1.5em 0;
+    margin: 1.25em 0;
   }
 
   table th,
   table td {
-    padding: 0.6em 1em;
+    padding: 0.35em 0.75em;
     text-align: left;
     border: $x-border-base;
   }
 
   table th {
-    background-color: $x-background-a100;
     font-weight: 600;
+    white-space: nowrap;
+    background-color: $x-background-a100;
   }
 
   img {

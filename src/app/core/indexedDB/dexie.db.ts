@@ -5,6 +5,7 @@ import { Session, SessionTable } from './session.service';
 import { Message, MessageTable } from './message.service';
 import { Project, ProjectTable } from './project.service';
 import { Prompt, PromptTable } from './prompt.service';
+import { Skill, SkillTable } from './skill.service';
 
 export class DexieDatabase extends Dexie {
   manufacturers!: Table<Manufacturer, number>;
@@ -13,6 +14,7 @@ export class DexieDatabase extends Dexie {
   messages!: Table<Message, number>;
   projects!: Table<Project, number>;
   prompts!: Table<Prompt, number>;
+  skills!: Table<Skill, number>;
 
   constructor() {
     super('ng-nest-ai');
@@ -22,7 +24,8 @@ export class DexieDatabase extends Dexie {
       sessions: SessionTable,
       messages: MessageTable,
       projects: ProjectTable,
-      prompts: PromptTable
+      prompts: PromptTable,
+      skills: SkillTable
     });
   }
 }

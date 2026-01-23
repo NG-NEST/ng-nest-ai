@@ -3,7 +3,7 @@
 </ul>
 
 <ng-template #treeNodes let-nodes="nodes" let-parent="parent" let-level="level">
-  @for (node of nodes; track node.id) {
+  @for (node of nodes; track node.id + node.name) {
     <li
       [cdkContextMenuTriggerFor]="menus"
       ngTreeItem
@@ -42,24 +42,24 @@
     <ng-template #menus>
       <div cdkMenu class="context-menu">
         <div cdkMenuItem class="context-menu-item" (click)="onShowInExplorer(node)">
-          <x-icon type="fto-folder"></x-icon> ÔÚÎÄ¼ş×ÊÔ´¹ÜÀíÆ÷ÖĞ´ò¿ª
+          <x-icon type="fto-folder"></x-icon> åœ¨èµ„æºç®¡ç†å™¨ä¸­æ˜¾ç¤º
         </div>
         <div class="context-menu-separator"></div>
         <div cdkMenuItem class="context-menu-item" (click)="onCut(node)">
-          <x-icon type="fto-scissors"></x-icon> ¼ôÇĞ
+          <x-icon type="fto-scissors"></x-icon> å‰ªåˆ‡
         </div>
         @if (service.hasClipboard()) {
           <div cdkMenuItem class="context-menu-item" (click)="onPaste(node)">
-            <x-icon type="fto-clipboard"></x-icon> Õ³Ìù
+            <x-icon type="fto-clipboard"></x-icon> ç²˜è´´
           </div>
         }
-        <div cdkMenuItem class="context-menu-item" (click)="onCopy(node)"><x-icon type="fto-copy"></x-icon> ¸´ÖÆ</div>
+        <div cdkMenuItem class="context-menu-item" (click)="onCopy(node)"><x-icon type="fto-copy"></x-icon> å¤åˆ¶</div>
         <div class="context-menu-separator"></div>
         <div cdkMenuItem class="context-menu-item" (click)="onRename(node)">
-          <x-icon type="fto-edit"></x-icon> ÖØÃüÃû
+          <x-icon type="fto-edit"></x-icon> é‡å‘½å
         </div>
         <div cdkMenuItem class="context-menu-item" (click)="onDelete(node)">
-          <x-icon type="fto-trash-2"></x-icon> É¾³ı
+          <x-icon type="fto-trash-2"></x-icon> åˆ é™¤
         </div>
       </div>
     </ng-template>
