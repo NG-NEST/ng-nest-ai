@@ -1,0 +1,125 @@
+{
+  "locale": "de_DE",
+  "$layout": {
+    "title": "Chat AI",
+    "shortTitle": "AI",
+    "refresh": "Aktualisieren",
+    "devtool": "Entwicklertools",
+    "settings": "Einstellungen",
+    "minimize": "Minimieren",
+    "recovery": "Wiederherstellen",
+    "maximize": "Maximieren",
+    "close": "Schließen",
+    "new": "Neu",
+    "search": "Suche",
+    "newProject": "Neues Projekt",
+    "chat": "Chat",
+    "searchByChat": "Suche im Chatverlauf",
+    "searchByModel": "Suche nach Modell"
+  },
+  "$base": {
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren",
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "ok": "OK",
+    "save": "Speichern",
+    "name": "Name",
+    "code": "Code",
+    "help": "Hilfe",
+    "more": "Mehr",
+    "rename": "Umbenennen",
+    "title": "Titel",
+    "fullscreen": "Vollbild",
+    "restore": "Wiederherstellen",
+    "description": "Beschreibung",
+    "new": "Neu",
+    "newFile": "Neue Datei",
+    "newFolder": "Neuer Ordner",
+    "foldUp": "Ordner einklappen",
+    "refresh": "Aktualisieren"
+  },
+  "$settings": {
+    "title": "Einstellungen"
+  },
+  "$general": {
+    "title": "Allgemein",
+    "language": "Sprache",
+    "devtool": "Entwicklertools"
+  },
+  "$theme": {
+    "title": "Thema",
+    "background": "Hintergrund",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "primaryColor": "Primärfarbe"
+  },
+  "$prompt": {
+    "title": "System-Prompt",
+    "search": "System-Prompt-Suche",
+    "deletePrompt": "Prompt löschen",
+    "sureDeletePrompt": "Diesen Prompt wirklich löschen?"
+  },
+  "$skill": {
+    "title": "Fähigkeit",
+    "name": "Name",
+    "displayName": "Anzeigename",
+    "category": "Kategorie",
+    "description": "Beschreibung",
+    "parameters": "Parameter",
+    "executeCode": "Code ausführen",
+    "search": "Fähigkeitensuche",
+    "deleteSkill": "Fähigkeit löschen",
+    "sureDeleteSkill": "Diese Fähigkeit wirklich löschen?"
+  },
+  "$manufacturer": {
+    "title": "Hersteller",
+    "apiKey": "API-Schlüssel",
+    "baseURL": "Basis-URL",
+    "isActive": "Aktuellen Hersteller wechseln",
+    "deleteManufacturer": "Hersteller löschen",
+    "sureDeleteManufacturer": "Diesen Hersteller wirklich löschen?"
+  },
+  "$model": {
+    "title": "Modell",
+    "baseinfo": "Basisinfo",
+    "requestType": "Anfragetyp",
+    "isActive": "Modell wechseln",
+    "usePrompt": "System-Prompt",
+    "useUploadImage": "Bild hochladen",
+    "useUploadVideo": "Video hochladen",
+    "tags": "Tags",
+    "deepThinking": "Tiefes Denken",
+    "textToImage": "Text zu Bild",
+    "imageToText": "Bild zu Text",
+    "videoToText": "Video zu Text",
+    "textToVideo": "Text zu Video",
+    "imageToVideo": "Bild zu Video",
+    "inputTranslation": "Eingabeübersetzung",
+    "outputTranslation": "Ausgabeübersetzung",
+    "url": "URL",
+    "addRequest": "Anfrage hinzufügen",
+    "deleteModel": "Modell löschen",
+    "sureDeleteModel": "Dieses Modell wirklich löschen?"
+  },
+  "$project": {
+    "title": "Projekt",
+    "edit": "Projekt bearbeiten",
+    "new": "Neues Projekt",
+    "workspace": "Arbeitsbereich",
+    "deleteProject": "Projekt löschen",
+    "sureDeleteProject": "Dieses Projekt wirklich löschen?"
+  },
+  "$session": {
+    "search": "Chat-Wortsuche",
+    "editChat": "Chat bearbeiten",
+    "newChat": "Neuer Chat",
+    "deleteSession": "Chat löschen",
+    "sureDeleteSession": "Diesen Chat wirklich löschen?"
+  },
+  "$coversation": {
+    "placeholder": "Enter zum Senden, Alt + Enter für Zeilenumbruch"
+  }
+}

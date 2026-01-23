@@ -1,0 +1,125 @@
+{
+  "locale": "ko_KR",
+  "$layout": {
+    "title": "AI 채팅",
+    "shortTitle": "AI",
+    "refresh": "새로 고침",
+    "devtool": "개발자 도구",
+    "settings": "설정",
+    "minimize": "최소화",
+    "recovery": "복원",
+    "maximize": "최대화",
+    "close": "닫기",
+    "new": "새로 만들기",
+    "search": "검색",
+    "newProject": "새 프로젝트",
+    "chat": "채팅",
+    "searchByChat": "채팅 기록 검색",
+    "searchByModel": "모델 검색"
+  },
+  "$base": {
+    "enable": "활성화",
+    "disable": "비활성화",
+    "add": "추가",
+    "edit": "편집",
+    "delete": "삭제",
+    "cancel": "취소",
+    "ok": "확인",
+    "save": "저장",
+    "name": "이름",
+    "code": "코드",
+    "help": "도움말",
+    "more": "더 보기",
+    "rename": "이름 변경",
+    "title": "제목",
+    "fullscreen": "전체 화면",
+    "restore": "복원",
+    "description": "설명",
+    "new": "새로 만들기",
+    "newFile": "새 파일",
+    "newFolder": "새 폴더",
+    "foldUp": "폴더 접기",
+    "refresh": "새로 고침"
+  },
+  "$settings": {
+    "title": "설정"
+  },
+  "$general": {
+    "title": "일반",
+    "language": "언어",
+    "devtool": "개발자 도구"
+  },
+  "$theme": {
+    "title": "테마",
+    "background": "배경",
+    "dark": "어둡게",
+    "light": "밝게",
+    "primaryColor": "기본 색상"
+  },
+  "$prompt": {
+    "title": "시스템 프롬프트",
+    "search": "프롬프트 검색",
+    "deletePrompt": "프롬프트 삭제",
+    "sureDeletePrompt": "이 프롬프트를 삭제하시겠습니까?"
+  },
+  "$skill": {
+    "title": "스킬",
+    "name": "이름",
+    "displayName": "표시 이름",
+    "category": "카테고리",
+    "description": "설명",
+    "parameters": "매개변수",
+    "executeCode": "코드 실행",
+    "search": "스킬 검색",
+    "deleteSkill": "스킬 삭제",
+    "sureDeleteSkill": "이 스킬을 삭제하시겠습니까?"
+  },
+  "$manufacturer": {
+    "title": "제조사",
+    "apiKey": "API 키",
+    "baseURL": "기본 URL",
+    "isActive": "현재 제조사 전환",
+    "deleteManufacturer": "제조사 삭제",
+    "sureDeleteManufacturer": "이 제조사를 삭제하시겠습니까?"
+  },
+  "$model": {
+    "title": "모델",
+    "baseinfo": "기본 정보",
+    "requestType": "요청 유형",
+    "isActive": "모델 전환",
+    "usePrompt": "시스템 프롬프트",
+    "useUploadImage": "이미지 업로드",
+    "useUploadVideo": "비디오 업로드",
+    "tags": "태그",
+    "deepThinking": "깊은 생각",
+    "textToImage": "텍스트를 이미지로",
+    "imageToText": "이미지를 텍스트로",
+    "videoToText": "비디오를 텍스트로",
+    "textToVideo": "텍스트를 비디오로",
+    "imageToVideo": "이미지를 비디오로",
+    "inputTranslation": "입력 번역",
+    "outputTranslation": "출력 번역",
+    "url": "URL",
+    "addRequest": "요청 추가",
+    "deleteModel": "모델 삭제",
+    "sureDeleteModel": "이 모델을 삭제하시겠습니까?"
+  },
+  "$project": {
+    "title": "프로젝트",
+    "edit": "프로젝트 편집",
+    "new": "새 프로젝트",
+    "workspace": "작업 공간",
+    "deleteProject": "프로젝트 삭제",
+    "sureDeleteProject": "이 프로젝트를 삭제하시겠습니까?"
+  },
+  "$session": {
+    "search": "채팅 내용 검색",
+    "editChat": "채팅 편집",
+    "newChat": "새 채팅",
+    "deleteSession": "채팅 삭제",
+    "sureDeleteSession": "이 채팅을 삭제하시겠습니까?"
+  },
+  "$coversation": {
+    "placeholder": "Enter 전송, Alt + Enter 줄바꿈"
+  }
+}

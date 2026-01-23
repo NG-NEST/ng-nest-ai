@@ -1,0 +1,125 @@
+{
+  "locale": "zh_TW",
+  "$layout": {
+    "title": "AI 聊天",
+    "shortTitle": "AI",
+    "refresh": "重新整理",
+    "devtool": "開發者工具",
+    "settings": "設定",
+    "minimize": "最小化",
+    "recovery": "恢復",
+    "maximize": "最大化",
+    "close": "關閉",
+    "new": "新增",
+    "search": "搜尋",
+    "newProject": "新增專案",
+    "chat": "聊天",
+    "searchByChat": "搜尋聊天記錄",
+    "searchByModel": "搜尋模型"
+  },
+  "$base": {
+    "enable": "啟用",
+    "disable": "禁用",
+    "add": "新增",
+    "edit": "編輯",
+    "delete": "刪除",
+    "cancel": "取消",
+    "ok": "確定",
+    "save": "儲存",
+    "name": "名稱",
+    "code": "代碼",
+    "help": "幫助",
+    "more": "更多",
+    "rename": "重新命名",
+    "title": "標題",
+    "fullscreen": "全螢幕",
+    "restore": "還原",
+    "description": "描述",
+    "new": "新增",
+    "newFile": "新檔案",
+    "newFolder": "新資料夾",
+    "foldUp": "收起資料夾",
+    "refresh": "重新整理"
+  },
+  "$settings": {
+    "title": "設定"
+  },
+  "$general": {
+    "title": "一般",
+    "language": "語言",
+    "devtool": "開發者工具"
+  },
+  "$theme": {
+    "title": "主題",
+    "background": "背景",
+    "dark": "深色",
+    "light": "淺色",
+    "primaryColor": "主色調"
+  },
+  "$prompt": {
+    "title": "系統提示詞",
+    "search": "搜尋提示詞",
+    "deletePrompt": "刪除提示詞",
+    "sureDeletePrompt": "確定要刪除此提示詞嗎？"
+  },
+  "$skill": {
+    "title": "技能",
+    "name": "名稱",
+    "displayName": "顯示名稱",
+    "category": "類別",
+    "description": "描述",
+    "parameters": "參數",
+    "executeCode": "執行代碼",
+    "search": "搜尋技能",
+    "deleteSkill": "刪除技能",
+    "sureDeleteSkill": "確定要刪除此技能嗎？"
+  },
+  "$manufacturer": {
+    "title": "模型供應商",
+    "apiKey": "API Key",
+    "baseURL": "Base URL",
+    "isActive": "切換當前供應商",
+    "deleteManufacturer": "刪除供應商",
+    "sureDeleteManufacturer": "確定要刪除此供應商嗎？"
+  },
+  "$model": {
+    "title": "模型",
+    "baseinfo": "基本資訊",
+    "requestType": "請求類型",
+    "isActive": "切換模型",
+    "usePrompt": "系統提示詞",
+    "useUploadImage": "上傳圖片",
+    "useUploadVideo": "上傳影片",
+    "tags": "標籤",
+    "deepThinking": "深度思考",
+    "textToImage": "文生圖",
+    "imageToText": "圖生文",
+    "videoToText": "影片生文",
+    "textToVideo": "文生影片",
+    "imageToVideo": "圖生影片",
+    "inputTranslation": "輸入翻譯",
+    "outputTranslation": "輸出翻譯",
+    "url": "連結",
+    "addRequest": "新增請求",
+    "deleteModel": "刪除模型",
+    "sureDeleteModel": "確定要刪除此模型嗎？"
+  },
+  "$project": {
+    "title": "專案",
+    "edit": "編輯專案",
+    "new": "新增專案",
+    "workspace": "工作區",
+    "deleteProject": "刪除專案",
+    "sureDeleteProject": "確定要刪除此專案嗎？"
+  },
+  "$session": {
+    "search": "搜尋聊天內容",
+    "editChat": "編輯聊天",
+    "newChat": "新聊天",
+    "deleteSession": "刪除聊天",
+    "sureDeleteSession": "確定要刪除此聊天嗎？"
+  },
+  "$coversation": {
+    "placeholder": "Enter 發送，Alt + Enter 換行"
+  }
+}

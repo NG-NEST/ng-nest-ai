@@ -1,0 +1,125 @@
+{
+  "locale": "ru_RU",
+  "$layout": {
+    "title": "ИИ Чат",
+    "shortTitle": "ИИ",
+    "refresh": "Обновить",
+    "devtool": "Инструменты разработчика",
+    "settings": "Настройки",
+    "minimize": "Свернуть",
+    "recovery": "Восстановить",
+    "maximize": "Развернуть",
+    "close": "Закрыть",
+    "new": "Новый",
+    "search": "Поиск",
+    "newProject": "Новый проект",
+    "chat": "Чат",
+    "searchByChat": "Поиск по истории чата",
+    "searchByModel": "Поиск по модели"
+  },
+  "$base": {
+    "enable": "Включить",
+    "disable": "Отключить",
+    "add": "Добавить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "cancel": "Отмена",
+    "ok": "ОК",
+    "save": "Сохранить",
+    "name": "Имя",
+    "code": "Код",
+    "help": "Помощь",
+    "more": "Больше",
+    "rename": "Переименовать",
+    "title": "Заголовок",
+    "fullscreen": "На весь экран",
+    "restore": "Восстановить",
+    "description": "Описание",
+    "new": "Новый",
+    "newFile": "Новый файл",
+    "newFolder": "Новая папка",
+    "foldUp": "Свернуть папку",
+    "refresh": "Обновить"
+  },
+  "$settings": {
+    "title": "Настройки"
+  },
+  "$general": {
+    "title": "Общие",
+    "language": "Язык",
+    "devtool": "Инструменты разработчика"
+  },
+  "$theme": {
+    "title": "Тема",
+    "background": "Фон",
+    "dark": "Темная",
+    "light": "Светлая",
+    "primaryColor": "Основной цвет"
+  },
+  "$prompt": {
+    "title": "Системный промпт",
+    "search": "Поиск промпта",
+    "deletePrompt": "Удалить промпт",
+    "sureDeletePrompt": "Вы уверены, что хотите удалить этот промпт?"
+  },
+  "$skill": {
+    "title": "Навык",
+    "name": "Имя",
+    "displayName": "Отображаемое имя",
+    "category": "Категория",
+    "description": "Описание",
+    "parameters": "Параметры",
+    "executeCode": "Выполнить код",
+    "search": "Поиск навыка",
+    "deleteSkill": "Удалить навык",
+    "sureDeleteSkill": "Вы уверены, что хотите удалить этот навык?"
+  },
+  "$manufacturer": {
+    "title": "Производитель",
+    "apiKey": "API Ключ",
+    "baseURL": "Базовый URL",
+    "isActive": "Переключить текущего производителя",
+    "deleteManufacturer": "Удалить производителя",
+    "sureDeleteManufacturer": "Вы уверены, что хотите удалить этого производителя?"
+  },
+  "$model": {
+    "title": "Модель",
+    "baseinfo": "Основная информация",
+    "requestType": "Тип запроса",
+    "isActive": "Переключить модель",
+    "usePrompt": "Системный промпт",
+    "useUploadImage": "Загрузить изображение",
+    "useUploadVideo": "Загрузить видео",
+    "tags": "Теги",
+    "deepThinking": "Глубокое мышление",
+    "textToImage": "Текст в изображение",
+    "imageToText": "Изображение в текст",
+    "videoToText": "Видео в текст",
+    "textToVideo": "Текст в видео",
+    "imageToVideo": "Изображение в видео",
+    "inputTranslation": "Перевод ввода",
+    "outputTranslation": "Перевод вывода",
+    "url": "URL",
+    "addRequest": "Добавить запрос",
+    "deleteModel": "Удалить модель",
+    "sureDeleteModel": "Вы уверены, что хотите удалить эту модель?"
+  },
+  "$project": {
+    "title": "Проект",
+    "edit": "Редактировать проект",
+    "new": "Новый проект",
+    "workspace": "Рабочая область",
+    "deleteProject": "Удалить проект",
+    "sureDeleteProject": "Вы уверены, что хотите удалить этот проект?"
+  },
+  "$session": {
+    "search": "Поиск в чате",
+    "editChat": "Редактировать чат",
+    "newChat": "Новый чат",
+    "deleteSession": "Удалить чат",
+    "sureDeleteSession": "Вы уверены, что хотите удалить этот чат?"
+  },
+  "$coversation": {
+    "placeholder": "Enter для отправки, Alt + Enter для переноса строки"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "locale": "fr_FR",
+  "$layout": {
+    "title": "Chat IA",
+    "shortTitle": "IA",
+    "refresh": "Actualiser",
+    "devtool": "Outils de développement",
+    "settings": "Paramètres",
+    "minimize": "Réduire",
+    "recovery": "Restaurer",
+    "maximize": "Agrandir",
+    "close": "Fermer",
+    "new": "Nouveau",
+    "search": "Rechercher",
+    "newProject": "Nouveau projet",
+    "chat": "Discussion",
+    "searchByChat": "Rechercher dans l'historique",
+    "searchByModel": "Rechercher par modèle"
+  },
+  "$base": {
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "ok": "OK",
+    "save": "Enregistrer",
+    "name": "Nom",
+    "code": "Code",
+    "help": "Aide",
+    "more": "Plus",
+    "rename": "Renommer",
+    "title": "Titre",
+    "fullscreen": "Plein écran",
+    "restore": "Restaurer",
+    "description": "Description",
+    "new": "Nouveau",
+    "newFile": "Nouveau fichier",
+    "newFolder": "Nouveau dossier",
+    "foldUp": "Replier le dossier",
+    "refresh": "Actualiser"
+  },
+  "$settings": {
+    "title": "Paramètres"
+  },
+  "$general": {
+    "title": "Général",
+    "language": "Langue",
+    "devtool": "Outils de développement"
+  },
+  "$theme": {
+    "title": "Thème",
+    "background": "Arrière-plan",
+    "dark": "Sombre",
+    "light": "Clair",
+    "primaryColor": "Couleur principale"
+  },
+  "$prompt": {
+    "title": "Prompt système",
+    "search": "Recherche de prompt",
+    "deletePrompt": "Supprimer le prompt",
+    "sureDeletePrompt": "Êtes-vous sûr de vouloir supprimer ce prompt ?"
+  },
+  "$skill": {
+    "title": "Compétence",
+    "name": "Nom",
+    "displayName": "Nom d'affichage",
+    "category": "Catégorie",
+    "description": "Description",
+    "parameters": "Paramètres",
+    "executeCode": "Exécuter le code",
+    "search": "Recherche de compétence",
+    "deleteSkill": "Supprimer la compétence",
+    "sureDeleteSkill": "Êtes-vous sûr de vouloir supprimer cette compétence ?"
+  },
+  "$manufacturer": {
+    "title": "Fabricant",
+    "apiKey": "Clé API",
+    "baseURL": "URL de base",
+    "isActive": "Changer de fabricant actuel",
+    "deleteManufacturer": "Supprimer le fabricant",
+    "sureDeleteManufacturer": "Êtes-vous sûr de vouloir supprimer ce fabricant ?"
+  },
+  "$model": {
+    "title": "Modèle",
+    "baseinfo": "Infos de base",
+    "requestType": "Type de requête",
+    "isActive": "Changer de modèle",
+    "usePrompt": "Prompt système",
+    "useUploadImage": "Télécharger une image",
+    "useUploadVideo": "Télécharger une vidéo",
+    "tags": "Tags",
+    "deepThinking": "Pensée profonde",
+    "textToImage": "Texte vers image",
+    "imageToText": "Image vers texte",
+    "videoToText": "Vidéo vers texte",
+    "textToVideo": "Texte vers vidéo",
+    "imageToVideo": "Image vers vidéo",
+    "inputTranslation": "Traduction d'entrée",
+    "outputTranslation": "Traduction de sortie",
+    "url": "URL",
+    "addRequest": "Ajouter une requête",
+    "deleteModel": "Supprimer le modèle",
+    "sureDeleteModel": "Êtes-vous sûr de vouloir supprimer ce modèle ?"
+  },
+  "$project": {
+    "title": "Projet",
+    "edit": "Modifier le projet",
+    "new": "Nouveau projet",
+    "workspace": "Espace de travail",
+    "deleteProject": "Supprimer le projet",
+    "sureDeleteProject": "Êtes-vous sûr de vouloir supprimer ce projet ?"
+  },
+  "$session": {
+    "search": "Recherche dans le chat",
+    "editChat": "Modifier le chat",
+    "newChat": "Nouveau chat",
+    "deleteSession": "Supprimer le chat",
+    "sureDeleteSession": "Êtes-vous sûr de vouloir supprimer ce chat ?"
+  },
+  "$coversation": {
+    "placeholder": "Entrée pour envoyer, Alt + Entrée pour retour à la ligne"
+  }
+}

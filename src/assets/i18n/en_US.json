@@ -62,6 +62,18 @@
     "deletePrompt": "Delete prompt",
     "sureDeletePrompt": "Sure to delete this prompt?"
   },
+  "$skill": {
+    "title": "Skill",
+    "name": "Name",
+    "displayName": "Display Name",
+    "category": "Category",
+    "description": "Description",
+    "parameters": "Parameters",
+    "executeCode": "Execute Code",
+    "search": "Skill Search",
+    "deleteSkill": "Delete Skill",
+    "sureDeleteSkill": "Sure to delete this skill?"
+  },
   "$manufacturer": {
     "title": "Manufacturer",
     "apiKey": "API Key",

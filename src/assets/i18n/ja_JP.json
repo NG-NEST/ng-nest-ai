@@ -1,0 +1,125 @@
+{
+  "locale": "ja_JP",
+  "$layout": {
+    "title": "AI チャット",
+    "shortTitle": "AI",
+    "refresh": "更新",
+    "devtool": "開発者ツール",
+    "settings": "設定",
+    "minimize": "最小化",
+    "recovery": "元に戻す",
+    "maximize": "最大化",
+    "close": "閉じる",
+    "new": "新規",
+    "search": "検索",
+    "newProject": "新規プロジェクト",
+    "chat": "チャット",
+    "searchByChat": "チャット履歴で検索",
+    "searchByModel": "モデルで検索"
+  },
+  "$base": {
+    "enable": "有効",
+    "disable": "無効",
+    "add": "追加",
+    "edit": "編集",
+    "delete": "削除",
+    "cancel": "キャンセル",
+    "ok": "OK",
+    "save": "保存",
+    "name": "名前",
+    "code": "コード",
+    "help": "ヘルプ",
+    "more": "もっと見る",
+    "rename": "名前変更",
+    "title": "タイトル",
+    "fullscreen": "全画面",
+    "restore": "元に戻す",
+    "description": "説明",
+    "new": "新規",
+    "newFile": "新規ファイル",
+    "newFolder": "新規フォルダ",
+    "foldUp": "フォルダを折りたたむ",
+    "refresh": "更新"
+  },
+  "$settings": {
+    "title": "設定"
+  },
+  "$general": {
+    "title": "一般",
+    "language": "言語",
+    "devtool": "開発者ツール"
+  },
+  "$theme": {
+    "title": "テーマ",
+    "background": "背景",
+    "dark": "ダーク",
+    "light": "ライト",
+    "primaryColor": "メインカラー"
+  },
+  "$prompt": {
+    "title": "システムプロンプト",
+    "search": "プロンプト検索",
+    "deletePrompt": "プロンプト削除",
+    "sureDeletePrompt": "このプロンプトを削除してもよろしいですか？"
+  },
+  "$skill": {
+    "title": "スキル",
+    "name": "名前",
+    "displayName": "表示名",
+    "category": "カテゴリ",
+    "description": "説明",
+    "parameters": "パラメータ",
+    "executeCode": "コード実行",
+    "search": "スキル検索",
+    "deleteSkill": "スキル削除",
+    "sureDeleteSkill": "このスキルを削除してもよろしいですか？"
+  },
+  "$manufacturer": {
+    "title": "プロバイダー",
+    "apiKey": "APIキー",
+    "baseURL": "ベースURL",
+    "isActive": "現在のプロバイダーを切り替え",
+    "deleteManufacturer": "プロバイダー削除",
+    "sureDeleteManufacturer": "このプロバイダーを削除してもよろしいですか？"
+  },
+  "$model": {
+    "title": "モデル",
+    "baseinfo": "基本情報",
+    "requestType": "リクエストタイプ",
+    "isActive": "モデル切り替え",
+    "usePrompt": "システムプロンプト",
+    "useUploadImage": "画像アップロード",
+    "useUploadVideo": "動画アップロード",
+    "tags": "タグ",
+    "deepThinking": "深い思考",
+    "textToImage": "テキストから画像",
+    "imageToText": "画像からテキスト",
+    "videoToText": "動画からテキスト",
+    "textToVideo": "テキストから動画",
+    "imageToVideo": "画像から動画",
+    "inputTranslation": "入力翻訳",
+    "outputTranslation": "出力翻訳",
+    "url": "URL",
+    "addRequest": "リクエスト追加",
+    "deleteModel": "モデル削除",
+    "sureDeleteModel": "このモデルを削除してもよろしいですか？"
+  },
+  "$project": {
+    "title": "プロジェクト",
+    "edit": "プロジェクト編集",
+    "new": "新規プロジェクト",
+    "workspace": "ワークスペース",
+    "deleteProject": "プロジェクト削除",
+    "sureDeleteProject": "このプロジェクトを削除してもよろしいですか？"
+  },
+  "$session": {
+    "search": "チャット検索",
+    "editChat": "チャット編集",
+    "newChat": "新規チャット",
+    "deleteSession": "チャット削除",
+    "sureDeleteSession": "このチャットを削除してもよろしいですか？"
+  },
+  "$coversation": {
+    "placeholder": "Enterで送信、Alt + Enterで改行"
+  }
+}

@@ -62,6 +62,18 @@
     "deletePrompt": "删除提示词",
     "sureDeletePrompt": "确认删除此提示词吗？"
   },
+  "$skill": {
+    "title": "技能",
+    "name": "名称",
+    "displayName": "显示名称",
+    "category": "分类",
+    "description": "描述",
+    "parameters": "参数",
+    "executeCode": "执行代码",
+    "search": "技能搜索",
+    "deleteSkill": "删除技能",
+    "sureDeleteSkill": "确认删除此技能吗？"
+  },
   "$manufacturer": {
     "title": "厂商",
     "apiKey": "API 密钥",
