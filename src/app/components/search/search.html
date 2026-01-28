@@ -1,4 +1,4 @@
-<form class="app-dialog-form" [formGroup]="form">
+<form class="app-dialog-form">
   @if (!loading()) {
     <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   }
@@ -8,7 +8,7 @@
       <x-input
         #autoComplete
         [variant]="'borderless'"
-        formControlName="title"
+        [formField]="form.title"
         size="big"
         [placeholder]="'$session.search' | xI18n"
       ></x-input>

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   X_DIALOG_DATA,
@@ -17,12 +16,11 @@ import {
 import { Prompt, PromptService } from '@ui/core';
 import { debounceTime, distinctUntilChanged, finalize, fromEvent, of, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { MarkdownPipe } from '../markdown/markdown.pipe';
+import { form, required, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-rule',
   imports: [
-    ReactiveFormsModule,
-    FormsModule,
     XDialogModule,
     XButtonComponent,
     XIconComponent,
@@ -32,7 +30,8 @@ import { MarkdownPipe } from '../markdown/markdown.pipe';
     XListComponent,
     XKeywordDirective,
     XI18nPipe,
-    MarkdownPipe
+    MarkdownPipe,
+    FormField
   ],
   templateUrl: './rule.html',
   styleUrl: './rule.scss',
@@ -45,11 +44,13 @@ export class RuleComponent {
   iconCopy = signal('fto-copy');
 
   input = viewChild.required(XInputComponent);
-  formBuilder = inject(FormBuilder);
   router = inject(Router);
-  form = this.formBuilder.group({
-    title: [''],
-    promptId: [0, [Validators.required]]
+  model = signal({
+    title: '',
+    promptId: 0
+  });
+  form = form(this.model, (schema) => {
+    required(schema.promptId);
   });
   loading = signal(false);
   saveLoading = signal(false);
@@ -64,9 +65,7 @@ export class RuleComponent {
 
   ngOnInit() {
     if (this.data.promptId) {
-      this.form.patchValue({
-        promptId: this.data.promptId
-      });
+      this.form.promptId().value.set(this.data.promptId);
     }
     this.disabled.set(this.data.disabled!);
     this.getPromptList();
@@ -81,7 +80,7 @@ export class RuleComponent {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((_event: KeyboardEvent) => {
-          let value = this.form.controls.title.value;
+          let value = this.form.title().value();
           if (value && value.trim().length > 0) {
             value = value.trim();
             this.loading.set(true);
@@ -112,7 +111,7 @@ export class RuleComponent {
 
   getPromptList() {
     if (this.disabled()) {
-      this.promptService.getById(this.form.value.promptId!).subscribe((x) => {
+      this.promptService.getById(this.form.promptId().value()).subscribe((x) => {
         this.selectedPrompt.set(x!);
       });
     } else {
@@ -120,8 +119,8 @@ export class RuleComponent {
         this.promptList.set(x);
         this.allPromptList.set(x);
 
-        if (this.form.value.promptId! > 0) {
-          this.selectedPrompt.set(this.promptList().find((y: any) => y.id === this.form.value.promptId)!);
+        if (this.form.promptId().value() > 0) {
+          this.selectedPrompt.set(this.promptList().find((y: any) => y.id === this.form.promptId().value())!);
         }
       });
     }
@@ -129,7 +128,7 @@ export class RuleComponent {
 
   promptClick(prompt: Prompt) {
     this.selectedPrompt.set(prompt);
-    this.form.patchValue({ promptId: prompt.id });
+    this.form.promptId().value.set(prompt.id!);
   }
 
   save() {

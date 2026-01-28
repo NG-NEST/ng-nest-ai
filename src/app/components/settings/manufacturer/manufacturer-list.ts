@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   XButtonComponent,
   XDialogModule,
@@ -14,17 +13,14 @@ import { ManufacturerComponent } from './manufacturer';
 
 @Component({
   selector: 'app-manufacturer-list',
-  imports: [ReactiveFormsModule, XDialogModule, XButtonComponent, XIconComponent, XEmptyComponent, XI18nPipe],
+  imports: [XDialogModule, XButtonComponent, XIconComponent, XEmptyComponent, XI18nPipe],
   templateUrl: './manufacturer-list.html',
   styleUrl: './manufacturer-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManufacturerList {
-  formBuilder = inject(FormBuilder);
   dialogService = inject(XDialogService);
   service = inject(ManufacturerService);
-
-  formGroup = this.formBuilder.group({});
 
   manufacturerList = signal<Manufacturer[]>([]);
   ngOnInit() {

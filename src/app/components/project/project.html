@@ -1,4 +1,4 @@
-<form [x-loading]="formLoading()" [formGroup]="form" class="app-dialog-form" (ngSubmit)="save()">
+<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save()">
   <h4 x-dialog-title class="title">{{ id() ? ('$project.edit' | xI18n) : ('$project.new' | xI18n) }}</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
@@ -16,8 +16,8 @@
         >
           <x-icon
             class="project-icon"
-            [type]="form.get('icon')?.value"
-            [style.color]="form.get('iconColor')?.value"
+            [type]="form.icon?.().value()"
+            [style.color]="form.iconColor?.().value()"
           ></x-icon>
         </x-button>
         <x-input floatLabel="on" [label]="'$base.name' | xI18n" formControlName="name" required></x-input>
@@ -29,7 +29,7 @@
           @for (color of colors(); track color) {
             <div
               class="color"
-              [class.selected]="form.get('iconColor')?.value === color"
+              [class.selected]="form.iconColor?.().value() === color"
               [style.backgroundColor]="color"
               (click)="setIconColor(color)"
             ></div>
@@ -64,7 +64,7 @@
       type="primary"
       attrType="submit"
       [loading]="saveLoading()"
-      [disabled]="!form.valid"
+      [disabled]="form().invalid()"
       >{{ '$base.save' | xI18n }}</x-button
     >
   </div>

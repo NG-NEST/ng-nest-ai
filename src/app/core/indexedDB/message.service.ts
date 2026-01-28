@@ -26,6 +26,14 @@ export class MessageService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
 
+  getAll(): Observable<Message[]> {
+    return from(
+      (async () => {
+        return await this.db.messages.orderBy('createdAt').reverse().toArray();
+      })()
+    );
+  }
+
   create(message: Omit<Message, 'id' | 'createdAt'>): Observable<number> {
     return from(
       (async () => {

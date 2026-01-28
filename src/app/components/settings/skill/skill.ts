@@ -10,26 +10,17 @@ import {
   XLoadingComponent,
   XMessageBoxAction,
   XMessageBoxService,
-  XMessageService,
-  XTextareaComponent
+  XMessageService
 } from '@ng-nest/ui';
 import { EditorComponent } from '@ui/components';
 import { Skill, SkillService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
-import { form, Field, required } from '@angular/forms/signals';
+import { form, FormField, required } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-skill',
-  imports: [
-    XInputComponent,
-    XDialogModule,
-    XButtonComponent,
-    XLoadingComponent,
-    XI18nPipe,
-    EditorComponent,
-    Field
-  ],
+  imports: [XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent, XI18nPipe, EditorComponent, FormField],
   templateUrl: './skill.html',
   styleUrl: './skill.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

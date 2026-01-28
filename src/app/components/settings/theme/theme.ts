@@ -1,22 +1,21 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, effect, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { XColorPickerComponent, XDialogModule, XI18nPipe, XIconComponent, XSwitchComponent } from '@ng-nest/ui';
 import { AppThemeService } from '@ui/core';
 
 @Component({
   selector: 'app-theme',
-  imports: [ReactiveFormsModule, XDialogModule, XIconComponent, XSwitchComponent, XColorPickerComponent, XI18nPipe],
+  imports: [XDialogModule, XIconComponent, XSwitchComponent, XColorPickerComponent, XI18nPipe, FormField],
   templateUrl: './theme.html',
   styleUrl: './theme.scss'
 })
 export class Theme {
   theme = inject(AppThemeService);
-  formBuilder = inject(FormBuilder);
   setDarking = signal(false);
 
-  formGroup = this.formBuilder.group({
-    theme: this.formBuilder.group({
-      dark: false,
+  model = signal({
+    dark: false,
+    theme: {
       primary: '',
       success: '',
       warning: '',
@@ -25,21 +24,18 @@ export class Theme {
       background: '',
       border: '',
       text: ''
-    })
+    }
   });
 
-  ngOnInit() {
-    let colors = this.theme.colors();
-    let dark = this.theme.dark();
+  formGroup = form(this.model);
 
-    this.formGroup.controls.theme.controls.dark.patchValue(dark);
-    this.formGroup.controls.theme.patchValue(colors);
-
-    this.formGroup.controls.theme.controls.primary.valueChanges.subscribe((x) => {
-      const { success, warning, danger, info, background, border, text } = this.formGroup.controls.theme.value!;
+  constructor() {
+    effect(() => {
+      const primary = this.formGroup.theme.primary().value();
+      const { success, warning, danger, info, background, border, text } = this.formGroup.theme().value();
       !this.setDarking() &&
         this.theme.setColors({
-          primary: x!,
+          primary: primary!,
           success: success!,
           warning: warning!,
           danger: danger!,
@@ -49,12 +45,38 @@ export class Theme {
           text: text!
         });
     });
-
-    this.formGroup.controls.theme.controls.dark.valueChanges.subscribe((value) => {
+    effect(() => {
+      const dark = this.formGroup.dark().value();
       this.setDarking.set(true);
-      let colors = this.theme.setDark(value!);
-      this.formGroup.controls.theme.patchValue(colors);
+      let colors = this.theme.setDark(dark!);
+      this.formGroup.theme().value.set({
+        primary: colors.primary!,
+        success: colors.success!,
+        warning: colors.warning!,
+        danger: colors.danger!,
+        info: colors.info!,
+        background: colors.background!,
+        border: colors.border!,
+        text: colors.text!
+      });
       this.setDarking.set(false);
+    });
+  }
+
+  ngOnInit() {
+    let colors = this.theme.colors();
+    let dark = this.theme.dark();
+
+    this.formGroup.dark().value.set(dark);
+    this.formGroup.theme().value.set({
+      primary: colors.primary!,
+      success: colors.success!,
+      warning: colors.warning!,
+      danger: colors.danger!,
+      info: colors.info!,
+      background: colors.background!,
+      border: colors.border!,
+      text: colors.text!
     });
   }
 }

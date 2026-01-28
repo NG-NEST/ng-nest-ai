@@ -2,13 +2,7 @@
 import { ipcMain, IpcMainInvokeEvent, net } from 'electron';
 import OpenAI from 'openai';
 import { Stream } from 'openai/core/streaming';
-
-interface SkillDefinition {
-  name: string;
-  description: string;
-  parameters: any;
-  execute: (args: any) => Promise<any>;
-}
+import { loadBuiltinSkills, getBuiltinSkillNames, SkillDefinition, SkillContext } from '../../skills/builtin';
 
 interface SkillFromDB {
   id?: number;
@@ -98,9 +92,11 @@ export class OpenAIService {
   private skills: { [key: string]: SkillDefinition } = {};
   private tools: any[] = [];
   private mainWindow: Electron.BrowserWindow | null = null;
+  private skillContext: SkillContext = {};
 
   constructor() {
     this.initMainWindow();
+    this.initSkillContext();
     this.initBuiltinSkills();
     this.registerIpcHandlers();
   }
@@ -111,6 +107,29 @@ export class OpenAIService {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length > 0) {
       this.mainWindow = windows[0];
+    }
+  }
+
+  private initSkillContext() {
+    this.skillContext = {
+      mainWindow: this.mainWindow || undefined,
+      ipcMain: ipcMain
+    };
+  }
+
+  private async initBuiltinSkills() {
+    try {
+      const builtinSkills = await loadBuiltinSkills();
+      
+      // 加载内置技能
+      for (const skill of builtinSkills) {
+        this.skills[skill.name] = skill;
+      }
+      
+      this.updateTools();
+      console.log(`Initialized ${builtinSkills.length} builtin skills`);
+    } catch (error) {
+      console.error('Failed to initialize builtin skills:', error);
     }
   }
 
@@ -132,132 +151,6 @@ export class OpenAIService {
 
     this.openaiInstances.set(instanceKey, openai);
     return openai;
-  }
-
-  private initBuiltinSkills() {
-    // 内置技能：获取时间
-    const getTimeSkill: SkillDefinition = {
-      name: 'get_time',
-      description: '获取当前服务器时间',
-      parameters: {
-        type: 'object',
-        properties: {},
-        required: []
-      },
-      execute: async () => {
-        return {
-          time: new Date().toISOString()
-        };
-      }
-    };
-
-    // 内置技能：查询 IndexedDB
-    const queryIndexedDBSkill: SkillDefinition = {
-      name: 'query_indexeddb',
-      description: '查询前端 IndexedDB 数据库中的数据。支持查询 skills、sessions、messages、projects、prompts、manufacturers、models 等表。支持批量查询：传入 queries 数组可一次查询多个表。',
-      parameters: {
-        type: 'object',
-        properties: {
-          table: {
-            type: 'string',
-            description: '要查询的表名（单次查询时使用）',
-            enum: ['skills', 'sessions', 'messages', 'projects', 'prompts', 'manufacturers', 'models']
-          },
-          operation: {
-            type: 'string',
-            description: '操作类型（单次查询时使用）：getAll-获取所有记录, getById-根据ID获取, query-自定义查询',
-            enum: ['getAll', 'getById', 'query']
-          },
-          id: {
-            type: 'number',
-            description: '当 operation 为 getById 时，指定要查询的记录 ID'
-          },
-          filter: {
-            type: 'object',
-            description: '当 operation 为 query 时，自定义查询条件'
-          },
-          queries: {
-            type: 'array',
-            description: '批量查询：多个查询对象的数组，每个对象包含 table、operation、id（可选）、filter（可选）',
-            items: {
-              type: 'object',
-              properties: {
-                table: { type: 'string' },
-                operation: { type: 'string' },
-                id: { type: 'number' },
-                filter: { type: 'object' }
-              },
-              required: ['table', 'operation']
-            }
-          }
-        }
-      },
-      execute: async (args) => {
-        // 支持批量查询
-        if (args.queries && Array.isArray(args.queries)) {
-          const results = [];
-          for (const query of args.queries) {
-            const result = await this.queryIndexedDB(query);
-            results.push({
-              table: query.table,
-              operation: query.operation,
-              result
-            });
-          }
-          return results;
-        }
-        // 单次查询
-        return await this.queryIndexedDB(args);
-      }
-    };
-
-    this.skills[getTimeSkill.name] = getTimeSkill;
-    this.skills[queryIndexedDBSkill.name] = queryIndexedDBSkill;
-    this.updateTools();
-  }
-
-  // 查询 IndexedDB
-  private async queryIndexedDB(args: any): Promise<any> {
-    if (!this.mainWindow) {
-      this.initMainWindow();
-    }
-
-    if (!this.mainWindow) {
-      return {
-        error: 'Main window not available'
-      };
-    }
-
-    try {
-      // 使用标准 IPC 通信机制
-      return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-          ipcMain.removeListener('ipc:openai:query-indexeddb-result', resultHandler);
-          resolve({ error: 'Query timeout (5s)' });
-        }, 5000);
-
-        const resultHandler = (_event: any, response: any) => {
-          clearTimeout(timeout);
-          ipcMain.removeListener('ipc:openai:query-indexeddb-result', resultHandler);
-          
-          if (response.success) {
-            resolve(response.data);
-          } else {
-            resolve({ error: response.error || 'Unknown error' });
-          }
-        };
-
-        ipcMain.once('ipc:openai:query-indexeddb-result', resultHandler);
-        
-        // 发送查询请求到渲染进程
-        this.mainWindow!.webContents.send('ipc:openai:query-indexeddb', args);
-      });
-    } catch (error) {
-      console.error('Query IndexedDB error:', error);
-      return {
-        error: error instanceof Error ? error.message : String(error)
-      };
-    }
   }
 
   private updateTools() {
@@ -330,10 +223,12 @@ export class OpenAIService {
 
   // 从数据库加载 skills
   async loadSkillsFromDB(dbSkills: SkillFromDB[]) {
+    // 获取内置技能名称列表
+    const builtinSkillNames = await getBuiltinSkillNames();
+    
     // 清除之前从数据库加载的 skills（保留内置 skills）
-    const builtinSkills = ['get_time', 'query_indexeddb'];
     Object.keys(this.skills).forEach(key => {
-      if (!builtinSkills.includes(key)) {
+      if (!builtinSkillNames.includes(key)) {
         delete this.skills[key];
       }
     });
@@ -750,7 +645,7 @@ export class OpenAIService {
                 });
                 
                 const skill = this.skills[toolCallData.name];
-                const result = await skill.execute(args);
+                const result = await skill.execute(args, this.skillContext);
                 
                 // 发送执行完成的提示
                 let resultPreview = '';

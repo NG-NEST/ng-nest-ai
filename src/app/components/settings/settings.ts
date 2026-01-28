@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { XButtonComponent, XDialogModule, XI18nPipe, XIconComponent } from '@ng-nest/ui';
 import { ManufacturerList } from './manufacturer/manufacturer-list';
 import { ModelList } from './model/model-list';
@@ -11,7 +10,6 @@ import { General } from './general/general';
 @Component({
   selector: 'app-settings',
   imports: [
-    ReactiveFormsModule,
     XDialogModule,
     XIconComponent,
     XButtonComponent,

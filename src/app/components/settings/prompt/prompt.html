@@ -5,7 +5,7 @@
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
     <div class="item required">
-      <x-input floatLabel="on" [label]="'$base.name' | xI18n" [field]="form.name" required></x-input>
+      <x-input floatLabel="on" [label]="'$base.name' | xI18n" [formField]="form.name" required></x-input>
     </div>
 
     <div class="item required">
@@ -20,7 +20,7 @@
           lineNumbers: 'off',
           minimap: { enabled: false }
         }"
-        [field]="form.content"
+        [formField]="form.content"
       ></app-editor>
     </div>
     <div class="item">
@@ -28,7 +28,7 @@
         floatLabel="on"
         [label]="'$base.description' | xI18n"
         height="4rem"
-        [field]="form.description!"
+        [formField]="form.description!"
       ></x-textarea>
     </div>
   </div>

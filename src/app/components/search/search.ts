@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import {
   XButtonComponent,
@@ -21,7 +21,6 @@ import { debounceTime, distinctUntilChanged, fromEvent, map, Subject, switchMap,
 @Component({
   selector: 'app-search',
   imports: [
-    ReactiveFormsModule,
     XDialogModule,
     XButtonComponent,
     XIconComponent,
@@ -31,7 +30,8 @@ import { debounceTime, distinctUntilChanged, fromEvent, map, Subject, switchMap,
     XListComponent,
     XKeywordDirective,
     XI18nPipe,
-    DatePipe
+    DatePipe,
+    FormField
   ],
   templateUrl: './search.html',
   styleUrl: './search.scss'
@@ -40,10 +40,12 @@ export class Search {
   session = inject(SessionService);
   dialogRef = inject(XDialogRef<Search>);
   input = viewChild.required(XInputComponent);
-  formBuilder = inject(FormBuilder);
   router = inject(Router);
-  form = this.formBuilder.group({
-    title: ['', [Validators.required]]
+  model = signal({
+    title: ''
+  });
+  form = form(this.model, (schema) => {
+    required(schema.title);
   });
   loading = signal(false);
   data = signal<XListNode[]>([]);
@@ -60,7 +62,7 @@ export class Search {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((_event: KeyboardEvent) => {
-          let value = this.form.controls.title.value;
+          let value = this.form.title().value();
           if (value && value.trim().length > 0) {
             value = value.trim();
             this.loading.set(true);

@@ -17,7 +17,7 @@ import { EditorComponent } from '@ui/components';
 import { Prompt, PromptService } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
-import { form, Field, required, submit } from '@angular/forms/signals';
+import { form, required, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-prompt',
@@ -29,7 +29,7 @@ import { form, Field, required, submit } from '@angular/forms/signals';
     XTextareaComponent,
     XI18nPipe,
     EditorComponent,
-    Field
+    FormField
   ],
   templateUrl: './prompt.html',
   styleUrl: './prompt.scss',

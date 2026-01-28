@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   X_DIALOG_DATA,
@@ -16,7 +16,7 @@ import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-help',
-  imports: [ReactiveFormsModule, XDialogModule, XButtonComponent, XLoadingComponent],
+  imports: [XDialogModule, XButtonComponent, XLoadingComponent],
   templateUrl: './help.html',
   styleUrl: './help.scss'
 })
@@ -33,8 +33,6 @@ export class HelpComponent {
 
   formLoading = signal(false);
   saveLoading = signal(false);
-
-  form: FormGroup<any> = this.fb.group({});
 
   $destroy = new Subject<void>();
 

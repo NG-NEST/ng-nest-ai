@@ -14,7 +14,7 @@ import { Skill, SkillService } from '@ui/core';
 import { MarkdownPipe } from '@ui/components';
 import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { form, Field } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { SkillComponent } from './skill';
 
 @Component({
@@ -28,7 +28,7 @@ import { SkillComponent } from './skill';
     XInputComponent,
     XKeywordDirective,
     XI18nPipe,
-    Field
+    FormField
   ],
   templateUrl: './skill-list.html',
   styleUrl: './skill-list.scss',

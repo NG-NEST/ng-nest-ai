@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup">
+<form>
   <div class="sub-title">{{ '$general.title' | xI18n }}</div>
   <div class="general list">
     <div class="item switch" [style.paddingRight.rem]="0">
@@ -17,13 +17,13 @@
           { label: 'Français', id: 'fr_FR' }
         ]"
         variant="borderless"
-        formControlName="lang"
+        [formField]="formGroup.lang"
         [clearable]="false"
       ></x-select>
     </div>
     <div class="item switch">
       <div class="label">{{ '$general.devtool' | xI18n }}</div>
-      <x-switch [checkedText]="enableTpl" [unCheckedText]="disableTpl" formControlName="switchDev"></x-switch>
+      <x-switch [checkedText]="enableTpl" [unCheckedText]="disableTpl" [formField]="formGroup.switchDev"></x-switch>
       <ng-template #enableTpl>
         <div class="general-icon"><x-icon type="fto-check"></x-icon> {{ '$base.enable' | xI18n }}</div>
       </ng-template>

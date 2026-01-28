@@ -1,18 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import {
-  XDialogModule,
-  XI18nLanguage,
-  XI18nPipe,
-  XIconComponent,
-  XSelectComponent,
-  XSwitchComponent
-} from '@ng-nest/ui';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
+import { XDialogModule, XI18nPipe, XIconComponent, XSelectComponent, XSwitchComponent } from '@ng-nest/ui';
 import { AppLocaleService, AppThemeService } from '@ui/core';
 
 @Component({
   selector: 'app-general',
-  imports: [ReactiveFormsModule, XDialogModule, XIconComponent, XSwitchComponent, XSelectComponent, XI18nPipe],
+  imports: [XDialogModule, XIconComponent, XSwitchComponent, XSelectComponent, XI18nPipe, FormField],
   templateUrl: './general.html',
   styleUrl: './general.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,20 +13,19 @@ import { AppLocaleService, AppThemeService } from '@ui/core';
 export class General {
   theme = inject(AppThemeService);
   locale = inject(AppLocaleService);
-  formBuilder = inject(FormBuilder);
   setDarking = signal(false);
 
-  formGroup = this.formBuilder.group({
-    lang: [this.locale.lang ?? 'zh_CN'],
-    switchDev: [false]
-  });
+  model = signal({ lang: this.locale.lang ?? 'zh_CN', switchDev: false });
+  formGroup = form(this.model);
 
-  ngOnInit() {
-    this.formGroup.controls.switchDev.valueChanges.subscribe(async () => {
+  constructor() {
+    effect(async () => {
+      const switchDev = this.formGroup.switchDev().value();
       await window.electronAPI.windowControls.switchDevTools();
     });
-    this.formGroup.controls.lang.valueChanges.subscribe((x) => {
-      this.locale.setLocale(x as XI18nLanguage).subscribe();
+    effect(async () => {
+      const lang = this.formGroup.lang().value();
+      this.locale.setLocale(lang).subscribe();
     });
   }
 }

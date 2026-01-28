@@ -1,0 +1,14 @@
+{
+  "name": "@electron/skills",
+  "version": "1.0.0",
+  "description": "Built-in skills for the OpenAI service",
+  "main": "builtin/index.js",
+  "types": "builtin/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["electron", "skills", "openai", "ai"],
+  "author": "",
+  "license": "MIT"
+}

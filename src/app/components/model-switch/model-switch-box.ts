@@ -1,6 +1,6 @@
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import {
   XButtonComponent,
@@ -36,7 +36,6 @@ import {
 @Component({
   selector: 'app-model-switch-box',
   imports: [
-    ReactiveFormsModule,
     FormsModule,
     XDialogModule,
     XButtonComponent,
@@ -47,7 +46,8 @@ import {
     XListComponent,
     XKeywordDirective,
     XTagComponent,
-    XI18nPipe
+    XI18nPipe,
+    FormField
   ],
   templateUrl: './model-switch-box.html',
   styleUrl: './model-switch-box.scss',
@@ -62,11 +62,16 @@ export class ModelSwitchBoxComponent {
   input = viewChild.required(XInputComponent);
   formBuilder = inject(FormBuilder);
   router = inject(Router);
-  form = this.formBuilder.group({
-    title: [''],
-    manufacturerId: [0, [Validators.required]],
-    modelId: [0, [Validators.required]]
+  model = signal({
+    title: '',
+    manufacturerId: 0,
+    modelId: 0
   });
+  form = form(this.model, (schema) => {
+    required(schema.manufacturerId);
+    required(schema.modelId);
+  });
+
   loading = signal(false);
   saveLoading = signal(false);
   data = signal<XListNode[]>([]);
@@ -91,7 +96,7 @@ export class ModelSwitchBoxComponent {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((_event: KeyboardEvent) => {
-          let value = this.form.controls.title.value;
+          let value = this.form.title().value();
           if (value && value.trim().length > 0) {
             value = value.trim();
             this.loading.set(true);
@@ -134,7 +139,7 @@ export class ModelSwitchBoxComponent {
       if (this.manufacturerList().length > 0) {
         const first = this.manufacturerList()[0];
         this.selectedManufacturer.set(first);
-        this.form.patchValue({ manufacturerId: first.id });
+        this.form.manufacturerId().value.set(first.id!);
         this.getModelList(this.selectedManufacturer()!);
       }
     });
@@ -149,20 +154,20 @@ export class ModelSwitchBoxComponent {
       if (this.modelList().length > 0) {
         const first = this.modelList()[0];
         this.selectedModel.set(first);
-        this.form.patchValue({ modelId: first.id });
+        this.form.modelId().value.set(first.id!);
       }
     });
   }
 
   manufacturerClick(manufacturer: Manufacturer) {
     this.selectedManufacturer.set(manufacturer);
-    this.form.patchValue({ manufacturerId: manufacturer.id });
+    this.form.manufacturerId().value.set(manufacturer.id!);
     this.getModelList(manufacturer);
   }
 
   modelClick(model: Model) {
     this.selectedModel.set(model);
-    this.form.patchValue({ modelId: model.id });
+    this.form.modelId().value.set(model.id!);
   }
 
   save() {

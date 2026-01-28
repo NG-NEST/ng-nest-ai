@@ -1,9 +1,9 @@
-<form [formGroup]="formGroup">
+<form>
   <div class="sub-title">{{ '$theme.title' | xI18n }}</div>
-  <div formGroupName="theme" class="theme list">
+  <div class="theme list">
     <div class="item switch">
       <div class="label">{{ '$theme.background' | xI18n }}</div>
-      <x-switch [checkedText]="moonTpl" [unCheckedText]="sunTpl" formControlName="dark"></x-switch>
+      <x-switch [checkedText]="moonTpl" [unCheckedText]="sunTpl" [formField]="formGroup.dark"></x-switch>
       <ng-template #moonTpl>
         <div class="theme-icon"><x-icon type="fto-moon"></x-icon> {{ '$theme.dark' | xI18n }}</div>
       </ng-template>
@@ -16,7 +16,7 @@
       <x-color-picker
         [style.width.rem]="6.75"
         variant="borderless"
-        formControlName="primary"
+        [formField]="formGroup.theme.primary"
         [clearable]="false"
       ></x-color-picker>
     </div>

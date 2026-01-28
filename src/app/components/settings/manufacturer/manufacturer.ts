@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, required, FormField } from '@angular/forms/signals';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -20,13 +20,13 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 @Component({
   selector: 'app-manufacturer',
   imports: [
-    ReactiveFormsModule,
     XInputComponent,
     XDialogModule,
     XButtonComponent,
     XLoadingComponent,
     XSwitchComponent,
-    XI18nPipe
+    XI18nPipe,
+    FormField
   ],
   templateUrl: './manufacturer.html',
   styleUrl: './manufacturer.scss',
@@ -38,18 +38,23 @@ export class ManufacturerComponent {
   message = inject(XMessageService);
   messageBox = inject(XMessageBoxService);
   service = inject(ManufacturerService);
-  fb = inject(FormBuilder);
   i18n = inject(XI18nService);
   id = signal<number | null>(null);
 
   formLoading = signal(false);
   saveLoading = signal(false);
 
-  form: FormGroup<any> = this.fb.group({
-    name: ['', [Validators.required]],
-    apiKey: ['', [Validators.required]],
-    baseURL: ['', [Validators.required]],
-    isActive: [false, [Validators.required]]
+  model = signal({
+    name: '',
+    apiKey: '',
+    baseURL: '',
+    isActive: false
+  });
+  form = form(this.model, (schema) => {
+    required(schema.name);
+    required(schema.apiKey);
+    required(schema.baseURL);
+    required(schema.isActive);
   });
 
   $destroy = new Subject<void>();
@@ -64,7 +69,7 @@ export class ManufacturerComponent {
       req.push(
         this.service.getById(this.id()!).pipe(
           tap((x) => {
-            this.form.patchValue(x!);
+            this.form().value.set(x!);
           })
         )
       );
@@ -85,9 +90,9 @@ export class ManufacturerComponent {
   save() {
     let rq!: Observable<number>;
     if (!this.id()) {
-      rq = this.service.create(this.form.value);
+      rq = this.service.create(this.form().value());
     } else {
-      rq = this.service.update(this.id()!, { ...this.form.value });
+      rq = this.service.update(this.id()!, { ...this.form().value() });
     }
     this.saveLoading.set(true);
     rq.pipe(
@@ -104,7 +109,7 @@ export class ManufacturerComponent {
   delete() {
     this.messageBox.confirm({
       title: this.i18n.L('$manufacturer.deleteManufacturer'),
-      content: `${this.i18n.L('$manufacturer.sureDeleteManufacturer')} [${this.form.value.name}]`,
+      content: `${this.i18n.L('$manufacturer.sureDeleteManufacturer')} [${this.form.name().value()}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;

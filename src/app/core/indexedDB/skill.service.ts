@@ -26,10 +26,10 @@ export interface Runtime {
 
   // builtin
   handler?: string;
-  
+
   // javascript
   code?: string; // JavaScript 执行代码
-  
+
   // http
   endpoint?: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -43,9 +43,31 @@ export const SkillTable =
 export class SkillService {
   init: AppDataBaseService = inject(AppDataBaseService);
   db: DexieDatabase = this.init.db;
-  
+
   // 技能变更通知
   skillChange = new Subject<void>();
+
+  constructor() {
+    // 初始加载 skill
+    this.loadSkills();
+
+    // 监听 skill 变更，重新加载
+    this.skillChange.subscribe(() => {
+      this.loadSkills();
+    });
+  }
+
+  private async loadSkills() {
+    this.getAll().subscribe(async (skills) => {
+      const activeSkills = skills.filter((x) => x.status === 'active');
+      const result = await window.electronAPI.openAI.loadSkills(activeSkills);
+      if (result.success) {
+        console.log(`Loaded ${result.count} skills`);
+      } else {
+        console.error('Failed to load skills:', result.error);
+      }
+    });
+  }
 
   create(config: Omit<Skill, 'id' | 'createdAt' | 'updatedAt'>): Observable<number> {
     return from(

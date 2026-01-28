@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, required, FormField } from '@angular/forms/signals';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -16,7 +16,7 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
 @Component({
   selector: 'app-session',
-  imports: [ReactiveFormsModule, XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent, XI18nPipe],
+  imports: [XInputComponent, XDialogModule, XButtonComponent, XLoadingComponent, XI18nPipe, FormField],
   templateUrl: './session.html',
   styleUrl: './session.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -27,14 +27,14 @@ export class SessionComponent {
   message = inject(XMessageService);
   messageBox = inject(XMessageBoxService);
   service = inject(SessionService);
-  fb = inject(FormBuilder);
   id = signal<number | null>(null);
 
   formLoading = signal(false);
   saveLoading = signal(false);
 
-  form: FormGroup<any> = this.fb.group({
-    title: ['', [Validators.required]]
+  model = signal({ title: '' });
+  form = form(this.model, (schema) => {
+    required(schema.title);
   });
 
   $destroy = new Subject<void>();
@@ -49,7 +49,7 @@ export class SessionComponent {
       req.push(
         this.service.getById(this.id()!).pipe(
           tap((x) => {
-            this.form.patchValue(x!);
+            this.form().value.set(x!);
           })
         )
       );
@@ -70,15 +70,15 @@ export class SessionComponent {
   save() {
     let rq!: Observable<number>;
     if (!this.id()) {
-      rq = this.service.create(this.form.value);
+      rq = this.service.create(this.form().value());
     } else {
-      rq = this.service.update(this.id()!, { ...this.form.value });
+      rq = this.service.update(this.id()!, { ...this.form().value() });
     }
     this.saveLoading.set(true);
     rq.pipe(
       tap(() => {
         this.dialogRef.close();
-        this.data.saveSuccess(this.form.value);
+        this.data.saveSuccess(this.form().value());
       }),
       finalize(() => {
         this.saveLoading.set(false);

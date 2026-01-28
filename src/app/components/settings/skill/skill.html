@@ -5,11 +5,11 @@
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
     <div class="item required">
-      <x-input floatLabel="on" [label]="'$base.name' | xI18n" [field]="form.name" required></x-input>
+      <x-input floatLabel="on" [label]="'$base.name' | xI18n" [formField]="form.name" required></x-input>
     </div>
 
     <div class="item required">
-      <x-input floatLabel="on" [label]="'$skill.displayName' | xI18n" [field]="form.displayName" required></x-input>
+      <x-input floatLabel="on" [label]="'$skill.displayName' | xI18n" [formField]="form.displayName" required></x-input>
     </div>
 
     <div class="item required">
@@ -24,12 +24,12 @@
           lineNumbers: 'off',
           minimap: { enabled: false }
         }"
-        [field]="form.description"
+        [formField]="form.description"
       ></app-editor>
     </div>
 
     <div class="item">
-      <x-input floatLabel="on" [label]="'$skill.category' | xI18n" [field]="form.category!"></x-input>
+      <x-input floatLabel="on" [label]="'$skill.category' | xI18n" [formField]="form.category!"></x-input>
     </div>
 
     <div class="item">
@@ -43,7 +43,7 @@
           lineNumbers: 'off',
           minimap: { enabled: false }
         }"
-        [field]="form.schema.parameters!"
+        [formField]="form.schema.parameters!"
       ></app-editor>
     </div>
 
@@ -59,7 +59,7 @@
           lineNumbers: 'on',
           minimap: { enabled: false }
         }"
-        [field]="form.runtime.code!"
+        [formField]="form.runtime.code!"
       ></app-editor>
     </div>
   </div>

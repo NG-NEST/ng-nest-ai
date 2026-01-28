@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, required } from '@angular/forms/signals';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -16,13 +16,12 @@ import {
   XI18nPipe,
   XI18nService
 } from '@ng-nest/ui';
-import { ProjectService } from '@ui/core';
+import { ProjectService, Project as TProject } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 
 @Component({
   selector: 'app-project',
   imports: [
-    ReactiveFormsModule,
     XInputComponent,
     XInputGroupComponent,
     XDialogModule,
@@ -37,12 +36,11 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Project {
-  data = inject<{ id: number; saveSuccess: (project: Project) => void }>(X_DIALOG_DATA);
+  data = inject<{ id: number; saveSuccess: (project: TProject) => void }>(X_DIALOG_DATA);
   dialogRef = inject(XDialogRef<Project>);
   message = inject(XMessageService);
   messageBox = inject(XMessageBoxService);
   service = inject(ProjectService);
-  fb = inject(FormBuilder);
   i18n = inject(XI18nService);
   id = signal<number | null>(null);
   visible = signal(false);
@@ -50,11 +48,15 @@ export class Project {
   formLoading = signal(false);
   saveLoading = signal(false);
 
-  form: FormGroup<any> = this.fb.group({
-    name: ['', [Validators.required]],
-    icon: ['fto-box'],
-    iconColor: ['var(--x-text)'],
-    workspace: ['']
+  model = signal<TProject>({
+    name: '',
+    icon: 'fto-box',
+    iconColor: 'var(--x-text)',
+    workspace: ''
+  });
+
+  form = form(this.model, (schema) => {
+    required(schema.name);
   });
 
   colors = signal(['var(--x-text)', '#fa423e', '#fb6a22', '#ffc300', '#04b84c', '#0285ff', '#924ff7', '#ff66ad']);
@@ -113,7 +115,7 @@ export class Project {
       req.push(
         this.service.getById(this.id()!).pipe(
           tap((x) => {
-            this.form.patchValue(x!);
+            this.form().value.set(x!);
           })
         )
       );
@@ -134,15 +136,15 @@ export class Project {
   save() {
     let rq!: Observable<number>;
     if (!this.id()) {
-      rq = this.service.create(this.form.value);
+      rq = this.service.create(this.form().value());
     } else {
-      rq = this.service.update(this.id()!, { ...this.form.value });
+      rq = this.service.update(this.id()!, { ...this.form().value() });
     }
     this.saveLoading.set(true);
     rq.pipe(
       tap((x) => {
         this.dialogRef.close();
-        this.data.saveSuccess({ ...this.form.value, id: this.id() ?? x });
+        this.data.saveSuccess({ ...this.form().value(), id: this.id() ?? x });
       }),
       finalize(() => {
         this.saveLoading.set(false);
@@ -153,30 +155,30 @@ export class Project {
   delete() {
     this.messageBox.confirm({
       title: this.i18n.L('$project.deleteProject'),
-      content: `${this.i18n.L('$project.sureDeleteProject')} [${this.form.value.name}]`,
+      content: `${this.i18n.L('$project.sureDeleteProject')} [${this.form.name().value()}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;
         this.service.delete(this.id()!).subscribe((x) => {
           this.dialogRef.close();
-          this.data.saveSuccess(this.form.value);
+          this.data.saveSuccess(this.form().value());
         });
       }
     });
   }
 
   setIconColor(iconColor: string) {
-    this.form.patchValue({ iconColor });
+    this.form.iconColor?.()?.value.set(iconColor);
   }
 
   setIcon(icon: string) {
-    this.form.patchValue({ icon });
+    this.form.icon?.()?.value.set(icon);
   }
 
   async selectDirectory() {
     const workspace = await window.electronAPI.windowControls.selectDirectory();
     if (workspace !== '') {
-      this.form.patchValue({ workspace });
+      this.form.workspace?.()?.value.set(workspace);
     }
   }
 }

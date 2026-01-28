@@ -1,6 +1,18 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { XConfigService, XStorageService } from '@ng-nest/ui/core';
-import { XI18nLanguage, XI18nProperty, XI18nService, en_US, zh_CN } from '@ng-nest/ui/i18n';
+import {
+  XI18nLanguage,
+  XI18nProperty,
+  XI18nService,
+  en_US,
+  zh_CN,
+  de_DE,
+  zh_TW,
+  ru_RU,
+  ko_KR,
+  ja_JP,
+  fr_FR
+} from '@ng-nest/ui/i18n';
 import { Platform } from '@angular/cdk/platform';
 import { HttpClient } from '@angular/common/http';
 import { map, of } from 'rxjs';
@@ -45,7 +57,7 @@ export class AppLocaleService {
 
   setLocale(lang?: XI18nLanguage) {
     if (!lang) lang = this.lang;
-    
+
     if (this.cacheLangs()[lang]) {
       this.lang = lang as string;
       this.i18n.setLocale(this.cacheLangs()[lang], true);
@@ -67,8 +79,20 @@ export class AppLocaleService {
   private setLocaleProps(locale: XI18nProperty, lang: string): XI18nProperty {
     if (lang === 'zh_CN') {
       return { ...zh_CN, ...locale };
+    } else if (lang === 'en_US') {
+      return { ...en_US, ...locale };
+    } else if (lang === 'de_DE') {
+      return { ...de_DE, ...locale };
     } else if (lang === 'zh_TW') {
-      return { ...zh_CN, ...locale };
+      return { ...zh_TW, ...locale };
+    } else if (lang === 'ru_RU') {
+      return { ...ru_RU, ...locale };
+    } else if (lang === 'ko_KR') {
+      return { ...ko_KR, ...locale };
+    } else if (lang === 'ja_JP') {
+      return { ...ja_JP, ...locale };
+    } else if (lang === 'fr_FR') {
+      return { ...fr_FR, ...locale };
     } else {
       return { ...en_US, ...locale };
     }
