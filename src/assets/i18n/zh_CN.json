@@ -72,7 +72,36 @@
     "executeCode": "执行代码",
     "search": "技能搜索",
     "deleteSkill": "删除技能",
-    "sureDeleteSkill": "确认删除此技能吗？"
+    "sureDeleteSkill": "确认删除此技能吗？",
+    "runtimeType": "运行时类型",
+    "javascriptConfig": "JavaScript 配置",
+    "httpConfig": "HTTP 配置",
+    "builtinConfig": "内置配置",
+    "endpoint": "接口地址",
+    "method": "HTTP 方法",
+    "headers": "请求头",
+    "handler": "处理器",
+    "httpRequestInfo": "HTTP 请求信息",
+    "httpRequestDescription": "技能参数将作为 JSON 格式在请求体中发送：",
+    "builtinInfo": "内置技能信息",
+    "builtinDescription": "内置技能是预定义的函数，可以直接执行。",
+    "invalidParametersJson": "参数 JSON 格式无效",
+    "endpointRequired": "HTTP 技能需要接口地址",
+    "invalidEndpointUrl": "接口地址格式无效",
+    "invalidHeadersJson": "请求头 JSON 格式无效",
+    "codeRequired": "JavaScript 代码是必需的",
+    "headersHint": "可选的 HTTP 请求头，JSON 格式，例如：{\"Authorization\": \"Bearer token\"}",
+    "contentRequired": "Markdown 内容是必需的",
+    "markdownConfig": "Markdown 配置",
+    "markdownContent": "Markdown 内容",
+    "instructions": "使用说明",
+    "instructionsHint": "简要说明 AI 应该如何使用这个技能",
+    "markdownInfo": "Markdown 技能信息",
+    "markdownDescription": "Markdown 技能为 AI 提供文档和知识，无需执行代码：",
+    "markdownFeature1": "提供特定领域的知识和程序",
+    "markdownFeature2": "包含示例和最佳实践",
+    "markdownFeature3": "用结构化信息指导 AI 响应",
+    "markdownFeature4": "无代码执行 - 纯信息内容"
   },
   "$manufacturer": {
     "title": "厂商",
@@ -121,5 +150,19 @@
   },
   "$coversation": {
     "placeholder": "Enter 发送，Alt + Enter 换行"
+  },
+  "$fileTree": {
+    "newFile": "新建文件",
+    "newFolder": "新建文件夹",
+    "showInExplorer": "在资源管理器中显示",
+    "cut": "剪切",
+    "copy": "复制",
+    "paste": "粘贴",
+    "rename": "重命名",
+    "delete": "删除",
+    "confirmDelete": "确认删除 {name} 吗？",
+    "enterNewName": "输入新名称",
+    "enterFileName": "输入文件名",
+    "enterFolderName": "输入文件夹名"
   }
 }

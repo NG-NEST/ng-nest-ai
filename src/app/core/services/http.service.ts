@@ -149,9 +149,9 @@ export class AppHttpService {
     return from(
       Promise.all([bodyPromise!, paramsPromise!, headersPromise!]).then(([body, params, headers]) => {
         if (method === 'POST') {
-          return window.electronAPI.http.post(url, body, { headers });
+          return window.electronAPI.http.post(url!, body, { headers });
         } else if (method === 'GET') {
-          return window.electronAPI.http.get(url, params, { headers });
+          return window.electronAPI.http.get(url!, params, { headers });
         }
         return Promise.resolve({ status: 500, statusText: 'Request method is not supported', data: {} });
       })

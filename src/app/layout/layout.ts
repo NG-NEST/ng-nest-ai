@@ -26,13 +26,6 @@ import { XIconComponent } from '@ng-nest/ui/icon';
 import { merge } from 'rxjs';
 import { XI18nPipe, XPopoverDirective, XRippleDirective } from '@ng-nest/ui';
 
-// 扩展全局 Window 接口以包含你的 API
-declare global {
-  interface Window {
-    electronAPI: any; // 这里的 any 应该替换为你 preload 中定义的精确接口
-  }
-}
-
 @Component({
   selector: 'app-layout',
   imports: [
@@ -86,7 +79,9 @@ export class Layout {
   }
 
   async switchDevTools() {
-    await window.electronAPI.windowControls.switchDevTools();
+    this.config.showDevTools.update((x) => !x);
+    console.log(this.config.showDevTools());
+    await window.electronAPI.windowControls.switchDevTools(this.config.showDevTools());
   }
 
   minimize() {
@@ -119,7 +114,8 @@ export class Layout {
   settings() {
     this.dialogService.create(Settings, {
       className: 'app-no-padding-dialog',
-      width: '40rem'
+      width: '40rem',
+      maxHeight: 'calc(100% - 5rem)'
     });
   }
 

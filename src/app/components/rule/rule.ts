@@ -131,7 +131,8 @@ export class RuleComponent {
     this.form.promptId().value.set(prompt.id!);
   }
 
-  save() {
+  save(event: Event) {
+    event.preventDefault();
     !this.selectedPrompt();
     this.data.save(this.selectedPrompt()!);
     this.dialogRef.close();

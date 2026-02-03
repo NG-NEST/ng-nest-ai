@@ -12,7 +12,9 @@ export interface IWindowService {
   maximize(): void;
   unmaximize(): void;
   close(): void;
-  switchDevTools(): void;
+  switchDevTools(show: boolean): void;
+  isDevToolsOpened(): boolean;
+  getSystemLocale(): string;
   reloadPage(): void;
   destroy(): void;
   previewHtml(html: string): void;
@@ -60,17 +62,30 @@ export class WindowService implements IWindowService {
     if (win) win.close();
   }
 
-  switchDevTools(): void {
+  switchDevTools(show: boolean): void {
+    console.log(show);
     if (this.isDestroyed) return;
     const win = this.getWindow();
 
     if (win && win.webContents) {
-      if (win.webContents.isDevToolsOpened()) {
-        win.webContents.closeDevTools();
-      } else {
+      if (show) {
         win.webContents.openDevTools({ mode: 'detach' });
+      } else {
+        win.webContents.closeDevTools();
       }
     }
+  }
+
+  isDevToolsOpened(): boolean {
+    if (this.isDestroyed) return false;
+    const win = this.getWindow();
+    return win && win.webContents ? win.webContents.isDevToolsOpened() : false;
+  }
+
+  getSystemLocale(): string {
+    // Get system locale from Electron's app.getLocale()
+    const { app } = require('electron');
+    return app.getLocale();
   }
 
   reloadPage(): void {
@@ -218,7 +233,9 @@ export class WindowService implements IWindowService {
       [`ipc:window:maximize`, () => this.maximize()],
       [`ipc:window:unmaximize`, () => this.unmaximize()],
       [`ipc:window:close`, () => this.close()],
-      [`ipc:window:switchDevTools`, () => this.switchDevTools()],
+      [`ipc:window:switchDevTools`, (_event: IpcMainInvokeEvent, show: boolean) => this.switchDevTools(show)],
+      [`ipc:window:isDevToolsOpened`, () => this.isDevToolsOpened()],
+      [`ipc:window:getSystemLocale`, () => this.getSystemLocale()],
       [`ipc:window:reloadPage`, () => this.reloadPage()],
       [`ipc:window:previewHtml`, (_event: IpcMainInvokeEvent, html: string) => this.previewHtml(html)],
       [`ipc:window:selectDirectory`, () => this.selectDirectory()],

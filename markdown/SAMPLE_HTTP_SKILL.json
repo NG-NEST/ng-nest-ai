@@ -1,0 +1,31 @@
+{
+  "name": "test_http_skill",
+  "displayName": "Test HTTP Skill",
+  "description": "A simple HTTP skill for testing the new HTTP request functionality",
+  "category": "Testing",
+  "status": "active",
+  "schema": {
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "A test message to send"
+        },
+        "number": {
+          "type": "number",
+          "description": "A test number",
+          "default": 42
+        }
+      },
+      "required": ["message"]
+    },
+    "returns": {}
+  },
+  "runtime": {
+    "type": "http",
+    "endpoint": "https://httpbin.org/post",
+    "method": "POST",
+    "headers": "{\"Content-Type\": \"application/json\", \"X-Test-Header\": \"skill-test\"}"
+  }
+}

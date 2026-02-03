@@ -121,5 +121,19 @@
   },
   "$coversation": {
     "placeholder": "Entrée pour envoyer, Alt + Entrée pour retour à la ligne"
+  },
+  "$fileTree": {
+    "newFile": "Nouveau fichier",
+    "newFolder": "Nouveau dossier",
+    "showInExplorer": "Afficher dans l'explorateur",
+    "cut": "Couper",
+    "copy": "Copier",
+    "paste": "Coller",
+    "rename": "Renommer",
+    "delete": "Supprimer",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer {name} ?",
+    "enterNewName": "Entrer un nouveau nom",
+    "enterFileName": "Entrer le nom du fichier",
+    "enterFolderName": "Entrer le nom du dossier"
   }
 }

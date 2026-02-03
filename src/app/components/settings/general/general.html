@@ -1,11 +1,9 @@
 <form>
   <div class="sub-title">{{ '$general.title' | xI18n }}</div>
   <div class="general list">
-    <div class="item switch" [style.paddingRight.rem]="0">
+    <div class="item select" [style.paddingRight.rem]="0">
       <div class="label">{{ '$general.language' | xI18n }}</div>
       <x-select
-        [style.width.rem]="6.75"
-        [style.flex]="'initial'"
         [data]="[
           { label: '简体中文', id: 'zh_CN' },
           { label: 'English', id: 'en_US' },
@@ -18,6 +16,8 @@
         ]"
         variant="borderless"
         [formField]="formGroup.lang"
+        [portalWidth]="160"
+        autoWidth
         [clearable]="false"
       ></x-select>
     </div>

@@ -1,4 +1,4 @@
-<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save()">
+<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save($event)">
   <h4 x-dialog-title class="title">{{ id() ? ('$project.edit' | xI18n) : ('$project.new' | xI18n) }}</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">
@@ -20,7 +20,7 @@
             [style.color]="form.iconColor?.().value()"
           ></x-icon>
         </x-button>
-        <x-input floatLabel="on" [label]="'$base.name' | xI18n" formControlName="name" required></x-input>
+        <x-input floatLabel="on" [label]="'$base.name' | xI18n" [formField]="form.name" required></x-input>
       </x-input-group>
     </div>
     <ng-template #contentTpl>
@@ -37,7 +37,7 @@
         </div>
         <div class="icons">
           @for (icon of icons(); track icon) {
-            <div class="icon" [class.selected]="form.get('icon')?.value === icon" (click)="setIcon(icon)">
+            <div class="icon" [class.selected]="form.icon?.().value() === icon" (click)="setIcon(icon)">
               <x-icon [type]="icon"></x-icon>
             </div>
           }
@@ -47,7 +47,12 @@
     <div class="item required">
       <x-input-group compact>
         <x-button icon="fto-folder" (click)="selectDirectory()" plain> </x-button>
-        <x-input floatLabel="on" [label]="'$project.workspace' | xI18n" formControlName="workspace" required></x-input>
+        <x-input
+          floatLabel="on"
+          [label]="'$project.workspace' | xI18n"
+          [formField]="form.workspace!"
+          required
+        ></x-input>
       </x-input-group>
     </div>
   </div>

@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   X_DIALOG_DATA,
@@ -28,7 +27,6 @@ export class HelpComponent {
   prismService = inject(AppPrismService);
   dom = inject(DomSanitizer);
   service = inject(PromptService);
-  fb = inject(FormBuilder);
   id = signal<number | null>(null);
 
   formLoading = signal(false);

@@ -1,4 +1,4 @@
-<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save()">
+<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save($event)">
   <h4 x-dialog-title class="title">
     {{ id() ? ('$base.edit' | xI18n) : ('$base.add' | xI18n) }} {{ '$manufacturer.title' | xI18n }}
   </h4>

@@ -67,7 +67,8 @@ export class SessionComponent {
     this.$destroy.complete();
   }
 
-  save() {
+  save(event: Event) {
+    event.preventDefault();
     let rq!: Observable<number>;
     if (!this.id()) {
       rq = this.service.create(this.form().value());

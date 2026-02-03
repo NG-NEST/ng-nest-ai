@@ -15,12 +15,14 @@ interface SkillFromDB {
     returns: any;
   };
   runtime: {
-    type: 'builtin' | 'http' | 'javascript';
+    type: 'builtin' | 'http' | 'javascript' | 'markdown';
     handler?: string;
     code?: string;
     endpoint?: string;
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-    headers?: Record<string, string>;
+    headers?: string; // JSON string for headers
+    content?: string; // Markdown content
+    instructions?: string; // Usage instructions
   };
 }
 
@@ -120,12 +122,12 @@ export class OpenAIService {
   private async initBuiltinSkills() {
     try {
       const builtinSkills = await loadBuiltinSkills();
-      
+
       // 加载内置技能
       for (const skill of builtinSkills) {
         this.skills[skill.name] = skill;
       }
-      
+
       this.updateTools();
       console.log(`Initialized ${builtinSkills.length} builtin skills`);
     } catch (error) {
@@ -182,29 +184,29 @@ export class OpenAIService {
     let depth = 0;
     let inString = false;
     let escapeNext = false;
-    
+
     for (let i = 0; i < str.length; i++) {
       const char = str[i];
-      
+
       if (escapeNext) {
         escapeNext = false;
         continue;
       }
-      
+
       if (char === '\\') {
         escapeNext = true;
         continue;
       }
-      
+
       if (char === '"' && !escapeNext) {
         inString = !inString;
         continue;
       }
-      
+
       if (inString) {
         continue;
       }
-      
+
       if (char === '{') {
         depth++;
       } else if (char === '}') {
@@ -216,7 +218,7 @@ export class OpenAIService {
         }
       }
     }
-    
+
     // 如果没找到完整的对象，抛出错误
     throw new Error('No complete JSON object found');
   }
@@ -225,9 +227,9 @@ export class OpenAIService {
   async loadSkillsFromDB(dbSkills: SkillFromDB[]) {
     // 获取内置技能名称列表
     const builtinSkillNames = await getBuiltinSkillNames();
-    
+
     // 清除之前从数据库加载的 skills（保留内置 skills）
-    Object.keys(this.skills).forEach(key => {
+    Object.keys(this.skills).forEach((key) => {
       if (!builtinSkillNames.includes(key)) {
         delete this.skills[key];
       }
@@ -238,7 +240,7 @@ export class OpenAIService {
       if (dbSkill.status !== 'active') continue;
 
       let parameters = dbSkill.schema.parameters;
-      
+
       // 如果 parameters 是字符串，解析为对象
       if (typeof parameters === 'string') {
         try {
@@ -275,8 +277,11 @@ export class OpenAIService {
         } else if (dbSkill.runtime.type === 'builtin') {
           // 内置函数
           return await this.executeBuiltin(dbSkill, args);
+        } else if (dbSkill.runtime.type === 'markdown') {
+          // Markdown 文档技能
+          return await this.executeMarkdown(dbSkill, args);
         }
-        
+
         return {
           error: `Unknown runtime type: ${dbSkill.runtime.type}`
         };
@@ -296,13 +301,13 @@ export class OpenAIService {
       const vm = require('vm');
       const https = require('https');
       const http = require('http');
-      
+
       // 简单的 fetch 实现
       const simpleFetch = (url: string, options: any = {}) => {
         return new Promise((resolve, reject) => {
           const urlObj = new URL(url);
           const protocol = urlObj.protocol === 'https:' ? https : http;
-          
+
           const requestOptions = {
             hostname: urlObj.hostname,
             port: urlObj.port,
@@ -313,7 +318,7 @@ export class OpenAIService {
 
           const req = protocol.request(requestOptions, (res: any) => {
             let data = '';
-            res.on('data', (chunk: any) => data += chunk);
+            res.on('data', (chunk: any) => (data += chunk));
             res.on('end', () => {
               try {
                 resolve({
@@ -329,15 +334,15 @@ export class OpenAIService {
           });
 
           req.on('error', reject);
-          
+
           if (options.body) {
             req.write(typeof options.body === 'string' ? options.body : JSON.stringify(options.body));
           }
-          
+
           req.end();
         });
       };
-      
+
       // 创建上下文，提供必要的全局对象
       const context = {
         args,
@@ -400,39 +405,91 @@ export class OpenAIService {
       try {
         const urlObj = new URL(endpoint);
         const protocol = urlObj.protocol === 'https:' ? https : http;
-        
+
+        // 解析 headers，支持字符串和对象格式
+        let parsedHeaders: Record<string, string> = {
+          'Content-Type': 'application/json'
+        };
+
+        if (headers) {
+          if (typeof headers === 'string') {
+            try {
+              const headerObj = JSON.parse(headers);
+              parsedHeaders = { ...parsedHeaders, ...headerObj };
+            } catch (error) {
+              console.warn('Failed to parse headers JSON, using default headers:', error);
+            }
+          } else if (typeof headers === 'object') {
+            parsedHeaders = { ...parsedHeaders, ...headers };
+          }
+        }
+
         const requestOptions = {
           hostname: urlObj.hostname,
           port: urlObj.port,
           path: urlObj.pathname + urlObj.search,
           method,
-          headers: {
-            'Content-Type': 'application/json',
-            ...headers
-          }
+          headers: parsedHeaders,
+          timeout: 30000 // 30 seconds timeout
         };
+
+        console.log(`Making HTTP request to ${endpoint}:`, {
+          method,
+          headers: parsedHeaders,
+          args
+        });
 
         const req = protocol.request(requestOptions, (res: any) => {
           let data = '';
-          res.on('data', (chunk: any) => data += chunk);
+          res.on('data', (chunk: any) => (data += chunk));
           res.on('end', () => {
+            console.log(`HTTP response from ${endpoint}:`, {
+              statusCode: res.statusCode,
+              headers: res.headers,
+              dataLength: data.length
+            });
+
+            // 检查响应状态码
+            if (res.statusCode >= 400) {
+              reject(new Error(`HTTP ${res.statusCode}: ${data || res.statusMessage}`));
+              return;
+            }
+
             try {
-              resolve(JSON.parse(data));
+              // 尝试解析 JSON 响应
+              const jsonData = JSON.parse(data);
+              resolve(jsonData);
             } catch (error) {
-              resolve(data);
+              // 如果不是 JSON，返回原始文本
+              resolve({
+                success: true,
+                data: data,
+                contentType: res.headers['content-type'] || 'text/plain'
+              });
             }
           });
         });
 
-        req.on('error', reject);
-        
+        req.on('error', (error: any) => {
+          console.error(`HTTP request error for ${endpoint}:`, error);
+          reject(new Error(`HTTP request failed: ${error.message}`));
+        });
+
+        req.on('timeout', () => {
+          req.destroy();
+          reject(new Error('HTTP request timeout'));
+        });
+
+        // 发送请求体（对于 GET 请求，不发送 body）
         if (method !== 'GET') {
-          req.write(JSON.stringify(args));
+          const requestBody = JSON.stringify({ args });
+          req.write(requestBody);
         }
-        
+
         req.end();
       } catch (error) {
-        reject(new Error(`HTTP request failed: ${error}`));
+        console.error(`HTTP request setup error for ${endpoint}:`, error);
+        reject(new Error(`HTTP request setup failed: ${error instanceof Error ? error.message : String(error)}`));
       }
     });
   }
@@ -446,11 +503,45 @@ export class OpenAIService {
           time: new Date().toISOString(),
           timestamp: Date.now()
         };
-      
+
       default:
         return {
           message: `Built-in skill ${dbSkill.name} executed with args: ${JSON.stringify(args)}`
         };
+    }
+  }
+
+  // 执行 Markdown 文档技能
+  private async executeMarkdown(dbSkill: SkillFromDB, args: any): Promise<any> {
+    try {
+      const content = dbSkill.runtime.content || '';
+      const instructions = dbSkill.runtime.instructions || '';
+      
+      // Markdown 技能不执行代码，而是返回文档内容和使用说明
+      // 这些信息将被添加到 AI 的上下文中，用于指导响应
+      return {
+        type: 'markdown_knowledge',
+        skill_name: dbSkill.name,
+        display_name: dbSkill.displayName,
+        description: dbSkill.description,
+        content: content,
+        instructions: instructions,
+        parameters: args,
+        message: `Applied knowledge from ${dbSkill.displayName}`,
+        // 返回格式化的知识内容，供 AI 参考
+        knowledge: {
+          title: dbSkill.displayName,
+          description: dbSkill.description,
+          content: content,
+          usage_instructions: instructions,
+          applied_with_parameters: args
+        }
+      };
+    } catch (error) {
+      console.error(`Error processing markdown skill ${dbSkill.name}:`, error);
+      return {
+        error: `Failed to process markdown skill: ${error instanceof Error ? error.message : String(error)}`
+      };
     }
   }
 
@@ -580,7 +671,7 @@ export class OpenAIService {
                   argumentsLength: toolCallData.arguments?.length || 0,
                   argumentsPreview: toolCallData.arguments?.substring(0, 100)
                 });
-                
+
                 // 安全解析 arguments
                 let args = {};
                 if (toolCallData.arguments) {
@@ -618,10 +709,10 @@ export class OpenAIService {
                     return;
                   }
                 }
-                
+
                 // 发送"正在执行技能"的提示到前端
                 let skillDisplayName = `正在执行技能: ${toolCallData.name}`;
-                
+
                 // 特殊处理 query_indexeddb
                 if (toolCallData.name === 'query_indexeddb') {
                   if ((args as any).queries && Array.isArray((args as any).queries)) {
@@ -632,31 +723,35 @@ export class OpenAIService {
                     skillDisplayName = '正在查询数据库';
                   }
                 }
-                
+
                 event.sender.send('ipc:openai:chatCompletionStream:stream', {
                   streamId,
                   data: {
-                    choices: [{
-                      delta: { content: `\n\n🔧 ${skillDisplayName}...\n\n` },
-                      index: 0,
-                      finish_reason: null
-                    }]
+                    choices: [
+                      {
+                        delta: { content: `\n\n🔧 ${skillDisplayName}...\n\n` },
+                        index: 0,
+                        finish_reason: null
+                      }
+                    ]
                   }
                 });
-                
+
                 const skill = this.skills[toolCallData.name];
                 const result = await skill.execute(args, this.skillContext);
-                
+
                 // 发送执行完成的提示
                 let resultPreview = '';
                 if (toolCallData.name === 'query_indexeddb') {
                   if (Array.isArray(result)) {
                     if (result.length > 0 && result[0].table) {
                       // 批量查询结果
-                      const summary = result.map((r: any) => {
-                        const count = Array.isArray(r.result) ? r.result.length : 1;
-                        return `${r.table}: ${count} 条`;
-                      }).join(', ');
+                      const summary = result
+                        .map((r: any) => {
+                          const count = Array.isArray(r.result) ? r.result.length : 1;
+                          return `${r.table}: ${count} 条`;
+                        })
+                        .join(', ');
                       resultPreview = `(${summary})`;
                     } else {
                       // 单次查询结果
@@ -666,15 +761,17 @@ export class OpenAIService {
                 } else if (typeof result === 'object') {
                   resultPreview = Array.isArray(result) ? `(${result.length} 条记录)` : '(完成)';
                 }
-                
+
                 event.sender.send('ipc:openai:chatCompletionStream:stream', {
                   streamId,
                   data: {
-                    choices: [{
-                      delta: { content: `✅ 执行完成 ${resultPreview}\n\n` },
-                      index: 0,
-                      finish_reason: null
-                    }]
+                    choices: [
+                      {
+                        delta: { content: `✅ 执行完成 ${resultPreview}\n\n` },
+                        index: 0,
+                        finish_reason: null
+                      }
+                    ]
                   }
                 });
 

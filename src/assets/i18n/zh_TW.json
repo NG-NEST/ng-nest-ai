@@ -121,5 +121,19 @@
   },
   "$coversation": {
     "placeholder": "Enter 發送，Alt + Enter 換行"
+  },
+  "$fileTree": {
+    "newFile": "新檔案",
+    "newFolder": "新資料夾",
+    "showInExplorer": "在檔案總管中顯示",
+    "cut": "剪下",
+    "copy": "複製",
+    "paste": "貼上",
+    "rename": "重新命名",
+    "delete": "刪除",
+    "confirmDelete": "確定要刪除 {name} 嗎？",
+    "enterNewName": "輸入新名稱",
+    "enterFileName": "輸入檔案名稱",
+    "enterFolderName": "輸入資料夾名稱"
   }
 }

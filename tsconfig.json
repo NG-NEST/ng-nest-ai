@@ -16,10 +16,7 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "types": [
-      "node",
-      "electron"
-    ],
+    "types": ["node", "electron"],
     "paths": {
       "@ui/core": [
         "./src/app/core"

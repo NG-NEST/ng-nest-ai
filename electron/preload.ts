@@ -9,7 +9,9 @@ interface WindowControls {
   maximize: () => Promise<void>;
   unmaximize: () => Promise<void>;
   close: () => Promise<void>;
-  switchDevTools: () => Promise<void>;
+  switchDevTools: (show: boolean) => Promise<void>;
+  isDevToolsOpened: () => Promise<boolean>;
+  getSystemLocale: () => Promise<string>;
   reloadPage: () => Promise<void>;
   previewHtml: (html: string) => Promise<void>;
   selectDirectory: () => Promise<string>;
@@ -22,7 +24,9 @@ const windowControls: WindowControls = {
   maximize: (): Promise<void> => ipcRenderer.invoke('ipc:window:maximize'),
   unmaximize: (): Promise<void> => ipcRenderer.invoke('ipc:window:unmaximize'),
   close: (): Promise<void> => ipcRenderer.invoke('ipc:window:close'),
-  switchDevTools: (): Promise<void> => ipcRenderer.invoke('ipc:window:switchDevTools'),
+  switchDevTools: (show: boolean): Promise<void> => ipcRenderer.invoke('ipc:window:switchDevTools', show),
+  isDevToolsOpened: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isDevToolsOpened'),
+  getSystemLocale: (): Promise<string> => ipcRenderer.invoke('ipc:window:getSystemLocale'),
   reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
   previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html),
   selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory'),
@@ -131,11 +135,11 @@ const http: Http = {
 
 // minio
 interface Minio {
-  uploadFile: (bucketName: string, objectName: string, fileData: string) => Promise<boolean>;
+  uploadFile: (bucketName: string, objectName: string, fileData: string, contentType?: string) => Promise<boolean>;
 }
 const minio: Minio = {
-  uploadFile: (bucketName: string, objectName: string, fileData: string) =>
-    ipcRenderer.invoke('ipc:minio:uploadFile', bucketName, objectName, fileData)
+  uploadFile: (bucketName: string, objectName: string, fileData: string, contentType?: string) =>
+    ipcRenderer.invoke('ipc:minio:uploadFile', bucketName, objectName, fileData, contentType)
 };
 
 // file system

@@ -121,5 +121,19 @@
   },
   "$coversation": {
     "placeholder": "Enterで送信、Alt + Enterで改行"
+  },
+  "$fileTree": {
+    "newFile": "新規ファイル",
+    "newFolder": "新規フォルダ",
+    "showInExplorer": "エクスプローラーで表示",
+    "cut": "切り取り",
+    "copy": "コピー",
+    "paste": "貼り付け",
+    "rename": "名前変更",
+    "delete": "削除",
+    "confirmDelete": "{name} を削除してもよろしいですか？",
+    "enterNewName": "新しい名前を入力",
+    "enterFileName": "ファイル名を入力",
+    "enterFolderName": "フォルダ名を入力"
   }
 }

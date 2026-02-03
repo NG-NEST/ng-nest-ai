@@ -1,5 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, pattern } from '@angular/forms/signals';
 import { XColorPickerComponent, XDialogModule, XI18nPipe, XIconComponent, XSwitchComponent } from '@ng-nest/ui';
 import { AppThemeService } from '@ui/core';
 
@@ -27,7 +27,9 @@ export class Theme {
     }
   });
 
-  formGroup = form(this.model);
+  formGroup = form(this.model, (schema) => {
+    pattern(schema.theme.primary, /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/);
+  });
 
   constructor() {
     effect(() => {

@@ -22,7 +22,7 @@ export interface Schema {
 }
 
 export interface Runtime {
-  type: 'builtin' | 'http' | 'javascript';
+  type: 'builtin' | 'http' | 'javascript' | 'markdown';
 
   // builtin
   handler?: string;
@@ -33,7 +33,11 @@ export interface Runtime {
   // http
   endpoint?: string;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  headers?: Record<string, string>;
+  headers?: string; // JSON string for headers
+
+  // markdown
+  content?: string; // Markdown 内容
+  instructions?: string; // 使用说明
 }
 
 export const SkillTable =

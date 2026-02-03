@@ -72,7 +72,36 @@
     "executeCode": "Execute Code",
     "search": "Skill Search",
     "deleteSkill": "Delete Skill",
-    "sureDeleteSkill": "Sure to delete this skill?"
+    "sureDeleteSkill": "Sure to delete this skill?",
+    "runtimeType": "Runtime Type",
+    "javascriptConfig": "JavaScript Configuration",
+    "httpConfig": "HTTP Configuration",
+    "builtinConfig": "Built-in Configuration",
+    "endpoint": "Endpoint URL",
+    "method": "HTTP Method",
+    "headers": "Headers",
+    "handler": "Handler",
+    "httpRequestInfo": "HTTP Request Information",
+    "httpRequestDescription": "The skill parameters will be sent as JSON in the request body:",
+    "builtinInfo": "Built-in Skill Information",
+    "builtinDescription": "Built-in skills are predefined functions that can be executed directly.",
+    "invalidParametersJson": "Invalid parameters JSON format",
+    "endpointRequired": "Endpoint URL is required for HTTP skills",
+    "invalidEndpointUrl": "Invalid endpoint URL format",
+    "invalidHeadersJson": "Invalid headers JSON format",
+    "codeRequired": "JavaScript code is required",
+    "headersHint": "Optional HTTP headers in JSON format, e.g., {\"Authorization\": \"Bearer token\"}",
+    "contentRequired": "Markdown content is required",
+    "markdownConfig": "Markdown Configuration",
+    "markdownContent": "Markdown Content",
+    "instructions": "Usage Instructions",
+    "instructionsHint": "Brief instructions on how the AI should use this skill",
+    "markdownInfo": "Markdown Skill Information",
+    "markdownDescription": "Markdown skills provide documentation and knowledge to the AI without executing code:",
+    "markdownFeature1": "Provide domain-specific knowledge and procedures",
+    "markdownFeature2": "Include examples and best practices",
+    "markdownFeature3": "Guide AI responses with structured information",
+    "markdownFeature4": "No code execution - pure informational content"
   },
   "$manufacturer": {
     "title": "Manufacturer",
@@ -121,5 +150,19 @@
   },
   "$coversation": {
     "placeholder": "Enter to send, Alt + Enter to wrap"
+  },
+  "$fileTree": {
+    "newFile": "New File",
+    "newFolder": "New Folder",
+    "showInExplorer": "Show in Explorer",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "rename": "Rename",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete {name}?",
+    "enterNewName": "Enter new name",
+    "enterFileName": "Enter file name",
+    "enterFolderName": "Enter folder name"
   }
 }

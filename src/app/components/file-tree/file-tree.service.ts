@@ -94,6 +94,16 @@ export class FileTreeService {
     await (window as any).electronAPI.fileSystem.showInExplorer(path);
   }
 
+  async createFile(parentPath: string, fileName: string): Promise<void> {
+    const filePath = normalizePath(`${parentPath}/${fileName}`);
+    await (window as any).electronAPI.fileSystem.createFile(filePath);
+  }
+
+  async createFolder(parentPath: string, folderName: string): Promise<void> {
+    const folderPath = normalizePath(`${parentPath}/${folderName}`);
+    await (window as any).electronAPI.fileSystem.createFolder(folderPath);
+  }
+
   hasClipboard(): boolean {
     return this.clipboard() !== null;
   }

@@ -1,4 +1,4 @@
-<form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0" [formGroup]="formGroup">
+<form class="inner" [class.has-content]="data().length > 0" [class.has-sessions]="count() > 0">
   <div class="content">
     <div class="files" [class.has-vertical-scrollbar]="filesScrollable.hasVerticalScrollbar()">
       <x-scrollable
@@ -9,22 +9,6 @@
       >
         <app-file-tree [data]="fileTreeService.viewTree()"> </app-file-tree>
         <div class="btns">
-          <x-button
-            icon="icon:new-file"
-            size="mini"
-            text
-            x-popover
-            [content]="'$base.newFile' | xI18n"
-            (click)="createNewFile()"
-          ></x-button>
-          <x-button
-            icon="icon:new-folder"
-            size="mini"
-            text
-            x-popover
-            [content]="'$base.newFolder' | xI18n"
-            (click)="createNewFolder()"
-          ></x-button>
           <x-button
             icon="icon:refresh"
             size="mini"
@@ -68,7 +52,7 @@
             </div>
           </div>
           <x-sender
-            formControlName="content"
+            [formField]="formGroup.content"
             [placeholder]="'$coversation.placeholder' | xI18n"
             [footer]="footerTpl"
             [header]="headerTpl"
@@ -100,12 +84,15 @@
                 </x-button>
               }
               @if (activeModel()?.useUploadImage && !activeModel()?.useUploadVideo) {
-                <x-attachments [accept]="'image/png, image/jpeg, image/gif, image/bmp'" formControlName="files">
+                <x-attachments [accept]="'image/png, image/jpeg, image/gif, image/bmp'" [formField]="formGroup.files">
                   <x-button plain flat icon="fto-image"></x-button>
                 </x-attachments>
               }
               @if (activeModel()?.useUploadVideo && !activeModel()?.useUploadImage) {
-                <x-attachments [accept]="'video/mp4, video/webm, video/avi, .mp4, .webm, .avi'" formControlName="files">
+                <x-attachments
+                  [accept]="'video/mp4, video/webm, video/avi, .mp4, .webm, .avi'"
+                  [formField]="formGroup.files"
+                >
                   <x-button plain flat icon="fto-video"></x-button>
                 </x-attachments>
               }
@@ -114,7 +101,7 @@
                   [accept]="
                     'image/png, image/jpeg, image/gif, image/bmp, video/mp4, video/webm, video/avi, .mp4, .webm, .avi'
                   "
-                  formControlName="files"
+                  [formField]="formGroup.files"
                 >
                   <x-button plain flat>
                     <x-icon type="fto-image"></x-icon> / <x-icon type="fto-video"></x-icon>
@@ -131,7 +118,7 @@
                 <x-button
                   type="primary"
                   icon="fto-send"
-                  [disabled]="formGroup.invalid"
+                  [disabled]="formGroup().invalid()"
                   circle
                   (click)="onSubmit()"
                 ></x-button>

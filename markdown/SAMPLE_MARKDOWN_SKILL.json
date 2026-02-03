@@ -1,0 +1,32 @@
+{
+  "name": "customer_service_guidelines",
+  "displayName": "Customer Service Guidelines",
+  "description": "Comprehensive guidelines for handling customer service interactions",
+  "category": "Documentation",
+  "status": "active",
+  "schema": {
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "situation": {
+          "type": "string",
+          "description": "The specific customer service situation",
+          "enum": ["complaint", "inquiry", "compliment", "technical_issue", "billing_question"]
+        },
+        "customer_type": {
+          "type": "string",
+          "description": "Type of customer",
+          "enum": ["new", "existing", "premium", "enterprise"],
+          "default": "existing"
+        }
+      },
+      "required": ["situation"]
+    },
+    "returns": {}
+  },
+  "runtime": {
+    "type": "markdown",
+    "content": "# Customer Service Guidelines\n\n## Core Principles\n\n### 1. Always Be Professional\n- Use polite, respectful language\n- Maintain a calm, helpful tone\n- Address customers by name when possible\n\n### 2. Listen Actively\n- Let customers fully explain their situation\n- Ask clarifying questions\n- Summarize their concerns to confirm understanding\n\n### 3. Provide Solutions\n- Offer multiple options when possible\n- Explain the benefits of each solution\n- Follow up to ensure satisfaction\n\n## Handling Different Situations\n\n### Complaints\n1. **Acknowledge** the customer's frustration\n2. **Apologize** sincerely for the inconvenience\n3. **Investigate** the issue thoroughly\n4. **Resolve** with appropriate compensation if needed\n5. **Follow up** within 24-48 hours\n\n### Technical Issues\n1. **Gather** detailed information about the problem\n2. **Guide** through basic troubleshooting steps\n3. **Escalate** to technical team if needed\n4. **Document** the issue and resolution\n5. **Verify** the solution works\n\n### Billing Questions\n1. **Verify** customer identity\n2. **Review** account details carefully\n3. **Explain** charges clearly\n4. **Adjust** billing if errors are found\n5. **Provide** written confirmation\n\n### Inquiries\n1. **Understand** what information is needed\n2. **Provide** accurate, complete answers\n3. **Offer** additional relevant information\n4. **Direct** to appropriate resources\n\n### Compliments\n1. **Thank** the customer genuinely\n2. **Share** positive feedback with relevant teams\n3. **Reinforce** the positive experience\n4. **Invite** continued engagement\n\n## Customer Types\n\n### New Customers\n- Extra patience and explanation\n- Provide onboarding resources\n- Set clear expectations\n- Ensure smooth first experience\n\n### Existing Customers\n- Reference account history\n- Build on previous interactions\n- Recognize loyalty\n- Offer relevant upgrades\n\n### Premium Customers\n- Priority handling\n- Direct access to senior support\n- Proactive communication\n- Exclusive benefits awareness\n\n### Enterprise Customers\n- Dedicated account management\n- Technical expertise required\n- Business impact consideration\n- Escalation protocols\n\n## Escalation Guidelines\n\n### When to Escalate\n- Customer requests supervisor\n- Issue exceeds your authority\n- Technical complexity beyond scope\n- Potential legal implications\n- Customer threatens to leave\n\n### How to Escalate\n1. Inform customer about escalation\n2. Provide complete context to supervisor\n3. Stay available for additional information\n4. Follow up on resolution\n\n## Communication Best Practices\n\n### Language Guidelines\n- Use \"I\" statements (\"I understand...\")\n- Avoid negative words (\"can't\", \"won't\", \"impossible\")\n- Offer alternatives (\"What I can do is...\")\n- Be specific about timelines\n- Confirm next steps\n\n### Email Communication\n- Professional subject lines\n- Clear, concise content\n- Proper formatting\n- Timely responses (within 4 hours)\n- Include relevant attachments\n\n### Phone Communication\n- Answer within 3 rings\n- Professional greeting\n- Active listening\n- Clear speaking\n- Proper hold procedures\n\n## Quality Standards\n\n### Response Times\n- Phone: Answer within 3 rings\n- Email: Respond within 4 hours\n- Chat: Respond within 2 minutes\n- Callbacks: Within promised timeframe\n\n### Resolution Targets\n- Simple issues: Same day\n- Complex issues: Within 3 business days\n- Technical issues: Within 5 business days\n- Billing disputes: Within 2 business days\n\n### Follow-up Requirements\n- All complaints: Follow up within 24 hours\n- Technical issues: Follow up after resolution\n- Billing adjustments: Confirm in writing\n- Escalated issues: Check status daily\n\n## Documentation Requirements\n\n### What to Document\n- Customer contact information\n- Issue description\n- Steps taken\n- Resolution provided\n- Follow-up needed\n\n### How to Document\n- Use clear, professional language\n- Include timestamps\n- Reference ticket numbers\n- Note customer satisfaction\n- Update status appropriately",
+    "instructions": "Use these guidelines when handling customer service situations. Adapt the approach based on the specific situation and customer type provided in the parameters. Always prioritize customer satisfaction while following company policies."
+  }
+}

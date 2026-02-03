@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal, viewChild } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   XButtonComponent,
   XDialogModule,
@@ -18,13 +17,12 @@ import {
 } from '@ng-nest/ui';
 import { ManufacturerService, Model, ModelService } from '@ui/core';
 import { ModelComponent } from './model';
-import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, fromEvent, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { form, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-model-list',
   imports: [
-    ReactiveFormsModule,
-    FormsModule,
     XDialogModule,
     XButtonComponent,
     XIconComponent,
@@ -34,14 +32,14 @@ import { debounceTime, distinctUntilChanged, fromEvent, Subject, Subscription, s
     XInputComponent,
     XKeywordDirective,
     XTagComponent,
-    XI18nPipe
-  ],
+    XI18nPipe,
+    FormField
+],
   templateUrl: './model-list.html',
   styleUrl: './model-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModelList {
-  formBuilder = inject(FormBuilder);
   dialogService = inject(XDialogService);
   service = inject(ModelService);
   manufacturerService = inject(ManufacturerService);
@@ -51,28 +49,34 @@ export class ModelList {
   loading = signal(false);
   keywordText = signal('');
 
-  formGroup = this.formBuilder.group({
-    manufacturerId: [],
-    value: ['']
+  model = signal({
+    manufacturerId: null,
+    value: ''
   });
+  formGroup = form(this.model);
 
   modelList = signal<Model[]>([]);
   allModelList = signal<Model[]>([]);
 
   $destroy = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      const manufacturerId = this.formGroup.manufacturerId().value();
+      if (manufacturerId) {
+        this.keywordText.set('');
+        this.formGroup.value().value.set('');
+        this.getData();
+      }
+    });
+  }
+
   ngOnInit() {
     this.manufacturerService.getAll().subscribe((x) => {
       const list = x.map((y) => ({ id: y.id, label: y.name, isActive: y.isActive, createdAt: y.createdAt }));
       this.manufacturerList.set(XOrderBy(list, ['isActive', 'createdAt'], ['desc', 'desc']));
       if (this.manufacturerList().length > 0) {
-        this.formGroup.patchValue({ manufacturerId: this.manufacturerList()[0].id });
-        this.getData();
-      }
-    });
-    this.formGroup.controls.manufacturerId.valueChanges.subscribe((x) => {
-      if (x) {
-        this.keywordText.set('');
-        this.formGroup.patchValue({ value: '' });
+        this.formGroup.manufacturerId().value.set(this.manufacturerList()[0].id);
         this.getData();
       }
     });
@@ -94,7 +98,7 @@ export class ModelList {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((_event: KeyboardEvent) => {
-          let { value, manufacturerId } = this.formGroup.getRawValue();
+          let { value, manufacturerId } = this.formGroup().value();
           if (manufacturerId && value && value.trim().length > 0) {
             value = value.trim();
             this.loading.set(true);
@@ -119,7 +123,7 @@ export class ModelList {
   }
 
   getData() {
-    this.service.getListByManufacturerId(this.formGroup.getRawValue().manufacturerId!).subscribe((x) => {
+    this.service.getListByManufacturerId(this.formGroup.manufacturerId().value()!).subscribe((x) => {
       this.modelList.set(XOrderBy(x, ['isActive', 'createdAt'], ['desc', 'desc']));
       this.allModelList.set(this.modelList());
     });
@@ -130,7 +134,7 @@ export class ModelList {
       width: '36rem',
       data: {
         saveSuccess: () => this.getData(),
-        manufacturerId: this.formGroup.getRawValue().manufacturerId!
+        manufacturerId: this.formGroup.manufacturerId().value()
       }
     });
   }
@@ -141,7 +145,7 @@ export class ModelList {
       data: {
         saveSuccess: () => this.getData(),
         id: item.id,
-        manufacturerId: this.formGroup.getRawValue().manufacturerId!
+        manufacturerId: this.formGroup.manufacturerId().value()
       }
     });
   }

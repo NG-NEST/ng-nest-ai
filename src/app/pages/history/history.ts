@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-history',
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [],
   templateUrl: './history.html',
   styleUrl: './history.scss'
 })

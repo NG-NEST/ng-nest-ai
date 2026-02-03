@@ -212,6 +212,22 @@ input {
         }
       }
 
+      &.select {
+        display: flex;
+        justify-content: space-between;
+        border: $x-border-base;
+        border-radius: $x-border-radius;
+        padding: 0.25rem 0.75rem;
+        transition: all 0.3s;
+        &:hover {
+          border-color: $x-primary-300;
+        }
+        x-select {
+          flex: initial;
+          width: auto;
+        }
+      }
+
       &.end {
         justify-content: flex-end;
       }

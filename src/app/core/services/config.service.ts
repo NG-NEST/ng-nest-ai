@@ -8,6 +8,7 @@ export class AppConfigService {
   readonly showTopShadow = signal(false);
   readonly showBottomShadow = signal(false);
   readonly mainScrollable = signal<XScrollableComponent | null>(null);
+  readonly showDevTools = signal(false);
 
   constructor() {}
 }

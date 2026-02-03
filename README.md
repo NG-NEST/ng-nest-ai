@@ -1,97 +1,262 @@
-# NG-NEST AI
+# NgNest AI
 
-NG-NEST AI 是一个基于 Angular 和 Electron 构建的桌面端 AI 聊天应用。该项目提供了丰富的功能，包括项目管理、会话历史、多种媒体类型支持等。
+English | [简体中文](README_zh-CN.md)
+
+NgNest AI is a powerful desktop AI chat application built with Angular and Electron. It provides comprehensive project management, conversation history, multi-modal AI interactions, and advanced file system integration capabilities.
 
 <img style="border: 1px solid #fefefe" src="https://github.com/NG-NEST/ng-nest-ai/blob/main/src/assets/images/111222.png" />
 
-## 功能特性
+## 📖 Table of Contents
 
-### 核心功能
+- [Key Features](#-key-features)
+  - [AI Conversation System](#-ai-conversation-system)
+  - [Project Management](#-project-management)
+  - [Advanced Features](#️-advanced-features)
+  - [Developer Tools](#-developer-tools)
+- [Architecture](#️-architecture)
+  - [Frontend Stack](#frontend-stack)
+  - [Backend Services](#backend-services)
+  - [Data Layer](#data-layer)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Development](#development)
+  - [Production Build](#production-build)
+- [Configuration](#️-configuration)
+  - [Environment Variables](#environment-variables)
+  - [AI Model Configuration](#ai-model-configuration)
+- [Core Modules](#-core-modules)
+  - [Project Management System](#project-management-system)
+  - [Conversation Engine](#conversation-engine)
+  - [Skills System](#skills-system)
+  - [File System Integration](#file-system-integration)
+- [Internationalization](#-internationalization)
+- [API Integration](#-api-integration)
+  - [OpenAI Integration](#openai-integration)
+  - [MinIO Integration](#minio-integration)
+  - [File System API](#file-system-api)
+- [Security Features](#️-security-features)
+- [Build Configuration](#-build-configuration)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Acknowledgments](#-acknowledgments)
 
-- 💬 实时 AI 对话交互
-- 📁 项目管理系统
-- 🕒 会话历史记录
-- ⚙️ 多模型配置支持
-- 🌍 多语言国际化支持
-- 🎨 主题定制功能
+## ✨ Key Features
 
-### 媒体支持
+### 🤖 AI Conversation System
+- **Real-time AI Chat**: Stream-based conversations with multiple AI models
+- **Multi-modal Support**: Text, image, and video input capabilities
+- **Function Calling**: Built-in skills system with extensible functions
+- **Custom Prompts**: System prompt configuration and management
+- **Conversation History**: Persistent chat history with search capabilities
 
-- 🖼️ 图片上传
-- 🎥 视频上传
+### 📁 Project Management
+- **Workspace Integration**: Connect projects to local directories
+- **File System Monitoring**: Real-time file change detection and synchronization
+- **Project-based Sessions**: Organize conversations within project contexts
+- **File Tree Navigation**: Built-in file explorer with create/delete/rename operations
 
-### 技术特点
+### 🛠️ Advanced Features
+- **Built-in Skills System**: Extensible function calling with JavaScript, HTTP, and built-in handlers
+- **IndexedDB Integration**: Query and manage local database directly from AI conversations
+- **MinIO Object Storage**: Seamless file upload and management
+- **Multi-language Support**: 8 languages including English, Chinese, Japanese, Korean, German, French, Russian
+- **Theme Customization**: Dark/light mode with customizable UI themes
 
-- 🖥️ Electron 桌面应用
-- 🧠 IndexedDB 本地数据存储
-- ☁️ MinIO 对象存储集成
-- 🔧 OpenAI API 集成
-- 🎨 Angular 21 最新特性
+### 🔧 Developer Tools
+- **Electron DevTools**: Built-in developer tools integration
+- **File System API**: Comprehensive file operations (create, delete, rename, copy)
+- **IPC Services**: Modular inter-process communication architecture
+- **Hot Reload**: Development server with live reload capabilities
 
-## 技术栈
+## 🏗️ Architecture
 
-- **前端框架**: Angular 21
-- **UI 组件库**: @ng-nest/ui
-- **桌面应用**: Electron 39
-- **状态管理**: RxJS
-- **数据库**: IndexedDB (Dexie.js)
-- **对象存储**: MinIO
-- **AI 服务**: OpenAI
-- **构建工具**: Angular CLI
+### Frontend Stack
+- **Angular 21**: Latest Angular framework with signals and zoneless change detection
+- **@ng-nest/ui**: Comprehensive UI component library
+- **RxJS**: Reactive programming for state management
+- **Monaco Editor**: Code editing capabilities
+- **Micromark**: Markdown parsing and rendering
 
-## 核心模块
+### Backend Services
+- **Electron 39**: Cross-platform desktop application framework
+- **Node.js**: Server-side runtime
+- **Chokidar**: File system watching
+- **OpenAI SDK**: AI model integration
+- **MinIO Client**: Object storage operations
 
-### 项目管理
+### Data Layer
+- **IndexedDB**: Local database with Dexie.js ORM
+- **File System**: Direct file system access and monitoring
+- **MinIO**: Cloud object storage for media files
 
-- 创建和管理多个项目
-- 自定义项目图标和颜色
-- 工作区目录设置
-- 项目内会话管理
+## 🚀 Getting Started
 
-### 会话系统
+### Prerequisites
+- Node.js >= 18.0.0
+- npm >= 9.0.0
+- Git
 
-- 实时聊天界面
-- 会话历史记录
-- 会话重命名和删除
-- 多媒体内容支持
-
-### AI 模型配置
-
-- 多厂商 API 支持
-- 多模型切换
-- 系统提示词配置
-- 深度思考模式
-- 多模态支持（文本、图像、视频）
-
-### 设置中心
-
-- 通用设置（语言等）
-- 主题定制（深色/浅色模式）
-- 厂商配置（API Key、Base URL）
-- 模型管理（OpenAI、自定义请求）
-
-## 安装与运行
-
-### 环境要求
-
-- Node.js >= 22
-- npm >= 10
-
-### 安装步骤
+### Installation
 
 ```bash
-# 克隆项目
+# Clone the repository
 git clone https://github.com/ng-nest/ng-nest-ai.git
+cd ng-nest-ai
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 开发模式运行
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys and configuration
+```
+
+### Development
+
+```bash
+# Start development server (Angular + Electron)
 npm run start
 
-# 构建应用
-npm run build
+# Start only Angular development server
+npm run start:ng
 
-# 打包为可执行文件
-npm run build:electron
+# Compile Electron TypeScript
+npm run build:electron-ts
 ```
+
+### Production Build
+
+```bash
+# Build for production
+npm run build:all
+
+# Create executable
+npm run build:electron
+
+# Run production build
+npm run start:prod
+```
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# MinIO Configuration (for file uploads)
+MINIO_ENDPOINT=your_minio_endpoint
+MINIO_ACCESS_KEY=your_access_key
+MINIO_SECRET_KEY=your_secret_key
+```
+
+### AI Model Configuration
+
+The application supports multiple AI providers:
+- OpenAI (GPT-3.5, GPT-4, GPT-4 Vision)
+- Custom API endpoints
+- Local model servers
+
+Configure models through the Settings panel in the application.
+
+## 🎯 Core Modules
+
+### Project Management System
+- Create and organize multiple projects
+- Link projects to local workspace directories
+- Real-time file system synchronization
+- Project-specific conversation contexts
+
+### Conversation Engine
+- Stream-based AI responses
+- Function calling with built-in skills
+- Multi-modal input support (text, images, videos)
+- Conversation branching and history management
+
+### Skills System
+The application includes an extensible skills system that allows AI to:
+- Query IndexedDB databases
+- Perform file system operations
+- Execute custom JavaScript code
+- Make HTTP requests
+- Access system information
+
+### File System Integration
+- Real-time file monitoring with Chokidar
+- File tree visualization and navigation
+- Direct file operations (create, delete, rename, copy)
+- Workspace-based project organization
+
+## 🌍 Internationalization
+
+Supported languages:
+- English (en_US)
+- Chinese Simplified (zh_CN)
+- Chinese Traditional (zh_TW)
+- Japanese (ja_JP)
+- Korean (ko_KR)
+- German (de_DE)
+- French (fr_FR)
+- Russian (ru_RU)
+
+## 🔌 API Integration
+
+### OpenAI Integration
+- Stream-based chat completions
+- Function calling support
+- Multi-modal capabilities
+- Custom model configurations
+
+### MinIO Integration
+- File upload and storage
+- Automatic file URL generation
+- Support for images and videos
+
+### File System API
+- Cross-platform file operations
+- Real-time change monitoring
+- Directory scanning and indexing
+
+## 🛡️ Security Features
+
+- Sandboxed JavaScript execution for custom skills
+- Secure IPC communication between processes
+- Environment variable protection
+- File system access controls
+
+## 📦 Build Configuration
+
+The application uses Electron Builder for packaging:
+
+```json
+{
+  "appId": "com.ngnest.ai",
+  "productName": "NgNestAI",
+  "directories": {
+    "output": "release",
+    "buildResources": "build"
+  }
+}
+```
+
+Supports Windows, macOS, and Linux distributions.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Angular](https://angular.dev/) - The web framework used
+- [Electron](https://www.electronjs.org/) - Desktop application framework
+- [ng-nest](https://ngnest.com/) - UI component library
+- [OpenAI](https://openai.com/) - AI model provider

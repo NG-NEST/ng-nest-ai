@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
 import { FormField, form, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import {
@@ -41,7 +40,6 @@ export class More {
   session = inject(SessionService);
   dialogRef = inject(XDialogRef<More>);
   input = viewChild.required(XInputComponent);
-  formBuilder = inject(FormBuilder);
   router = inject(Router);
   model = signal({
     title: ''

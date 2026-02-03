@@ -45,6 +45,17 @@
 
     .right {
       flex: 1;
+      position: relative;
+      
+      > * {
+        opacity: 1;
+        transition: opacity 0.15s ease-in-out;
+        
+        &[style*="display: none"] {
+          opacity: 0;
+          pointer-events: none;
+        }
+      }
     }
   }
 }

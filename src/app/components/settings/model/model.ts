@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -21,16 +20,16 @@ import {
   XTextareaComponent
 } from '@ng-nest/ui';
 import { EditorComponent } from '@ui/components';
-import { ModelService, Request } from '@ui/core';
+import { Model, ModelService, Request } from '@ui/core';
 import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
 import { HelpComponent } from '../../help/help';
 import { XSliderComponent } from '@ng-nest/ui/slider';
 import { NgTemplateOutlet } from '@angular/common';
+import { form, FormField, required } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-model',
   imports: [
-    ReactiveFormsModule,
     XTextareaComponent,
     XInputComponent,
     XInputGroupComponent,
@@ -44,7 +43,8 @@ import { NgTemplateOutlet } from '@angular/common';
     XIconComponent,
     XI18nPipe,
     EditorComponent,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    FormField
   ],
   templateUrl: './model.html',
   styleUrl: './model.scss'
@@ -56,7 +56,6 @@ export class ModelComponent {
   messageBox = inject(XMessageBoxService);
   dialogService = inject(XDialogService);
   service = inject(ModelService);
-  fb = inject(FormBuilder);
   i18n = inject(XI18nService);
   id = signal<number | null>(null);
   sliderBase = signal(0);
@@ -66,25 +65,32 @@ export class ModelComponent {
   formLoading = signal(false);
   saveLoading = signal(false);
 
-  form: FormGroup<any> = this.fb.group({
-    manufacturerId: [0, [Validators.required]],
-    name: ['', [Validators.required]],
-    code: ['', [Validators.required]],
-    description: [''],
-    isActive: [false, [Validators.required]],
-    usePrompt: [false, []],
-    useUploadImage: [false, []],
-    useUploadVideo: [false, []],
-    requestType: ['OpenAI', [Validators.required]],
-    inputFunction: [''],
-    outputFunction: [''],
-    method: ['POST'],
-    url: [],
-    headersFunction: [''],
-    bodyFunction: [''],
-    paramsFunction: [''],
+  model = signal<Model>({
+    manufacturerId: 0,
+    name: '',
+    code: '',
+    description: '',
+    isActive: false,
+    usePrompt: false,
+    useUploadImage: false,
+    useUploadVideo: false,
+    requestType: 'OpenAI',
+    inputFunction: '',
+    outputFunction: '',
+    method: 'POST',
+    url: '',
+    headersFunction: '',
+    bodyFunction: '',
+    paramsFunction: '',
     tags: [],
-    requests: this.fb.array([])
+    requests: []
+  });
+
+  form = form(this.model, (schema) => {
+    required(schema.manufacturerId);
+    required(schema.name);
+    required(schema.code);
+    required(schema.requestType!);
   });
 
   defaultHeaders = `return {
@@ -97,10 +103,6 @@ export class ModelComponent {
   $destroy = new Subject<void>();
 
   httpTabMap = new Map<number, number>();
-
-  get requests() {
-    return this.form.get('requests') as FormArray<any>;
-  }
 
   helpMap = new Map<string, { title: string; content: string }>([
     [
@@ -292,32 +294,33 @@ export class ModelComponent {
   ngOnInit(): void {
     const { id, manufacturerId } = this.data;
     this.id.set(id);
-    this.form.patchValue({ manufacturerId: manufacturerId });
+    this.form.manufacturerId().value.set(manufacturerId);
 
     const req: Observable<any>[] = [];
-
-    this.form.getRawValue();
 
     if (this.id()) {
       req.push(
         this.service.getById(this.id()!).pipe(
           tap((x: any) => {
             if (!x) return;
-            const { requests } = x;
-            if (requests && requests.length > 0) {
-              for (let i = 0; i < requests.length; i++) {
-                this.addRequest(requests[i]);
-              }
-            }
-            this.form.patchValue(x!);
+            // const { requests } = x;
+            // if (requests && requests.length > 0) {
+            //   for (let i = 0; i < requests.length; i++) {
+            //     this.addRequest(requests[i]);
+            //   }
+            // }
+            this.form().value.set(x!);
           })
         )
       );
     } else {
-      this.form.patchValue({
-        headersFunction: this.defaultHeaders,
-        bodyFunction: this.defaultBody,
-        paramsFunction: this.defaultParams
+      this.model.update((x) => {
+        Object.assign(x, {
+          headersFunction: this.defaultHeaders,
+          bodyFunction: this.defaultBody,
+          paramsFunction: this.defaultParams
+        });
+        return x;
       });
     }
     if (req.length > 0) {
@@ -333,12 +336,13 @@ export class ModelComponent {
     this.$destroy.complete();
   }
 
-  save() {
+  save(event: Event) {
+    event.preventDefault();
     let rq!: Observable<number>;
     if (!this.id()) {
-      rq = this.service.create(this.form.value);
+      rq = this.service.create(this.form().value());
     } else {
-      rq = this.service.update(this.id()!, { ...this.form.value });
+      rq = this.service.update(this.id()!, { ...this.form().value() });
     }
     this.saveLoading.set(true);
     rq.pipe(
@@ -355,7 +359,7 @@ export class ModelComponent {
   delete() {
     this.messageBox.confirm({
       title: this.i18n.L('$model.deleteModel'),
-      content: `${this.i18n.L('$model.sureDeleteModel')} [${this.form.value.name}]`,
+      content: `${this.i18n.L('$model.sureDeleteModel')} [${this.form.name().value()}]`,
       type: 'warning',
       callback: (data: XMessageBoxAction) => {
         if (data !== 'confirm') return;
@@ -381,21 +385,27 @@ export class ModelComponent {
   }
 
   addRequest(request?: Request) {
-    this.httpTabMap.set(this.requests.length, 0);
-    this.requests.push(
-      this.fb.group({
-        id: [request?.id ?? crypto.randomUUID()],
-        method: [request?.method ?? 'POST'],
-        url: [request?.url ?? ''],
-        headersFunction: [request?.headersFunction ?? this.defaultHeaders],
-        bodyFunction: [request?.bodyFunction ?? this.defaultBody],
-        paramsFunction: [request?.paramsFunction ?? this.defaultParams],
-        outputFunction: [request?.outputFunction ?? '']
-      })
-    );
+    this.httpTabMap.set(this.form.requests?.()?.value().length!, 0);
+    this.form.requests?.()?.value.update((x) => {
+      return [
+        ...x,
+        {
+          id: request?.id ?? crypto.randomUUID(),
+          method: request?.method ?? 'POST',
+          url: request?.url ?? '',
+          headersFunction: request?.headersFunction ?? this.defaultHeaders,
+          bodyFunction: request?.bodyFunction ?? this.defaultBody,
+          paramsFunction: request?.paramsFunction ?? this.defaultParams,
+          outputFunction: request?.outputFunction ?? ''
+        }
+      ];
+    });
   }
 
   removeRequest(i: number) {
-    this.requests.removeAt(i);
+    this.form.requests?.()?.value.update((x) => {
+      x.splice(i, 1);
+      return [...x];
+    });
   }
 }

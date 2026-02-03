@@ -48,20 +48,144 @@
     </div>
 
     <div class="item required">
-      <app-editor
-        class="editor"
-        [label]="'$skill.executeCode' | xI18n"
+      <x-select
+        floatLabel="on"
+        [label]="'$skill.runtimeType' | xI18n"
+        [data]="runtimeTypes"
+        [formField]="form.runtime.type!"
         required
-        [filename]="'.js'"
-        [style.height.rem]="12"
-        [style.width.%]="100"
-        [options]="{
-          lineNumbers: 'on',
-          minimap: { enabled: false }
-        }"
-        [formField]="form.runtime.code!"
-      ></app-editor>
+      >
+      </x-select>
     </div>
+
+    @if (model().runtime.type === 'javascript') {
+      <div class="item required">
+        <app-editor
+          class="editor"
+          [label]="'$skill.executeCode' | xI18n"
+          required
+          [filename]="'.js'"
+          [style.height.rem]="12"
+          [style.width.%]="100"
+          [options]="{
+            lineNumbers: 'on',
+            minimap: { enabled: false }
+          }"
+          [formField]="form.runtime.code!"
+        ></app-editor>
+      </div>
+    }
+
+    @if (model().runtime.type === 'http') {
+      <div class="item required">
+        <x-input
+          floatLabel="on"
+          [label]="'$skill.endpoint' | xI18n"
+          [formField]="form.runtime.endpoint!"
+          required
+          placeholder="https://api.example.com/endpoint"
+        >
+        </x-input>
+      </div>
+
+      <div class="item">
+        <x-select
+          floatLabel="on"
+          [label]="'$skill.method' | xI18n"
+          [data]="httpMethods"
+          [formField]="form.runtime.method!"
+        >
+        </x-select>
+      </div>
+
+      <div class="item">
+        <app-editor
+          class="editor"
+          [label]="'$skill.headers' | xI18n"
+          [filename]="'.json'"
+          [style.height.rem]="6"
+          [style.width.%]="100"
+          [options]="{
+            lineNumbers: 'off',
+            minimap: { enabled: false }
+          }"
+          [formField]="form.runtime.headers!"
+        ></app-editor>
+      </div>
+
+      <div class="http-info">
+        <h5>{{ '$skill.httpRequestInfo' | xI18n }}</h5>
+        <p>{{ '$skill.httpRequestDescription' | xI18n }}</p>
+        <pre><code>&#123;
+  "args": &#123;
+    // 技能参数将作为 args 对象发送
+  &#125;
+&#125;</code></pre>
+      </div>
+    }
+
+    @if (model().runtime.type === 'builtin') {
+      <div class="item">
+        <x-input
+          floatLabel="on"
+          [label]="'$skill.handler' | xI18n"
+          [formField]="form.runtime.handler!"
+          placeholder="get_time"
+        >
+        </x-input>
+      </div>
+
+      <div class="builtin-info">
+        <h5>{{ '$skill.builtinInfo' | xI18n }}</h5>
+        <p>{{ '$skill.builtinDescription' | xI18n }}</p>
+      </div>
+    }
+
+    @if (model().runtime.type === 'markdown') {
+      <div class="item required">
+        <app-editor
+          class="editor"
+          [label]="'$skill.markdownContent' | xI18n"
+          required
+          [filename]="'.md'"
+          [style.height.rem]="16"
+          [style.width.%]="100"
+          [options]="{
+            lineNumbers: 'on',
+            minimap: { enabled: false },
+            wordWrap: 'on'
+          }"
+          [formField]="form.runtime.content!"
+        ></app-editor>
+      </div>
+
+      <div class="item">
+        <app-editor
+          class="editor"
+          [label]="'$skill.instructions' | xI18n"
+          [filename]="'.txt'"
+          [style.height.rem]="7"
+          [style.width.%]="100"
+          [options]="{
+            lineNumbers: 'off',
+            minimap: { enabled: false },
+            wordWrap: 'on'
+          }"
+          [formField]="form.runtime.instructions!"
+        ></app-editor>
+      </div>
+
+      <div class="markdown-info">
+        <h5>{{ '$skill.markdownInfo' | xI18n }}</h5>
+        <p>{{ '$skill.markdownDescription' | xI18n }}</p>
+        <ul>
+          <li>{{ '$skill.markdownFeature1' | xI18n }}</li>
+          <li>{{ '$skill.markdownFeature2' | xI18n }}</li>
+          <li>{{ '$skill.markdownFeature3' | xI18n }}</li>
+          <li>{{ '$skill.markdownFeature4' | xI18n }}</li>
+        </ul>
+      </div>
+    }
   </div>
   <div x-dialog-actions align="center" class="actions">
     @if (id()) {

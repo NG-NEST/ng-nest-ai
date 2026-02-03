@@ -49,6 +49,58 @@ export class AppLocaleService {
       const { $title } = x;
       this.title.setTitle($title);
     });
+    
+    // Initialize default language from system locale
+    this.initializeDefaultLanguage();
+  }
+
+  private async initializeDefaultLanguage(): Promise<void> {
+    try {
+      // Get system locale from Electron
+      const systemLocale = await window.electronAPI.windowControls.getSystemLocale();
+      console.log(systemLocale)
+      const mappedLang = this.mapSystemLocaleToSupportedLanguage(systemLocale);
+      this.defaultLang.set(mappedLang);
+    } catch (error) {
+      console.warn('Failed to get system locale, using default:', error);
+      // Keep the existing default if Electron API fails
+    }
+  }
+
+  private mapSystemLocaleToSupportedLanguage(systemLocale: string): XI18nLanguage {
+    // Map system locale to supported languages
+    const localeMap: { [key: string]: XI18nLanguage } = {
+      'zh-CN': 'zh_CN',
+      'zh-TW': 'zh_TW',
+      'zh-HK': 'zh_TW', // Use Traditional Chinese for Hong Kong
+      'en': 'en_US',
+      'en-US': 'en_US',
+      'en-GB': 'en_US', // Use US English for British English
+      'de': 'de_DE',
+      'de-DE': 'de_DE',
+      'ru': 'ru_RU',
+      'ru-RU': 'ru_RU',
+      'ko': 'ko_KR',
+      'ko-KR': 'ko_KR',
+      'ja': 'ja_JP',
+      'ja-JP': 'ja_JP',
+      'fr': 'fr_FR',
+      'fr-FR': 'fr_FR'
+    };
+
+    // Try exact match first
+    if (localeMap[systemLocale]) {
+      return localeMap[systemLocale];
+    }
+
+    // Try language code only (e.g., 'zh' from 'zh-CN')
+    const languageCode = systemLocale.split('-')[0];
+    if (localeMap[languageCode]) {
+      return localeMap[languageCode];
+    }
+
+    // Default to English if no match found
+    return 'en_US';
   }
 
   init() {

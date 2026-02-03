@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { X_DIALOG_DATA, XButtonComponent, XDialogModule, XDialogRef, XDialogService } from '@ng-nest/ui';
 import { Subject } from 'rxjs';
 import { EditorComponent } from '../editor/editor';
 import { HelpComponent } from '../help/help';
+import { form, required, FormField } from '@angular/forms/signals';
 
 @Component({
   selector: 'app-value-function',
-  imports: [ReactiveFormsModule, XDialogModule, XButtonComponent, EditorComponent],
+  imports: [XDialogModule, XButtonComponent, EditorComponent, FormField],
   templateUrl: './value-function.html',
   styleUrl: './value-function.scss'
 })
@@ -17,9 +17,11 @@ export class ValueFunction {
   data = inject<{ title: string; content: string; helpContent: string; save: (content: string) => void }>(
     X_DIALOG_DATA
   );
-  formBuilder = inject(FormBuilder);
-  form = this.formBuilder.group({
-    content: ['', [Validators.required]]
+  model = signal({
+    content: ''
+  });
+  form = form(this.model, (schema) => {
+    required(schema.content);
   });
 
   title = signal<string>('');
@@ -30,10 +32,8 @@ export class ValueFunction {
   constructor() {
     this.title.set(this.data.title);
     this.helpContent.set(this.data.helpContent);
-    this.form.patchValue({ content: this.data.content });
+    this.form.content().value.set(this.data.content);
   }
-
-  ngAfterViewInit() {}
 
   ngOnDestroy(): void {
     this.$destroy.next();
@@ -51,9 +51,10 @@ export class ValueFunction {
     });
   }
 
-  onSubmit() {
+  onSubmit(event: Event) {
+    event.preventDefault();
     const { save } = this.data;
-    save && save(this.form.getRawValue().content!);
+    save && save(this.form.content().value()!);
     this.dialogRef.close();
   }
 }

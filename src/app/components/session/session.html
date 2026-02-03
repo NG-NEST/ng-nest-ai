@@ -1,4 +1,4 @@
-<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save()">
+<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save($event)">
   <h4 x-dialog-title class="title">{{ id() ? ('$session.editChat' | xI18n) : ('$session.newChat' | xI18n) }}</h4>
   <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   <div x-dialog-content class="content">

@@ -1,4 +1,4 @@
-<form class="app-dialog-form" (submit)="save()">
+<form class="app-dialog-form" (submit)="save($event)">
   @if (!loading()) {
     <x-button x-dialog-close class="close" icon="fto-x" size="large" flat text></x-button>
   }

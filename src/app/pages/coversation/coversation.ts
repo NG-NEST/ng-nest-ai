@@ -3,12 +3,13 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   signal,
   viewChild
 } from '@angular/core';
-import { FormBuilder, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
+import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   XAttachmentsComponent,
@@ -42,11 +43,9 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
 @Component({
   selector: 'app-coversation',
   imports: [
-    FormsModule,
     XSenderComponent,
     XButtonComponent,
     XSenderStopComponent,
-    ReactiveFormsModule,
     XBubbleModule,
     XCollapseModule,
     BubblesComponent,
@@ -54,7 +53,8 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
     XFileCardComponent,
     XIconComponent,
     XI18nPipe,
-    XScrollableComponent
+    XScrollableComponent,
+    FormField
   ],
   templateUrl: './coversation.html',
   styleUrl: './coversation.scss',
@@ -73,11 +73,14 @@ export class Coversation {
   promptService = inject(PromptService);
   openAIService = inject(AppOpenAIService);
   sendService = inject(AppSendService);
-  formBuilder = inject(FormBuilder);
-  formGroup = this.formBuilder.group({
-    content: ['', [Validators.required]],
+  model = signal<{ content: string; files: File[] }>({
+    content: '',
     files: []
   });
+  formGroup = form(this.model, (schema) => {
+    disabled(schema.content, () => this.loading());
+  });
+
   sessionId = signal<number | null>(null);
   sendSubscription: Subscription | null = null;
   cancel?: () => void;
@@ -91,20 +94,10 @@ export class Coversation {
   scrollableMaxHeight = signal('calc(100vh - 8.125rem)');
   private resizeObserver!: XResizeObserver;
 
-  ngOnInit() {
-    this.activatedRoute.queryParams.subscribe(({ sessionId, time }) => {
-      if (sessionId) {
-        sessionId = Number(sessionId);
-        if (!isNaN(sessionId)) {
-          this.sessionId.set(sessionId);
-          this.loadSessionData(sessionId);
-        }
-      } else if (time) {
-        this.reload();
-      }
-    });
-    this.formGroup.controls.files.valueChanges.subscribe(async (files: any) => {
-      if (!files) {
+  constructor() {
+    effect(async () => {
+      const files = this.formGroup.files().value();
+      if (!files || files.length === 0) {
         this.file.set(null);
         return;
       }
@@ -121,7 +114,7 @@ export class Coversation {
       const bucketName = 'ng-nest-ai';
       const objectName = `${crypto.randomUUID()}/${file.name}`;
 
-      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData, file.type);
+      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData as string, file.type);
 
       if (result) {
         this.file.set({
@@ -130,6 +123,20 @@ export class Coversation {
           size: file.size,
           type: file.type
         });
+      }
+    });
+  }
+
+  ngOnInit() {
+    this.activatedRoute.queryParams.subscribe(({ sessionId, time }) => {
+      if (sessionId) {
+        sessionId = Number(sessionId);
+        if (!isNaN(sessionId)) {
+          this.sessionId.set(sessionId);
+          this.loadSessionData(sessionId);
+        }
+      } else if (time) {
+        this.reload();
       }
     });
     XResize(this.formElementRef().nativeElement)
@@ -168,7 +175,7 @@ export class Coversation {
   }
 
   reload() {
-    this.formGroup.patchValue({ content: '' });
+    this.formGroup.content().value.set('');
     this.data.set([]);
     this.sessionId.set(null);
     this.selectedPrompt.set(null);
@@ -176,7 +183,7 @@ export class Coversation {
   }
 
   onSubmit() {
-    const { content } = this.formGroup.getRawValue();
+    const content = this.formGroup.content().value();
     if (!content) return;
     this.loading.set(true);
 
@@ -191,15 +198,13 @@ export class Coversation {
       params.video = this.file()?.url;
     }
 
-    this.formGroup.patchValue({ content: '', files: null });
-    this.formGroup.disable();
+    this.formGroup().value.set({ content: '', files: [] });
 
     this.sendSubscription = this.sendService
       .send(params)
       .pipe(
         finalize(() => {
           this.loading.set(false);
-          this.formGroup.enable();
         })
       )
       .subscribe((x: any) => {
@@ -216,7 +221,6 @@ export class Coversation {
   onStop() {
     this.sendSubscription?.unsubscribe();
     this.cancel && this.cancel();
-    this.formGroup.enable();
     this.loading.set(false);
     if (this.typing()) {
       this.data.update((items) => {

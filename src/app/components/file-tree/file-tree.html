@@ -1,6 +1,17 @@
-<ul ngTree #tree="ngTree" [(values)]="selected" class="basic-tree">
+<ul ngTree #tree="ngTree" [(values)]="selected" class="basic-tree" [cdkContextMenuTriggerFor]="rootMenus">
   <ng-template [ngTemplateOutlet]="treeNodes" [ngTemplateOutletContext]="{ nodes: data(), parent: tree, level: 0 }" />
 </ul>
+
+<ng-template #rootMenus>
+  <div cdkMenu class="context-menu">
+    <div cdkMenuItem class="context-menu-item" (click)="onCreateFileInRoot()">
+      <x-icon type="fto-file-plus"></x-icon> {{ '$fileTree.newFile' | xI18n }}
+    </div>
+    <div cdkMenuItem class="context-menu-item" (click)="onCreateFolderInRoot()">
+      <x-icon type="fto-folder-plus"></x-icon> {{ '$fileTree.newFolder' | xI18n }}
+    </div>
+  </div>
+</ng-template>
 
 <ng-template #treeNodes let-nodes="nodes" let-parent="parent" let-level="level">
   @for (node of nodes; track node.id + node.name) {
@@ -42,24 +53,33 @@
     <ng-template #menus>
       <div cdkMenu class="context-menu">
         <div cdkMenuItem class="context-menu-item" (click)="onShowInExplorer(node)">
-          <x-icon type="fto-folder"></x-icon> 在资源管理器中显示
+          <x-icon type="fto-folder"></x-icon> {{ '$fileTree.showInExplorer' | xI18n }}
         </div>
         <div class="context-menu-separator"></div>
+        @if (node.type === 'dir') {
+          <div cdkMenuItem class="context-menu-item" (click)="onCreateFile(node)">
+            <x-icon type="fto-file-plus"></x-icon> {{ '$fileTree.newFile' | xI18n }}
+          </div>
+          <div cdkMenuItem class="context-menu-item" (click)="onCreateFolder(node)">
+            <x-icon type="fto-folder-plus"></x-icon> {{ '$fileTree.newFolder' | xI18n }}
+          </div>
+          <div class="context-menu-separator"></div>
+        }
         <div cdkMenuItem class="context-menu-item" (click)="onCut(node)">
-          <x-icon type="fto-scissors"></x-icon> 剪切
+          <x-icon type="fto-scissors"></x-icon> {{ '$fileTree.cut' | xI18n }}
         </div>
         @if (service.hasClipboard()) {
           <div cdkMenuItem class="context-menu-item" (click)="onPaste(node)">
-            <x-icon type="fto-clipboard"></x-icon> 粘贴
+            <x-icon type="fto-clipboard"></x-icon> {{ '$fileTree.paste' | xI18n }}
           </div>
         }
-        <div cdkMenuItem class="context-menu-item" (click)="onCopy(node)"><x-icon type="fto-copy"></x-icon> 复制</div>
+        <div cdkMenuItem class="context-menu-item" (click)="onCopy(node)"><x-icon type="fto-copy"></x-icon> {{ '$fileTree.copy' | xI18n }}</div>
         <div class="context-menu-separator"></div>
         <div cdkMenuItem class="context-menu-item" (click)="onRename(node)">
-          <x-icon type="fto-edit"></x-icon> 重命名
+          <x-icon type="fto-edit"></x-icon> {{ '$fileTree.rename' | xI18n }}
         </div>
         <div cdkMenuItem class="context-menu-item" (click)="onDelete(node)">
-          <x-icon type="fto-trash-2"></x-icon> 删除
+          <x-icon type="fto-trash-2"></x-icon> {{ '$fileTree.delete' | xI18n }}
         </div>
       </div>
     </ng-template>

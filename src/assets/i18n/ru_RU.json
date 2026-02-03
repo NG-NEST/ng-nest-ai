@@ -121,5 +121,19 @@
   },
   "$coversation": {
     "placeholder": "Enter для отправки, Alt + Enter для переноса строки"
+  },
+  "$fileTree": {
+    "newFile": "Новый файл",
+    "newFolder": "Новая папка",
+    "showInExplorer": "Показать в проводнике",
+    "cut": "Вырезать",
+    "copy": "Копировать",
+    "paste": "Вставить",
+    "rename": "Переименовать",
+    "delete": "Удалить",
+    "confirmDelete": "Вы уверены, что хотите удалить {name}?",
+    "enterNewName": "Введите новое имя",
+    "enterFileName": "Введите имя файла",
+    "enterFolderName": "Введите имя папки"
   }
 }

@@ -1,4 +1,4 @@
-<form [x-loading]="formLoading()" [formGroup]="form" class="app-dialog-form" (ngSubmit)="save()">
+<form [x-loading]="formLoading()" class="app-dialog-form" (submit)="save($event)">
   <h4 x-dialog-title class="title">
     {{ id() ? ('$base.edit' | xI18n) : ('$base.add' | xI18n) }} {{ '$model.title' | xI18n }}
   </h4>
@@ -13,46 +13,44 @@
     @if (sliderBase() === 0) {
       <div class="list">
         <div class="item">
-          <x-input floatLabel="on" [label]="'$base.name' | xI18n" formControlName="name" required></x-input>
+          <x-input floatLabel="on" [label]="'$base.name' | xI18n" [formField]="form.name" required></x-input>
         </div>
         <div class="item">
-          <x-input floatLabel="on" [label]="'$base.code' | xI18n" formControlName="code" required></x-input>
+          <x-input floatLabel="on" [label]="'$base.code' | xI18n" [formField]="form.code" required></x-input>
         </div>
         <div class="item">
           <x-textarea
             floatLabel="on"
             [label]="'$base.description' | xI18n"
             height="8rem"
-            formControlName="description"
+            [formField]="form.description"
           ></x-textarea>
         </div>
         <div class="row">
           <div class="item required switch">
             <label>{{ '$model.isActive' | xI18n }}</label>
-            <x-switch formControlName="isActive" required></x-switch>
+            <x-switch [formField]="form.isActive" required></x-switch>
           </div>
           <div class="item switch">
             <label class="label">
               <x-icon type="icon:prompt"></x-icon>
               <span class="text">{{ '$model.usePrompt' | xI18n }}</span>
             </label>
-            <x-switch formControlName="usePrompt"></x-switch>
+            <x-switch [formField]="form.usePrompt"></x-switch>
           </div>
         </div>
         <div class="row">
           <div class="item switch">
             <label class="label"
-              ><x-icon type="fto-image"></x-icon>
-              <span class="text">{{ '$model.useUploadImage' | xI18n }}</span></label
+              ><x-icon type="fto-image"></x-icon> <span class="text">{{ '$model.useUploadImage' | xI18n }}</span></label
             >
-            <x-switch formControlName="useUploadImage"></x-switch>
+            <x-switch [formField]="form.useUploadImage"></x-switch>
           </div>
           <div class="item switch">
             <label class="label"
-              ><x-icon type="fto-video"></x-icon>
-              <span class="text">{{ '$model.useUploadVideo' | xI18n }}</span></label
+              ><x-icon type="fto-video"></x-icon> <span class="text">{{ '$model.useUploadVideo' | xI18n }}</span></label
             >
-            <x-switch formControlName="useUploadVideo"></x-switch>
+            <x-switch [formField]="form.useUploadVideo"></x-switch>
           </div>
         </div>
         <div class="item">
@@ -67,7 +65,7 @@
               { label: '$model.textToVideo' | xI18n, id: 'textToVideo' },
               { label: '$model.imageToVideo' | xI18n, id: 'imageToVideo' }
             ]"
-            formControlName="tags"
+            [formField]="form.tags"
             multiple
           ></x-select>
         </div>
@@ -79,11 +77,11 @@
             [label]="'$model.requestType' | xI18n"
             [data]="['OpenAI', 'Http']"
             direction="row"
-            formControlName="requestType"
+            [formField]="form.requestType"
             required
           ></x-radio>
         </div>
-        @if (form.get('requestType')?.value === 'OpenAI') {
+        @if (model().requestType === 'OpenAI') {
           <div class="column">
             <x-slider
               [style.marginBottom]="'0.25rem'"
@@ -98,25 +96,21 @@
               <ng-container *ngTemplateOutlet="outputTpl; context: { helpType: 'output' }"></ng-container>
             }
           </div>
-        } @else if (form.get('requestType')?.value === 'Http') {
+        } @else if (model().requestType === 'Http') {
           <div class="item http attrs">
             <x-input-group compact>
               <x-select
                 style="flex: initial; width: 6rem"
                 [data]="['POST', 'GET']"
                 clearable="false"
-                formControlName="method"
+                [formField]="form.method"
               ></x-select>
-              <x-input floatLabel="on" [label]="'$model.url' | xI18n" formControlName="url"></x-input>
+              <x-input floatLabel="on" [label]="'$model.url' | xI18n" [formField]="form.url"></x-input>
             </x-input-group>
             <x-slider
               [style.margin]="'2rem 0 0.25rem 0'"
               size="mini"
-              [data]="[
-                'Headers',
-                form.get('method')?.value === 'POST' ? 'Body' : 'Params',
-                '$model.outputTranslation' | xI18n
-              ]"
+              [data]="['Headers', model().method === 'POST' ? 'Body' : 'Params', '$model.outputTranslation' | xI18n]"
               [(activatedIndex)]="sliderHttp"
             >
             </x-slider>
@@ -131,7 +125,7 @@
                   [options]="{
                     minimap: { enabled: false }
                   }"
-                  formControlName="headersFunction"
+                  [formField]="form.headersFunction"
                 ></app-editor>
                 <ng-template #headersLabelTpl>
                   <div class="editor-label">
@@ -149,7 +143,7 @@
               </div>
             } @else if (sliderHttp() === 1) {
               <div [style.height.rem]="16">
-                @if (form.get('method')?.value === 'POST') {
+                @if (model().method === 'POST') {
                   <app-editor
                     class="editor"
                     [label]="bodyLabelTpl"
@@ -159,7 +153,7 @@
                     [options]="{
                       minimap: { enabled: false }
                     }"
-                    formControlName="bodyFunction"
+                    [formField]="form.bodyFunction"
                   ></app-editor>
                   <ng-template #bodyLabelTpl>
                     <div class="editor-label">
@@ -174,7 +168,7 @@
                       ></x-button>
                     </div>
                   </ng-template>
-                } @else if (form.get('method')?.value === 'GET') {
+                } @else if (model().method === 'GET') {
                   <app-editor
                     class="editor"
                     [label]="paramsLabelTpl"
@@ -184,7 +178,7 @@
                     [options]="{
                       minimap: { enabled: false }
                     }"
-                    formControlName="paramsFunction"
+                    [formField]="form.paramsFunction"
                   ></app-editor>
                   <ng-template #paramsLabelTpl>
                     <div class="editor-label">
@@ -206,25 +200,29 @@
             }
           </div>
 
-          @if (requests.controls.length > 0) {
-            <div class="requests" formArrayName="requests">
-              @for (control of requests.controls; track control) {
-                <div class="item http attrs" [formGroupName]="$index">
+          @if (form.requests().value().length > 0) {
+            <div class="requests">
+              @for (control of form.requests().value(); track control) {
+                <div class="item http attrs">
                   <x-input-group compact>
                     <x-select
                       style="flex: initial; width: 6rem"
                       [data]="['POST', 'GET']"
                       clearable="false"
-                      formControlName="method"
+                      [formField]="form.requests[$index].method"
                     ></x-select>
-                    <x-input floatLabel="on" [label]="'$model.url' | xI18n" formControlName="url"></x-input>
+                    <x-input
+                      floatLabel="on"
+                      [label]="'$model.url' | xI18n"
+                      [formField]="form.requests[$index].url"
+                    ></x-input>
                   </x-input-group>
                   <x-slider
                     [style.margin]="'2rem 0 0.25rem 0'"
                     size="mini"
                     [data]="[
                       'Headers',
-                      control.get('method')?.value === 'POST' ? 'Body' : 'Params',
+                      form.requests[$index].method === 'POST' ? 'Body' : 'Params',
                       '$model.outputTranslation' | xI18n
                     ]"
                     [activatedIndex]="httpTabMap.get($index)"
@@ -242,7 +240,7 @@
                         [options]="{
                           minimap: { enabled: false }
                         }"
-                        formControlName="headersFunction"
+                        [formField]="form.requests[$index].headersFunction"
                       ></app-editor>
                       <ng-template #headersLabelTpl>
                         <div class="editor-label">
@@ -260,7 +258,7 @@
                     </div>
                   } @else if (httpTabMap.get($index) === 1) {
                     <div [style.height.rem]="16">
-                      @if (control.get('method')?.value === 'POST') {
+                      @if (form.requests[$index].method === 'POST') {
                         <app-editor
                           class="editor"
                           [label]="bodyLabelTpl"
@@ -270,7 +268,7 @@
                           [options]="{
                             minimap: { enabled: false }
                           }"
-                          formControlName="bodyFunction"
+                          [formField]="form.requests[$index].bodyFunction"
                         ></app-editor>
                         <ng-template #bodyLabelTpl>
                           <div class="editor-label">
@@ -295,7 +293,7 @@
                           [options]="{
                             minimap: { enabled: false }
                           }"
-                          formControlName="paramsFunction"
+                          [formField]="form.requests[$index].paramsFunction"
                         ></app-editor>
                         <ng-template #paramsLabelTpl>
                           <div class="editor-label">
@@ -323,7 +321,7 @@
                         [options]="{
                           minimap: { enabled: false }
                         }"
-                        formControlName="outputFunction"
+                        [formField]="form.requests[$index].outputFunction"
                       ></app-editor>
                       <ng-template #outputLabelTpl>
                         <div class="editor-label">
@@ -375,7 +373,7 @@
           [options]="{
             minimap: { enabled: false }
           }"
-          formControlName="inputFunction"
+          [formField]="form.inputFunction"
         ></app-editor>
         <ng-template #inputLabelTpl>
           <div class="editor-label">
@@ -404,7 +402,7 @@
           [options]="{
             minimap: { enabled: false }
           }"
-          formControlName="outputFunction"
+          [formField]="form.outputFunction"
         ></app-editor>
         <ng-template #outputLabelTpl>
           <div class="editor-label">
@@ -435,7 +433,7 @@
       type="primary"
       attrType="submit"
       [loading]="saveLoading()"
-      [disabled]="!form.valid"
+      [disabled]="form().invalid()"
       >{{ '$base.save' | xI18n }}</x-button
     >
   </div>

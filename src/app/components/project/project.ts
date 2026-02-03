@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { form, required } from '@angular/forms/signals';
+import { form, FormField, required } from '@angular/forms/signals';
 import {
   X_DIALOG_DATA,
   XButtonComponent,
@@ -29,7 +29,8 @@ import { finalize, forkJoin, Observable, Subject, tap } from 'rxjs';
     XLoadingComponent,
     XPopoverDirective,
     XIconComponent,
-    XI18nPipe
+    XI18nPipe,
+    FormField
   ],
   templateUrl: './project.html',
   styleUrl: './project.scss',
@@ -133,7 +134,8 @@ export class Project {
     this.$destroy.complete();
   }
 
-  save() {
+  save(event: Event) {
+    event.preventDefault();
     let rq!: Observable<number>;
     if (!this.id()) {
       rq = this.service.create(this.form().value());

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
-import { FormBuilder, FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import {
@@ -36,7 +35,6 @@ import {
 @Component({
   selector: 'app-model-switch-box',
   imports: [
-    FormsModule,
     XDialogModule,
     XButtonComponent,
     XIconComponent,
@@ -60,7 +58,6 @@ export class ModelSwitchBoxComponent {
   iconCopy = signal('fto-copy');
 
   input = viewChild.required(XInputComponent);
-  formBuilder = inject(FormBuilder);
   router = inject(Router);
   model = signal({
     title: '',
@@ -170,7 +167,8 @@ export class ModelSwitchBoxComponent {
     this.form.modelId().value.set(model.id!);
   }
 
-  save() {
+  save(event: Event) {
+    event.preventDefault();
     this.saveLoading.set(true);
     this.manufacturerService
       .setActive(this.selectedManufacturer()!.id!)

@@ -1,15 +1,16 @@
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   signal,
   viewChild
 } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { disabled, form, FormField } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   XAttachmentsComponent,
@@ -22,7 +23,6 @@ import {
   XI18nPipe,
   XI18nService,
   XIconComponent,
-  XLinkComponent,
   XMessageBoxAction,
   XMessageBoxService,
   XPopoverDirective,
@@ -56,11 +56,9 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
 @Component({
   selector: 'app-project-home',
   imports: [
-    FormsModule,
     XSenderComponent,
     XButtonComponent,
     XSenderStopComponent,
-    ReactiveFormsModule,
     XBubbleModule,
     XCollapseModule,
     BubblesComponent,
@@ -73,7 +71,8 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
     XScrollableComponent,
     XPopoverDirective,
     FileTreeComponent,
-    DragResizeDirective
+    DragResizeDirective,
+    FormField
   ],
   templateUrl: './project-home.html',
   styleUrl: './project-home.scss',
@@ -92,10 +91,12 @@ export class ProjectHome {
   sendService = inject(AppSendService);
   fileTreeService = inject(FileTreeService);
   projectId = signal<number | null>(null);
-  formBuilder = inject(FormBuilder);
-  formGroup = this.formBuilder.group({
-    content: ['', [Validators.required]],
+  model = signal<{ content: string; files: File[] }>({
+    content: '',
     files: []
+  });
+  formGroup = form(this.model, (schema) => {
+    disabled(schema.content, () => this.loading());
   });
   loading = signal(false);
   data = signal<ChatMessage[]>([]);
@@ -116,7 +117,38 @@ export class ProjectHome {
   private resizeObserver!: XResizeObserver;
   private fileDispose?: () => void;
 
-  constructor() {}
+  constructor() {
+    effect(async () => {
+      const files = this.formGroup.files().value();
+      if (!files || files.length === 0) {
+        this.file.set(null);
+        return;
+      }
+
+      const file = files[0];
+
+      const fileData = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader!.result as string).split(',')[1]); // 去掉data:*/*;base64,前缀
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const bucketName = 'ng-nest-ai';
+      const objectName = `${crypto.randomUUID()}/${file.name}`;
+
+      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData as string, file.type);
+
+      if (result) {
+        this.file.set({
+          name: file.name,
+          url: `https://cos.ngnest.com/${bucketName}/${objectName}`,
+          size: file.size,
+          type: file.type
+        });
+      }
+    });
+  }
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(({ projectId, sessionId }) => {
       if (Number(projectId) !== this.projectId()) {
@@ -134,35 +166,6 @@ export class ProjectHome {
       console.log(id);
       if (id === this.projectId()) {
         this.getData();
-      }
-    });
-    this.formGroup.controls.files.valueChanges.subscribe(async (files: any) => {
-      if (!files) {
-        this.file.set(null);
-        return;
-      }
-
-      const file = files[0];
-
-      const fileData = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader!.result as string).split(',')[1]); // 去掉data:*/*;base64,前缀
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      const bucketName = 'ng-nest-ai';
-      const objectName = `${crypto.randomUUID()}/${file.name}`;
-
-      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData, file.type);
-
-      if (result) {
-        this.file.set({
-          name: file.name,
-          url: `https://cos.ngnest.com/${bucketName}/${objectName}`,
-          size: file.size,
-          type: file.type
-        });
       }
     });
     XResize(this.formElementRef().nativeElement)
@@ -188,7 +191,7 @@ export class ProjectHome {
   async unwatch() {
     this.fileDispose && this.fileDispose();
     if (this.projectDetail()?.workspace) {
-      await window.electronAPI.fileSystem.unwatch(this.projectDetail()?.workspace);
+      await window.electronAPI.fileSystem.unwatch(this.projectDetail()?.workspace!);
     }
   }
 
@@ -217,7 +220,7 @@ export class ProjectHome {
   }
 
   onSubmit() {
-    const { content } = this.formGroup.getRawValue();
+    const content = this.formGroup.content().value();
     if (!content) return;
     this.loading.set(true);
 
@@ -232,15 +235,13 @@ export class ProjectHome {
       params.video = this.file()?.url;
     }
 
-    this.formGroup.patchValue({ content: '' });
-    this.formGroup.disable();
+    this.formGroup.content().value.set('');
 
     this.sendSubscription = this.sendService
       .send(params)
       .pipe(
         finalize(() => {
           this.loading.set(false);
-          this.formGroup.enable();
         })
       )
       .subscribe((x: any) => {
@@ -257,7 +258,6 @@ export class ProjectHome {
   onStop() {
     this.sendSubscription?.unsubscribe();
     this.cancel && this.cancel();
-    this.formGroup.enable();
     this.loading.set(false);
     if (this.typing()) {
       this.data.update((items) => {

@@ -22,19 +22,12 @@
       </ul>
     </div>
     <div class="right">
-      @if (selectedMenuId() === 'manufacturer') {
-        <app-manufacturer-list></app-manufacturer-list>
-      } @else if (selectedMenuId() === 'model') {
-        <app-model-list></app-model-list>
-      } @else if (selectedMenuId() === 'theme') {
-        <app-theme></app-theme>
-      } @else if (selectedMenuId() === 'prompt') {
-        <app-prompt-list></app-prompt-list>
-      } @else if (selectedMenuId() === 'skill') {
-        <app-skill-list></app-skill-list>
-      } @else if (selectedMenuId() === 'general') {
-        <app-general></app-general>
-      }
+      <app-manufacturer-list [style.display]="selectedMenuId() === 'manufacturer' ? 'block' : 'none'"></app-manufacturer-list>
+      <app-model-list [style.display]="selectedMenuId() === 'model' ? 'block' : 'none'"></app-model-list>
+      <app-theme [style.display]="selectedMenuId() === 'theme' ? 'block' : 'none'"></app-theme>
+      <app-prompt-list [style.display]="selectedMenuId() === 'prompt' ? 'block' : 'none'"></app-prompt-list>
+      <app-skill-list [style.display]="selectedMenuId() === 'skill' ? 'block' : 'none'"></app-skill-list>
+      <app-general [style.display]="selectedMenuId() === 'general' ? 'block' : 'none'"></app-general>
     </div>
   </div>
 </form>

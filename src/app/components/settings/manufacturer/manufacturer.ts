@@ -54,7 +54,6 @@ export class ManufacturerComponent {
     required(schema.name);
     required(schema.apiKey);
     required(schema.baseURL);
-    required(schema.isActive);
   });
 
   $destroy = new Subject<void>();
@@ -87,7 +86,8 @@ export class ManufacturerComponent {
     this.$destroy.complete();
   }
 
-  save() {
+  save(event: Event) {
+    event.preventDefault();
     let rq!: Observable<number>;
     if (!this.id()) {
       rq = this.service.create(this.form().value());

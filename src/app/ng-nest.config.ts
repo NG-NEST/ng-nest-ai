@@ -24,8 +24,8 @@ export const NgNestConfig: XConfig = {
   theme: {
     colors: { primary: '#4096ff' },
     vars: {
-      borderRadius: '0.5rem',
-      borderSmallRadius: '0.25rem'
+      borderRadius: '0.25rem',
+      borderSmallRadius: '0.125rem'
     }
   }
 };

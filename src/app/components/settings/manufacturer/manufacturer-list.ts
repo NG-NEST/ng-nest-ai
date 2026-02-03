@@ -36,6 +36,7 @@ export class ManufacturerList {
   addManufacturer() {
     this.dialogService.create(ManufacturerComponent, {
       width: '30rem',
+      maxHeight: 'calc(100vh - 5rem)',
       data: {
         saveSuccess: () => this.getData()
       }
@@ -45,6 +46,7 @@ export class ManufacturerList {
   updateManufacturer(item: Manufacturer) {
     this.dialogService.create(ManufacturerComponent, {
       width: '30rem',
+      maxHeight: 'calc(100vh - 5rem)',
       data: {
         saveSuccess: () => this.getData(),
         id: item.id
