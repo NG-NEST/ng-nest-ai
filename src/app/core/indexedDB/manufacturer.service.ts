@@ -31,8 +31,15 @@ export class ManufacturerService {
           await this.db.manufacturers.filter((x) => x.isActive === true).modify({ isActive: false });
         }
 
+        // 加密 API Key
+        let apiKey = config.apiKey;
+        if (apiKey && window.electronAPI && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
+          apiKey = await window.electronAPI.safeStorage.encryptString(apiKey);
+        }
+
         const result = await this.db.manufacturers.add({
           ...config,
+          apiKey,
           createdAt: now,
           updatedAt: now
         });
@@ -85,6 +92,11 @@ export class ManufacturerService {
 
         if (updates.isActive) {
           await this.db.manufacturers.filter((x) => x.isActive === true).modify({ isActive: false });
+        }
+
+        // 加密 API Key
+        if (updates.apiKey && window.electronAPI && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
+          updates.apiKey = await window.electronAPI.safeStorage.encryptString(updates.apiKey);
         }
 
         const result = await this.db.manufacturers.update(id, {

@@ -691,6 +691,7 @@ x-scrollable {
   }
   .app-dialog-form .close {
     right: 0;
+    z-index: 1000;
   }
   .x-dialog-portal-actions {
     margin: 0;

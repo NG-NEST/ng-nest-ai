@@ -52,6 +52,11 @@ declare global {
         copy(source: string, destination: string): Promise<void>;
         showInExplorer(filePath: string): Promise<void>;
       };
+      safeStorage: {
+        isEncryptionAvailable(): Promise<boolean>;
+        encryptString(plainText: string): Promise<string>;
+        decryptString(encryptedBase64: string): Promise<string>;
+      };
     };
   }
 }

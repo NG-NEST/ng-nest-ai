@@ -49,7 +49,7 @@ export class AppLocaleService {
       const { $title } = x;
       this.title.setTitle($title);
     });
-    
+
     // Initialize default language from system locale
     this.initializeDefaultLanguage();
   }
@@ -58,7 +58,7 @@ export class AppLocaleService {
     try {
       // Get system locale from Electron
       const systemLocale = await window.electronAPI.windowControls.getSystemLocale();
-      console.log(systemLocale)
+
       const mappedLang = this.mapSystemLocaleToSupportedLanguage(systemLocale);
       this.defaultLang.set(mappedLang);
     } catch (error) {
@@ -73,18 +73,18 @@ export class AppLocaleService {
       'zh-CN': 'zh_CN',
       'zh-TW': 'zh_TW',
       'zh-HK': 'zh_TW', // Use Traditional Chinese for Hong Kong
-      'en': 'en_US',
+      en: 'en_US',
       'en-US': 'en_US',
       'en-GB': 'en_US', // Use US English for British English
-      'de': 'de_DE',
+      de: 'de_DE',
       'de-DE': 'de_DE',
-      'ru': 'ru_RU',
+      ru: 'ru_RU',
       'ru-RU': 'ru_RU',
-      'ko': 'ko_KR',
+      ko: 'ko_KR',
       'ko-KR': 'ko_KR',
-      'ja': 'ja_JP',
+      ja: 'ja_JP',
       'ja-JP': 'ja_JP',
-      'fr': 'fr_FR',
+      fr: 'fr_FR',
       'fr-FR': 'fr_FR'
     };
 

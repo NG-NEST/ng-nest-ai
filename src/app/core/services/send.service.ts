@@ -38,7 +38,16 @@ export class AppSendService {
       this.activeModel.set(model!);
     });
 
-    const { baseURL, apiKey } = manufacturer;
+    let { baseURL, apiKey } = manufacturer;
+
+    // 解密 API Key
+    if (apiKey && window.electronAPI && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
+      try {
+        apiKey = await window.electronAPI.safeStorage.decryptString(apiKey);
+      } catch (error) {
+        console.error('Failed to decrypt API Key:', error);
+      }
+    }
 
     // 初始化 OpenAI
     await window.electronAPI.openAI.initialize({ baseURL, apiKey });

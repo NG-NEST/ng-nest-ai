@@ -7,6 +7,7 @@ import { OpenAIService } from './ipc/services/openai.service';
 import { HttpService } from './ipc/services/http.service';
 import { MinioService } from './ipc/services/minio.service';
 import { FileSystemService } from './ipc/services/file-system.service';
+import { SafeStorageService } from './ipc/services/safe-storage.service';
 
 const envPath = app.isPackaged ? path.join(process.resourcesPath, '.env') : path.join(__dirname, '../../.env');
 
@@ -18,6 +19,7 @@ let openaiService: OpenAIService | null = null;
 let httpService: HttpService | null = null;
 let minioService: MinioService | null = null;
 let fileSystemService: FileSystemService | null = null;
+let safeStorageService: SafeStorageService | null = null;
 
 const createBrowserWindow = () => {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -44,6 +46,7 @@ const createBrowserWindow = () => {
   httpService = new HttpService();
   minioService = new MinioService();
   fileSystemService = new FileSystemService();
+  safeStorageService = new SafeStorageService();
 
   // 判断是否是开发模式
   const isDev = process.env['NODE_ENV'] === 'development';
@@ -56,6 +59,34 @@ const createBrowserWindow = () => {
       });
 
   win.loadURL(appPath);
+
+  // 安全：处理新窗口创建请求
+  win.webContents.setWindowOpenHandler((details) => {
+    const { url } = details;
+    if (url.startsWith('https://') || url.startsWith('http://')) {
+      require('electron').shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
+
+  // 安全：处理导航请求
+  win.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('https://') || url.startsWith('http://')) {
+      event.preventDefault();
+      require('electron').shell.openExternal(url);
+    }
+  });
+
+  // 安全：权限请求处理
+  win.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    const allowedPermissions = ['clipboard-read', 'media']; // 根据需要调整
+    if (allowedPermissions.includes(permission)) {
+      callback(true);
+    } else {
+      console.warn(`Blocked permission request: ${permission}`);
+      callback(false);
+    }
+  });
 
   win.on('closed', async () => {
     // 销毁服务以清理资源
@@ -78,6 +109,10 @@ const createBrowserWindow = () => {
     if (fileSystemService) {
       fileSystemService.destroy();
       fileSystemService = null;
+    }
+    if (safeStorageService) {
+      safeStorageService.destroy();
+      safeStorageService = null;
     }
     win = null;
   });

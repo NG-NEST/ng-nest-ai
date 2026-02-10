@@ -31,8 +31,11 @@ export class Theme {
     pattern(schema.theme.primary, /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/);
   });
 
+  init = true;
+
   constructor() {
     effect(() => {
+      if (this.init) return;
       const primary = this.formGroup.theme.primary().value();
       const { success, warning, danger, info, background, border, text } = this.formGroup.theme().value();
       !this.setDarking() &&
@@ -48,6 +51,7 @@ export class Theme {
         });
     });
     effect(() => {
+      if (this.init) return;
       const dark = this.formGroup.dark().value();
       this.setDarking.set(true);
       let colors = this.theme.setDark(dark!);
@@ -80,5 +84,7 @@ export class Theme {
       border: colors.border!,
       text: colors.text!
     });
+
+    this.init = false;
   }
 }

@@ -16,7 +16,6 @@ interface WindowControls {
   previewHtml: (html: string) => Promise<void>;
   selectDirectory: () => Promise<string>;
   openExternal: (url: string) => Promise<void>;
-  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number) => Promise<any>;
 }
 const windowControls: WindowControls = {
   isMaximized: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isMaximized'),
@@ -30,9 +29,7 @@ const windowControls: WindowControls = {
   reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
   previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html),
   selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory'),
-  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('ipc:window:openExternal', url),
-  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number): Promise<any> =>
-    ipcRenderer.invoke('ipc:window:executeJavaScript', code, context, timeout)
+  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('ipc:window:openExternal', url)
 };
 
 // openai
@@ -48,6 +45,14 @@ interface OpenAI {
   // 注册 IndexedDB 查询处理器
   registerIndexedDBHandler: (handler: (args: any) => Promise<any>) => void;
 }
+
+// safeStorage
+interface SafeStorage {
+  isEncryptionAvailable: () => Promise<boolean>;
+  encryptString: (plainText: string) => Promise<string>;
+  decryptString: (encryptedBase64: string) => Promise<string>;
+}
+
 const openAI: OpenAI = {
   initialize: (param: { apiKey: string; baseURL: string }) => ipcRenderer.invoke('ipc:openai:initialize', param),
   loadSkills: (skills: any[]) => ipcRenderer.invoke('ipc:openai:loadSkills', skills),
@@ -185,12 +190,19 @@ const fileSystem: FileSystem = {
   showInExplorer: (filePath: string) => ipcRenderer.invoke('ipc:fs:show-in-explorer', filePath)
 };
 
+const safeStorage: SafeStorage = {
+  isEncryptionAvailable: () => ipcRenderer.invoke('ipc:safeStorage:isEncryptionAvailable'),
+  encryptString: (plainText: string) => ipcRenderer.invoke('ipc:safeStorage:encryptString', plainText),
+  decryptString: (encryptedBase64: string) => ipcRenderer.invoke('ipc:safeStorage:decryptString', encryptedBase64)
+};
+
 interface IElectronAPI {
   windowControls: WindowControls;
   openAI: OpenAI;
   http: Http;
   minio: Minio;
   fileSystem: FileSystem;
+  safeStorage: SafeStorage;
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -198,5 +210,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openAI,
   http,
   minio,
-  fileSystem
+  fileSystem,
+  safeStorage
 } as IElectronAPI);

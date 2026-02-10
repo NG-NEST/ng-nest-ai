@@ -6,7 +6,9 @@ import { skill } from './file-operations.skill';
 async function testFileOperations() {
   console.log('Testing file operations skill...');
   
-  const testDirectory = 'd:\\03.local\\ngversion\\ng22\\electron\\skills\\builtin';
+  // Use current directory for testing instead of hardcoded path
+  const testDirectory = __dirname;
+  console.log(`Test directory: ${testDirectory}`);
   
   try {
     // Test 1: Basic directory listing
@@ -61,6 +63,23 @@ async function testFileOperations() {
       result3.items.forEach((item: any) => {
         console.log(`- ${item.name}/`);
       });
+    }
+
+    // Test 4: Security Check (Access denied)
+    console.log('\n=== Test 4: Security Check (Access denied) ===');
+    const parentDir = '..'; // Try to access parent directory
+    const result4 = await skill.execute({
+      directory: parentDir,
+      operation: 'list'
+    }, {
+      workspace: testDirectory // Set workspace context to restrict access
+    });
+
+    if (result4.error) {
+      console.log('✅ Security check passed: Access denied as expected.');
+      console.log('Error message:', result4.error);
+    } else {
+      console.error('❌ Security check FAILED: Should have denied access to parent directory!');
     }
     
     console.log('\n✅ File operations test completed successfully!');

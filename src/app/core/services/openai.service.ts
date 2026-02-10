@@ -27,6 +27,7 @@ export interface ChatSendParams {
   content: string;
   data?: ChatMessage[];
   projectId?: number | null;
+  workspace?: string;
   prompt?: Prompt;
   image?: string;
   video?: string;
@@ -87,7 +88,7 @@ export class AppOpenAIService {
 
   send(params: ChatSendParams) {
     return new Observable((sub) => {
-      let { content, data, projectId, prompt, manufacturer, model, image, video } = params;
+      let { content, data, projectId, workspace, prompt, manufacturer, model, image, video } = params;
       if (!content || !manufacturer || !model) return;
       data = data ?? [];
       projectId = projectId ?? null;
@@ -205,15 +206,15 @@ export class AppOpenAIService {
       let aiReasoningContent = '';
       let completed = false;
 
-      const vars = { apiKey, code: modelCode, content };
-      const inputParam = { model: modelCode!, messages };
+      const vars = { apiKey, code: modelCode, content, workspace };
+      const inputParam = { model: modelCode!, messages, workspace };
 
       try {
         if (!inputFunction || inputFunction?.trim() === '') {
           inputPromise = Promise.resolve(inputParam);
         } else {
           inputPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(inputFunction!, vars), {
-            input: { model: modelCode!, messages }
+            input: { model: modelCode!, messages, workspace }
           }) as Promise<any>;
         }
         inputPromise.then((input) => {

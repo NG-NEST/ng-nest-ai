@@ -22,12 +22,26 @@
       </ul>
     </div>
     <div class="right">
-      <app-manufacturer-list [style.display]="selectedMenuId() === 'manufacturer' ? 'block' : 'none'"></app-manufacturer-list>
-      <app-model-list [style.display]="selectedMenuId() === 'model' ? 'block' : 'none'"></app-model-list>
-      <app-theme [style.display]="selectedMenuId() === 'theme' ? 'block' : 'none'"></app-theme>
-      <app-prompt-list [style.display]="selectedMenuId() === 'prompt' ? 'block' : 'none'"></app-prompt-list>
-      <app-skill-list [style.display]="selectedMenuId() === 'skill' ? 'block' : 'none'"></app-skill-list>
-      <app-general [style.display]="selectedMenuId() === 'general' ? 'block' : 'none'"></app-general>
+      @switch (selectedMenuId()) {
+        @case ('manufacturer') {
+          <app-manufacturer-list></app-manufacturer-list>
+        }
+        @case ('model') {
+          <app-model-list></app-model-list>
+        }
+        @case ('prompt') {
+          <app-prompt-list></app-prompt-list>
+        }
+        @case ('skill') {
+          <app-skill-list></app-skill-list>
+        }
+        @case ('theme') {
+          <app-theme></app-theme>
+        }
+        @case ('general') {
+          <app-general></app-general>
+        }
+      }
     </div>
   </div>
 </form>

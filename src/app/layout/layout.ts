@@ -80,7 +80,6 @@ export class Layout {
 
   async switchDevTools() {
     this.config.showDevTools.update((x) => !x);
-    console.log(this.config.showDevTools());
     await window.electronAPI.windowControls.switchDevTools(this.config.showDevTools());
   }
 
@@ -114,8 +113,7 @@ export class Layout {
   settings() {
     this.dialogService.create(Settings, {
       className: 'app-no-padding-dialog',
-      width: '40rem',
-      maxHeight: 'calc(100% - 5rem)'
+      width: '45rem'
     });
   }
 

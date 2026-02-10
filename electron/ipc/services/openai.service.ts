@@ -2,7 +2,12 @@
 import { ipcMain, IpcMainInvokeEvent, net } from 'electron';
 import OpenAI from 'openai';
 import { Stream } from 'openai/core/streaming';
-import { loadBuiltinSkills, getBuiltinSkillNames, SkillDefinition, SkillContext } from '../../skills/builtin';
+import { loadBuiltinSkills, SkillDefinition, SkillContext } from '../../skills/builtin';
+import { MarkdownSkillLoader } from '../../skills/markdown/loader';
+import { executeSandboxedJavaScript } from '../../skills/vm-executor';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as chokidar from 'chokidar';
 
 interface SkillFromDB {
   id?: number;
@@ -38,7 +43,7 @@ function electronFetch(input: string | URL | Request, options?: RequestInit): Pr
     const request = net.request({ method, url });
 
     // 设置请求头
-    if (headers) {
+    if (headers && typeof headers !== 'string') {
       headers.forEach((value, key) => {
         request.setHeader(key, value);
       });
@@ -92,6 +97,10 @@ export class OpenAIService {
   private openaiInstances: Map<string, OpenAI> = new Map(); // 使用 Map 存储多个实例，以 baseURL 作为键
   private activeStreams: Map<string, { cancel: boolean; abortController: AbortController }> = new Map();
   private skills: { [key: string]: SkillDefinition } = {};
+  private builtinSkillsCache: Map<string, SkillDefinition> = new Map();
+  private customMarkdownSkillsCache: Map<string, SkillDefinition> = new Map();
+  private dbSkillNamesCache: Set<string> = new Set();
+  private dbSkillDisplayName: Map<string, string> = new Map();
   private tools: any[] = [];
   private mainWindow: Electron.BrowserWindow | null = null;
   private skillContext: SkillContext = {};
@@ -121,18 +130,114 @@ export class OpenAIService {
 
   private async initBuiltinSkills() {
     try {
+      // 1. 加载 TypeScript 内置技能
       const builtinSkills = await loadBuiltinSkills();
-
-      // 加载内置技能
       for (const skill of builtinSkills) {
         this.skills[skill.name] = skill;
+        this.builtinSkillsCache.set(skill.name, skill);
+      }
+
+      // 2. 加载 Markdown 自定义技能 (OpenClaw style)
+      // 尝试在几个可能的位置查找
+      const possibleDirs = [
+        path.join(process.cwd(), 'electron/skills/custom'), // 开发环境/根目录
+        path.join(__dirname, '../../skills/custom'),        // 相对路径
+        path.join(process.resourcesPath, 'skills/custom')   // 打包后的资源路径
+      ];
+
+      let customSkillsDir = '';
+      for (const dir of possibleDirs) {
+        if (fs.existsSync(dir)) {
+          customSkillsDir = dir;
+          console.log(`Loading custom skills from: ${dir}`);
+          this.loadCustomSkills(dir);
+          break; 
+        }
+      }
+
+      // 3. 启动热重载监听
+      if (customSkillsDir) {
+        this.watchCustomSkills(customSkillsDir);
       }
 
       this.updateTools();
-      console.log(`Initialized ${builtinSkills.length} builtin skills`);
+      console.log(`Initialized skills. Total: ${Object.keys(this.skills).length}`);
     } catch (error) {
-      console.error('Failed to initialize builtin skills:', error);
+      console.error('Failed to initialize skills:', error);
     }
+  }
+
+  private loadCustomSkills(dir: string) {
+    const customSkills = MarkdownSkillLoader.loadSkillsFromDir(dir);
+    let loadedCount = 0;
+    this.customMarkdownSkillsCache.clear();
+    for (const skill of customSkills) {
+      this.customMarkdownSkillsCache.set(skill.name, skill);
+      // 避免覆盖已有的内置技能
+      if (!this.builtinSkillsCache.has(skill.name) && !this.dbSkillNamesCache.has(skill.name)) {
+        this.skills[skill.name] = skill;
+        loadedCount++;
+      }
+    }
+    if (loadedCount > 0) {
+      console.log(`Loaded ${loadedCount} custom markdown skills from ${dir}`);
+    }
+  }
+
+  private watchCustomSkills(dir: string) {
+    console.log(`Starting hot-reload watcher for skills in: ${dir}`);
+    const watcher = chokidar.watch(path.join(dir, '*.md'), {
+      ignoreInitial: true,
+      depth: 0
+    });
+
+    const reloadSkill = (filePath: string) => {
+      console.log(`Skill file changed: ${filePath}`);
+      const skill = MarkdownSkillLoader.loadSkill(filePath);
+      if (skill) {
+        // 如果不是内置技能，则更新
+        this.customMarkdownSkillsCache.set(skill.name, skill);
+        if (!this.builtinSkillsCache.has(skill.name) && !this.dbSkillNamesCache.has(skill.name)) {
+          this.skills[skill.name] = skill;
+          this.updateTools();
+          console.log(`Hot-reloaded skill: ${skill.name}`);
+          
+          // 通知前端（可选，如果需要实时更新 UI）
+          if (this.mainWindow) {
+            this.mainWindow.webContents.send('ipc:skills:updated', { 
+              name: skill.name, 
+              action: 'update' 
+            });
+          }
+        } else {
+          console.warn(`Skipping reload for builtin skill conflict: ${skill.name}`);
+        }
+      }
+    };
+
+    const removeSkill = (filePath: string) => {
+      // 由于我们不知道文件名对应的 skill name，这里比较麻烦
+      // 简单的做法是重新加载整个目录，或者在加载时建立 file -> skill name 的映射
+      // 为了简单起见，这里重新加载所有自定义技能
+      console.log(`Skill file removed: ${filePath}`);
+      const customNames = Array.from(this.customMarkdownSkillsCache.keys());
+      customNames.forEach((name) => {
+        if (!this.dbSkillNamesCache.has(name)) {
+          delete this.skills[name];
+        }
+      });
+      // 重新加载
+      this.loadCustomSkills(dir);
+      this.updateTools();
+    };
+
+    watcher
+      .on('add', reloadSkill)
+      .on('change', reloadSkill)
+      .on('unlink', removeSkill);
+      
+    // 在服务销毁时应该关闭 watcher，但这里没有显式的 destroy 生命周期钩子用于 watcher
+    // 可以将其添加到类属性中以便管理，但对于单例服务来说，保持运行也是可以接受的
   }
 
   private getOrCreateOpenAIInstance(apiKey: string, baseURL?: string): OpenAI {
@@ -225,8 +330,8 @@ export class OpenAIService {
 
   // 从数据库加载 skills
   async loadSkillsFromDB(dbSkills: SkillFromDB[]) {
-    // 获取内置技能名称列表
-    const builtinSkillNames = await getBuiltinSkillNames();
+    // 获取内置技能名称列表 (从缓存获取)
+    const builtinSkillNames = Array.from(this.builtinSkillsCache.keys());
 
     // 清除之前从数据库加载的 skills（保留内置 skills）
     Object.keys(this.skills).forEach((key) => {
@@ -236,8 +341,14 @@ export class OpenAIService {
     });
 
     // 加载新的 skills
+    this.dbSkillNamesCache = new Set();
+    this.dbSkillDisplayName.clear();
     for (const dbSkill of dbSkills) {
       if (dbSkill.status !== 'active') continue;
+      this.dbSkillNamesCache.add(dbSkill.name);
+      if (dbSkill.displayName) {
+        this.dbSkillDisplayName.set(dbSkill.name, dbSkill.displayName);
+      }
 
       let parameters = dbSkill.schema.parameters;
 
@@ -251,14 +362,33 @@ export class OpenAIService {
         }
       }
 
+      // 确定执行函数
+      let executeFunc: (args: any, context?: SkillContext) => Promise<any>;
+
+      // 如果是内置技能，优先使用本地缓存的执行逻辑
+      if (dbSkill.runtime.type === 'builtin' && this.builtinSkillsCache.has(dbSkill.name)) {
+        const cachedSkill = this.builtinSkillsCache.get(dbSkill.name)!;
+        executeFunc = cachedSkill.execute;
+        console.log(`Using native execution logic for builtin skill: ${dbSkill.name}`);
+      } else {
+        executeFunc = this.createExecuteFunction(dbSkill);
+      }
+
       const skill: SkillDefinition = {
         name: dbSkill.name,
+        displayName: dbSkill.displayName,
         description: dbSkill.description,
         parameters: parameters,
-        execute: this.createExecuteFunction(dbSkill)
+        execute: executeFunc
       };
 
       this.skills[skill.name] = skill;
+    }
+
+    for (const [name, skill] of this.customMarkdownSkillsCache.entries()) {
+      if (!this.builtinSkillsCache.has(name) && !this.dbSkillNamesCache.has(name)) {
+        this.skills[name] = skill;
+      }
     }
 
     this.updateTools();
@@ -266,7 +396,7 @@ export class OpenAIService {
 
   // 创建执行函数
   private createExecuteFunction(dbSkill: SkillFromDB): (args: any) => Promise<any> {
-    return async (args: any) => {
+    return async (args: any, context?: SkillContext) => {
       try {
         if (dbSkill.runtime.type === 'javascript' && dbSkill.runtime.code) {
           // 执行用户定义的 JavaScript 代码
@@ -296,99 +426,8 @@ export class OpenAIService {
 
   // 执行 JavaScript 代码
   private async executeJavaScript(code: string, args: any): Promise<any> {
-    try {
-      // 使用 vm 模块创建安全的沙箱环境
-      const vm = require('vm');
-      const https = require('https');
-      const http = require('http');
-
-      // 简单的 fetch 实现
-      const simpleFetch = (url: string, options: any = {}) => {
-        return new Promise((resolve, reject) => {
-          const urlObj = new URL(url);
-          const protocol = urlObj.protocol === 'https:' ? https : http;
-
-          const requestOptions = {
-            hostname: urlObj.hostname,
-            port: urlObj.port,
-            path: urlObj.pathname + urlObj.search,
-            method: options.method || 'GET',
-            headers: options.headers || {}
-          };
-
-          const req = protocol.request(requestOptions, (res: any) => {
-            let data = '';
-            res.on('data', (chunk: any) => (data += chunk));
-            res.on('end', () => {
-              try {
-                resolve({
-                  ok: res.statusCode >= 200 && res.statusCode < 300,
-                  status: res.statusCode,
-                  json: async () => JSON.parse(data),
-                  text: async () => data
-                });
-              } catch (error) {
-                reject(error);
-              }
-            });
-          });
-
-          req.on('error', reject);
-
-          if (options.body) {
-            req.write(typeof options.body === 'string' ? options.body : JSON.stringify(options.body));
-          }
-
-          req.end();
-        });
-      };
-
-      // 创建上下文，提供必要的全局对象
-      const context = {
-        args,
-        console: {
-          log: (...args: any[]) => console.log('[Skill]', ...args),
-          error: (...args: any[]) => console.error('[Skill]', ...args),
-          warn: (...args: any[]) => console.warn('[Skill]', ...args)
-        },
-        // 提供一些常用的全局函数
-        JSON,
-        Date,
-        Math,
-        setTimeout,
-        setInterval,
-        clearTimeout,
-        clearInterval,
-        Promise,
-        // 提供 fetch 用于 HTTP 请求
-        fetch: simpleFetch
-      };
-
-      vm.createContext(context);
-
-      // 包装代码，确保返回结果
-      const wrappedCode = `
-        (async () => {
-          const execute = ${code};
-          if (typeof execute === 'function') {
-            return await execute(args);
-          } else {
-            return execute;
-          }
-        })();
-      `;
-
-      // 执行代码
-      const result = await vm.runInContext(wrappedCode, context, {
-        timeout: 30000, // 30秒超时
-        displayErrors: true
-      });
-
-      return result;
-    } catch (error) {
-      console.error('JavaScript execution error:', error);
-      throw error;
-    }
+    // 使用统一的沙箱执行器
+    return await executeSandboxedJavaScript(code, args);
   }
 
   // 执行 HTTP 调用
@@ -545,6 +584,62 @@ export class OpenAIService {
     }
   }
 
+  // 格式化结果为 Markdown
+  private formatResultToMarkdown(result: any): string {
+    if (result === null || result === undefined) {
+      return 'null';
+    }
+
+    if (typeof result === 'string') {
+      return result;
+    }
+
+    if (Array.isArray(result)) {
+      if (result.length === 0) {
+        return '[](Empty List)';
+      }
+
+      // 检查是否为对象数组（且不包含 null 或数组）
+      const isArrayOfObjects = result.every((item) => typeof item === 'object' && item !== null && !Array.isArray(item));
+
+      if (isArrayOfObjects) {
+        // 收集所有对象的键，以处理可选字段
+        const allKeys = new Set<string>();
+        result.forEach((item) => Object.keys(item).forEach((k) => allKeys.add(k)));
+        const keys = Array.from(allKeys);
+
+        if (keys.length > 0) {
+          // 构建 Markdown 表格
+          const header = `| ${keys.join(' | ')} |`;
+          const separator = `| ${keys.map(() => '---').join(' | ')} |`;
+          const rows = result.map((item) => {
+            return `| ${keys
+              .map((key) => {
+                const val = (item as any)[key];
+                if (val === undefined || val === null) return '';
+                if (typeof val === 'object') return JSON.stringify(val);
+                // 转义换行符和管道符，防止破坏表格格式
+                return String(val).replace(/\n/g, '<br>').replace(/\|/g, '\\|');
+              })
+              .join(' | ')} |`;
+          });
+
+          return `\n${header}\n${separator}\n${rows.join('\n')}\n`;
+        }
+      }
+
+      // 简单数组或混合类型
+      return result.map((item) => `- ${typeof item === 'object' ? JSON.stringify(item) : String(item)}`).join('\n');
+    }
+
+    // 默认对象格式化
+    try {
+      return JSON.stringify(result, null, 2);
+    } catch {
+      return String(result);
+    }
+  }
+
   private registerIpcHandlers() {
     // 加载 skills
     ipcMain.handle('ipc:openai:loadSkills', async (_event, skills: SkillFromDB[]) => {
@@ -588,7 +683,7 @@ export class OpenAIService {
     // 注册流式聊天完成处理程序
     ipcMain.handle(
       'ipc:openai:chatCompletionStream',
-      async (event: IpcMainInvokeEvent, { model, messages, streamId, ...options }) => {
+      async (event: IpcMainInvokeEvent, { model, messages, streamId, workspace, ...options }) => {
         const abortController = new AbortController();
         const streamControl = { cancel: false, abortController };
         this.activeStreams.set(streamId, streamControl);
@@ -600,6 +695,15 @@ export class OpenAIService {
 
         try {
           let currentMessages = [...messages];
+          
+          // 如果提供了工作区路径，将其作为系统消息添加到对话中
+          if (workspace) {
+            currentMessages.unshift({
+              role: 'system',
+              content: `Current working directory (cwd): ${workspace}. When performing file operations, assume this is the root context.`
+            });
+          }
+
           const maxIterations = 10; // 最大函数调用次数，防止无限循环
           let iteration = 0;
 
@@ -710,8 +814,9 @@ export class OpenAIService {
                   }
                 }
 
-                // 发送"正在执行技能"的提示到前端
-                let skillDisplayName = `正在执行技能: ${toolCallData.name}`;
+                const skill = this.skills[toolCallData.name];
+                const displayName = skill?.displayName || this.dbSkillDisplayName.get(toolCallData.name) || toolCallData.name;
+                let skillDisplayName = `正在执行技能: ${displayName}`;
 
                 // 特殊处理 query_indexeddb
                 if (toolCallData.name === 'query_indexeddb') {
@@ -724,12 +829,22 @@ export class OpenAIService {
                   }
                 }
 
+                const argsText = (() => {
+                  try {
+                    return JSON.stringify(args ?? {}, null, 2);
+                  } catch {
+                    return String(args);
+                  }
+                })();
+                const argsSection = `\n<details><summary>参数</summary>\n\n\`\`\`json\n${argsText}\n\`\`\`\n\n</details>\n`;
                 event.sender.send('ipc:openai:chatCompletionStream:stream', {
                   streamId,
                   data: {
                     choices: [
                       {
-                        delta: { content: `\n\n🔧 ${skillDisplayName}...\n\n` },
+                        delta: {
+                          content: `\n\n🔧 ${skillDisplayName}...\n${argsSection}\n`
+                        },
                         index: 0,
                         finish_reason: null
                       }
@@ -737,8 +852,8 @@ export class OpenAIService {
                   }
                 });
 
-                const skill = this.skills[toolCallData.name];
-                const result = await skill.execute(args, this.skillContext);
+                const requestContext = { ...this.skillContext, workspace };
+                const result = await skill.execute(args, requestContext);
 
                 // 发送执行完成的提示
                 let resultPreview = '';
@@ -762,12 +877,14 @@ export class OpenAIService {
                   resultPreview = Array.isArray(result) ? `(${result.length} 条记录)` : '(完成)';
                 }
 
+                const resultText = this.formatResultToMarkdown(result);
+                const resultSection = `\n<details><summary>返回值</summary>\n\n\`\`\`json\n${resultText}\n\`\`\`\n\n</details>\n`;
                 event.sender.send('ipc:openai:chatCompletionStream:stream', {
                   streamId,
                   data: {
                     choices: [
                       {
-                        delta: { content: `✅ 执行完成 ${resultPreview}\n\n` },
+                        delta: { content: `✅ 执行完成 ${resultPreview}\n${resultSection}\n` },
                         index: 0,
                         finish_reason: null
                       }

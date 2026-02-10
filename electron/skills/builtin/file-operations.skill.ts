@@ -1,7 +1,7 @@
 // electron/skills/builtin/file-operations.skill.ts
 import { SkillDefinition } from './types';
 import { readdirSync, statSync, existsSync } from 'fs';
-import { join, extname, basename, dirname } from 'path';
+import { join, extname, basename, dirname, resolve } from 'path';
 
 export const skill: SkillDefinition = {
   name: 'file_operations',
@@ -47,11 +47,11 @@ export const skill: SkillDefinition = {
         default: false
       }
     },
-    required: ['directory']
+    required: []
   },
-  execute: async (args) => {
+  execute: async (args, context) => {
     try {
-      const {
+      let {
         directory,
         operation = 'list',
         recursive = false,
@@ -61,15 +61,41 @@ export const skill: SkillDefinition = {
         includeStats = false
       } = args;
 
+      // 如果未提供目录，尝试从上下文获取工作区路径
+      if (!directory && context?.workspace) {
+        directory = context.workspace;
+      }
+
+      if (!directory) {
+        return {
+          error: 'Directory is required. Please provide a directory path or ensure a workspace is active.'
+        };
+      }
+
+      // 安全检查：解析绝对路径
+      const resolvedPath = resolve(directory);
+
+      // 如果有工作区上下文，强制只能访问工作区内的文件
+      if (context?.workspace) {
+        const resolvedWorkspace = resolve(context.workspace);
+        // 简单的安全检查：确保请求的路径以工作区路径开头
+        // 注意：在生产环境中可能需要更严谨的检查（如处理大小写敏感性、软链接等）
+        if (!resolvedPath.toLowerCase().startsWith(resolvedWorkspace.toLowerCase())) {
+          return {
+            error: `Access denied: Cannot access files outside the workspace. Path: ${directory}`
+          };
+        }
+      }
+
       // 验证目录是否存在
-      if (!existsSync(directory)) {
+      if (!existsSync(resolvedPath)) {
         return {
           error: `Directory does not exist: ${directory}`
         };
       }
 
       // 验证是否为目录
-      const dirStat = statSync(directory);
+      const dirStat = statSync(resolvedPath);
       if (!dirStat.isDirectory()) {
         return {
           error: `Path is not a directory: ${directory}`
@@ -77,7 +103,7 @@ export const skill: SkillDefinition = {
       }
 
       const result = {
-        directory: directory,
+        directory: resolvedPath,
         operation: operation,
         timestamp: new Date().toISOString(),
         items: [] as any[],
@@ -91,7 +117,7 @@ export const skill: SkillDefinition = {
       // 执行相应的操作
       switch (operation) {
         case 'list':
-          result.items = await listDirectory(directory, {
+          result.items = await listDirectory(resolvedPath, {
             recursive,
             maxDepth,
             extensions,
@@ -103,7 +129,7 @@ export const skill: SkillDefinition = {
           break;
         
         case 'listFiles':
-          result.items = await listDirectory(directory, {
+          result.items = await listDirectory(resolvedPath, {
             recursive,
             maxDepth,
             extensions,
@@ -115,7 +141,7 @@ export const skill: SkillDefinition = {
           break;
         
         case 'listDirectories':
-          result.items = await listDirectory(directory, {
+          result.items = await listDirectory(resolvedPath, {
             recursive,
             maxDepth,
             extensions,
@@ -127,7 +153,7 @@ export const skill: SkillDefinition = {
           break;
         
         case 'listRecursive':
-          result.items = await listDirectory(directory, {
+          result.items = await listDirectory(resolvedPath, {
             recursive: true,
             maxDepth,
             extensions,

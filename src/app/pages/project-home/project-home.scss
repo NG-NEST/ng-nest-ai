@@ -25,9 +25,11 @@
       position: relative;
       min-height: calc(100vh - 2.25rem);
       min-width: 0;
+      max-width: 100%;
       flex: 1;
       display: flex;
       align-items: center;
+      justify-content: center;
       .form {
         position: absolute;
         width: 100%;

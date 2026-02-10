@@ -13,6 +13,7 @@ NgNest AI is a powerful desktop AI chat application built with Angular and Elect
   - [Project Management](#-project-management)
   - [Advanced Features](#️-advanced-features)
   - [Developer Tools](#-developer-tools)
+- [Directory Structure](#-directory-structure)
 - [Architecture](#️-architecture)
   - [Frontend Stack](#frontend-stack)
   - [Backend Services](#backend-services)
@@ -68,6 +69,23 @@ NgNest AI is a powerful desktop AI chat application built with Angular and Elect
 - **File System API**: Comprehensive file operations (create, delete, rename, copy)
 - **IPC Services**: Modular inter-process communication architecture
 - **Hot Reload**: Development server with live reload capabilities
+
+## 📂 Directory Structure
+
+```
+.
+├── electron/              # Main Process (Backend)
+│   ├── ipc/               # IPC Definitions
+│   ├── services/          # Core Services (OpenAI, FileSystem)
+│   └── skills/            # Skills System & Built-in Skills
+├── src/
+│   └── app/               # Renderer Process (Frontend)
+│       ├── components/    # UI Components (Bubbles, Editor)
+│       ├── core/          # Core Services (IndexedDB)
+│       └── pages/         # Application Pages
+├── build/                 # Build Resources (Icons)
+└── scripts/               # Build & Startup Scripts
+```
 
 ## 🏗️ Architecture
 
@@ -181,6 +199,10 @@ The application includes an extensible skills system that allows AI to:
 - Execute custom JavaScript code
 - Make HTTP requests
 - Access system information
+
+#### Adding New Skills
+To add a new built-in skill, create a new `.skill.ts` file in `electron/skills/builtin/`. See [Skills Documentation](electron/skills/README.md) for details.
+
 
 ### File System Integration
 - Real-time file monitoring with Chokidar

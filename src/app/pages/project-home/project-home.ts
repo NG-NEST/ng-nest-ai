@@ -207,7 +207,6 @@ export class ProjectHome {
       this.projectDetail.set(x!);
       if (x?.workspace) {
         this.fileDispose = await window.electronAPI.fileSystem.onDidChange((event: any) => {
-          console.log(event);
           this.fileTreeService.applyFsEvent(event);
         });
         await window.electronAPI.fileSystem.watch(x?.workspace);
@@ -224,7 +223,12 @@ export class ProjectHome {
     if (!content) return;
     this.loading.set(true);
 
-    const params: ChatSendParams = { content, data: this.data(), projectId: this.projectId()! };
+    const params: ChatSendParams = {
+      content,
+      data: this.data(),
+      projectId: this.projectId()!,
+      workspace: this.projectDetail()?.workspace
+    };
     if (this.selectedPrompt() && this.data().length === 0) {
       params.prompt = this.selectedPrompt()!;
     }
