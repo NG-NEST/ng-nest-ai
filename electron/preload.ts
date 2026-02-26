@@ -16,6 +16,7 @@ interface WindowControls {
   previewHtml: (html: string) => Promise<void>;
   selectDirectory: () => Promise<string>;
   openExternal: (url: string) => Promise<void>;
+  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number) => Promise<any>;
 }
 const windowControls: WindowControls = {
   isMaximized: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isMaximized'),
@@ -29,7 +30,9 @@ const windowControls: WindowControls = {
   reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
   previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html),
   selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory'),
-  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('ipc:window:openExternal', url)
+  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('ipc:window:openExternal', url),
+  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number): Promise<any> =>
+    ipcRenderer.invoke('ipc:window:executeJavaScript', code, context, timeout)
 };
 
 // openai
