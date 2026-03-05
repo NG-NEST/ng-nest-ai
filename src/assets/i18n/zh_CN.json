@@ -148,7 +148,7 @@
     "deleteSession": "删除聊天",
     "sureDeleteSession": "确认删除此聊天吗？"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Enter 发送，Alt + Enter 换行"
   },
   "$fileTree": {

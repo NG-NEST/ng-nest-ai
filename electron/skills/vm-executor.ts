@@ -2,9 +2,95 @@ import * as vm from 'vm';
 import * as https from 'https';
 import * as http from 'http';
 
-// 简单的 fetch 实现
+// 危险代码模式黑名单
+const DANGEROUS_PATTERNS = [
+  /\beval\s*\(/gi,
+  /\bFunction\s*\(/gi,
+  /\brequire\s*\(/gi,
+  /\bimport\s+/gi,
+  /\bprocess\s*\./gi,
+  /\bprocess\.env\b/gi,
+  /\bglobal\s*\./gi,
+  /\bglobalThis\s*\./gi,
+  /\b__dirname\b/gi,
+  /\b__filename\b/gi,
+  /\bmodule\.exports\b/gi,
+  /\bexports\s*\./gi,
+  /\bchild_process\b/gi,
+  /\bfs\s*\.\s*(?:read|write|unlink|mkdir|rmdir|rm|rename|copy)/gi,
+  /\bdos\s*\(/gi,
+  /\bBuffer\s*\.\s*alloc\s*\(/gi,
+  /\.constructor\s*\(/gi,
+  /\[\s*['"]constructor['"]\s*\]/gi,
+  /_proto_\s*:/gi,
+  /prototype\s*\[/gi
+];
+
+// 网络请求域名白名单
+const ALLOWED_DOMAINS = [
+  'api.openai.com',
+  'api.anthropic.com',
+  'api.deepseek.com',
+  'open.bigmodel.cn',
+  'dashscope.aliyuncs.com',
+  'aip.baidubce.com',
+  'api.coze.com',
+  'api.doubao.com',
+  'api.moonshot.cn',
+  'api.minimax.chat',
+  'api.lingyiwanwu.com',
+  'api.stepfun.com',
+  'api.x.ai',
+  'generativelanguage.googleapis.com',
+  'localhost',
+  '127.0.0.1'
+];
+
+/**
+ * 验证代码是否包含危险模式
+ */
+export function validateCode(code: string): { valid: boolean; reason?: string } {
+  for (const pattern of DANGEROUS_PATTERNS) {
+    if (pattern.test(code)) {
+      return { valid: false, reason: `代码包含被禁止的模式: ${pattern.source}` };
+    }
+  }
+  return { valid: true };
+}
+
+/**
+ * 验证URL是否在白名单中
+ */
+export function validateUrl(url: string): { valid: boolean; reason?: string } {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    
+    const isAllowed = ALLOWED_DOMAINS.some(domain => {
+      if (domain === hostname) return true;
+      if (hostname.endsWith('.' + domain)) return true;
+      return false;
+    });
+    
+    if (!isAllowed) {
+      return { valid: false, reason: `域名 ${hostname} 不在白名单中` };
+    }
+    return { valid: true };
+  } catch {
+    return { valid: false, reason: `无效的 URL: ${url}` };
+  }
+}
+
+// 安全的 fetch 实现（带域名白名单验证）
 const simpleFetch = (url: string, options: any = {}) => {
   return new Promise((resolve, reject) => {
+    // 验证URL
+    const urlValidation = validateUrl(url);
+    if (!urlValidation.valid) {
+      reject(new Error(urlValidation.reason));
+      return;
+    }
+    
     let urlObj: URL;
     try {
       urlObj = new URL(url);
@@ -52,7 +138,24 @@ const simpleFetch = (url: string, options: any = {}) => {
   });
 };
 
-export async function executeSandboxedJavaScript(code: string, args: any, timeout: number = 30000): Promise<any> {
+export interface ExecuteOptions {
+  timeout?: number;
+  maxMemoryMB?: number;
+}
+
+export async function executeSandboxedJavaScript(
+  code: string, 
+  args: any, 
+  options: ExecuteOptions = {}
+): Promise<any> {
+  const { timeout = 30000, maxMemoryMB = 128 } = options;
+  
+  // 1. 代码验证
+  const codeValidation = validateCode(code);
+  if (!codeValidation.valid) {
+    throw new Error(`安全验证失败: ${codeValidation.reason}`);
+  }
+  
   try {
     // 创建上下文，提供必要的全局对象
     const context = {
@@ -71,7 +174,7 @@ export async function executeSandboxedJavaScript(code: string, args: any, timeou
       clearTimeout,
       clearInterval,
       Promise,
-      // 提供 fetch 用于 HTTP 请求
+      // 提供安全的 fetch 用于 HTTP 请求（已带域名白名单验证）
       fetch: simpleFetch
     };
 
@@ -118,7 +221,7 @@ export async function executeSandboxedJavaScript(code: string, args: any, timeou
       })();
     `;
 
-    // 执行代码
+    // 执行代码（带超时控制）
     const result = await vm.runInContext(scriptCode, context, {
       timeout,
       displayErrors: true

@@ -12,6 +12,8 @@ export interface Session {
   promptId?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  /** UI 状态：是否悬停（不持久化） */
+  hover?: boolean;
 }
 
 export const SessionTable = '++id, title, projectId, promptId, createdAt, updatedAt';

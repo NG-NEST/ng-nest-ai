@@ -8,10 +8,14 @@ import { HttpService } from './ipc/services/http.service';
 import { MinioService } from './ipc/services/minio.service';
 import { FileSystemService } from './ipc/services/file-system.service';
 import { SafeStorageService } from './ipc/services/safe-storage.service';
+import { logEnvStatus } from './config/env.config';
 
 const envPath = app.isPackaged ? path.join(process.resourcesPath, '.env') : path.join(__dirname, '../../.env');
 
 dotenv.config({ path: envPath });
+
+// 输出环境配置状态
+logEnvStatus();
 
 let win: BrowserWindow | null = null;
 let windowService: WindowService | null = null;

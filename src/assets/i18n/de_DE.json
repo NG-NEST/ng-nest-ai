@@ -119,7 +119,7 @@
     "deleteSession": "Chat löschen",
     "sureDeleteSession": "Diesen Chat wirklich löschen?"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Enter zum Senden, Alt + Enter für Zeilenumbruch"
   },
   "$fileTree": {

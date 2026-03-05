@@ -119,7 +119,7 @@
     "deleteSession": "刪除聊天",
     "sureDeleteSession": "確定要刪除此聊天嗎？"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Enter 發送，Alt + Enter 換行"
   },
   "$fileTree": {

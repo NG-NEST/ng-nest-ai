@@ -6,7 +6,10 @@
   "author": "ng-nest-moon",
   "scripts": {
     "ng": "ng",
-    "test": "ng test",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "compile:electron": "tsc -p tsconfig.electron.json && node scripts/copy-skills.js",
     "start:ng": "ng serve --port 5200 --host 0.0.0.0",
     "start:electron": "node scripts/wait-and-run-electron.js",
@@ -51,11 +54,13 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.9.2",
     "@types/prismjs": "^1.26.5",
+    "@vitest/coverage-v8": "^4.0.18",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "electron": "^39.2.0",
     "electron-builder": "^26.0.12",
     "jasmine-core": "~5.7.0",
+    "jsdom": "^28.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
@@ -66,6 +71,7 @@
     "reflect-metadata": "^0.2.2",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3",
+    "vitest": "^4.0.18",
     "wait-on": "^9.0.1"
   },
   "build": {

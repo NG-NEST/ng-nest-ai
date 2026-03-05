@@ -1,5 +1,6 @@
-import { ipcMain, net } from 'electron';
+import { ipcMain } from 'electron';
 import { URLSearchParams } from 'url';
+import { HttpClient, HttpResponse, httpClient } from '../../utils/http-client';
 
 type HttpResult = {
   status: number | string;
@@ -22,10 +23,10 @@ export class HttpService {
   }
 
   /* ------------------------------------------------------------------ */
-  /* Core net.request wrapper                                            */
+  /* Core HttpClient wrapper                                             */
   /* ------------------------------------------------------------------ */
 
-  private request(
+  private async request(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     url: string,
     options?: {
@@ -33,64 +34,33 @@ export class HttpService {
       body?: string | Buffer;
     }
   ): Promise<HttpResult> {
-    return new Promise((resolve, reject) => {
-      const req = net.request({
-        method,
-        url
+    try {
+      // 使用 HttpClient 单例实例
+      const response: HttpResponse = await httpClient.request(url, { 
+        method, 
+        headers: options?.headers, 
+        body: options?.body 
       });
 
-      // headers
-      if (options?.headers) {
-        for (const [key, value] of Object.entries(options.headers)) {
-          if (value !== undefined) {
-            req.setHeader(key, value);
-          }
+      return {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        data: response.data
+      };
+    } catch (error: any) {
+      return {
+        status: 0,
+        statusText: '',
+        headers: {},
+        data: null,
+        error: {
+          message: error.message,
+          code: error.code || 'UNKNOWN_ERROR',
+          hostname: error.hostname || null
         }
-      }
-
-      req.on('response', (res) => {
-        const chunks: Buffer[] = [];
-
-        res.on('data', (chunk) => {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-        });
-
-        res.on('end', () => {
-          const buffer = Buffer.concat(chunks);
-          const text = buffer.toString('utf-8');
-
-          // headers -> plain object
-          const headers: Record<string, string> = {};
-          for (const [key, value] of Object.entries(res.headers)) {
-            headers[key] = Array.isArray(value) ? value.join('; ') : String(value);
-          }
-
-          let data: any = text;
-          try {
-            data = JSON.parse(text);
-          } catch {
-            /* non-json response */
-          }
-
-          resolve({
-            status: res.statusCode,
-            statusText: res.statusMessage ?? '',
-            headers,
-            data
-          });
-        });
-      });
-
-      req.on('error', (error) => {
-        reject(error);
-      });
-
-      if (options?.body) {
-        req.write(options.body);
-      }
-
-      req.end();
-    });
+      };
+    }
   }
 
   /* ------------------------------------------------------------------ */

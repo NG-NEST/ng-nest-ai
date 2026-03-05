@@ -1,5 +1,5 @@
 // electron/skills/builtin/system-info.skill.ts
-import { SkillDefinition } from './types';
+import { SkillDefinition } from './types.js';
 import { platform, arch, release, totalmem, freemem, cpus } from 'os';
 
 export const skill: SkillDefinition = {

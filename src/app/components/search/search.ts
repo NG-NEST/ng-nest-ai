@@ -95,7 +95,7 @@ export class Search {
   }
 
   nodeClick(node: XListNode) {
-    this.router.navigate(['/coversation'], { queryParams: { sessionId: node.id } }).then(() => {
+    this.router.navigate(['/conversation'], { queryParams: { sessionId: node.id } }).then(() => {
       this.dialogRef.close();
     });
   }

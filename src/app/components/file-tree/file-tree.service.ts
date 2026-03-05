@@ -51,11 +51,11 @@ export class FileTreeService {
   /* ------------------------------------------------------------------ */
 
   async rename(oldPath: string, newPath: string): Promise<void> {
-    await (window as any).electronAPI.fileSystem.rename(oldPath, newPath);
+    await window.electronAPI.fileSystem.rename(oldPath, newPath);
   }
 
   async delete(path: string): Promise<void> {
-    await (window as any).electronAPI.fileSystem.delete(path);
+    await window.electronAPI.fileSystem.delete(path);
   }
 
   cut(path: string) {
@@ -79,9 +79,9 @@ export class FileTreeService {
 
     try {
       if (clip.op === 'copy') {
-        await (window as any).electronAPI.fileSystem.copy(clip.path, destinationPath);
+        await window.electronAPI.fileSystem.copy(clip.path, destinationPath);
       } else {
-        await (window as any).electronAPI.fileSystem.rename(clip.path, destinationPath);
+        await window.electronAPI.fileSystem.rename(clip.path, destinationPath);
       }
       this.clipboard.set(null);
     } catch (error) {
@@ -91,17 +91,17 @@ export class FileTreeService {
   }
 
   async showInExplorer(path: string): Promise<void> {
-    await (window as any).electronAPI.fileSystem.showInExplorer(path);
+    await window.electronAPI.fileSystem.showInExplorer(path);
   }
 
   async createFile(parentPath: string, fileName: string): Promise<void> {
     const filePath = normalizePath(`${parentPath}/${fileName}`);
-    await (window as any).electronAPI.fileSystem.createFile(filePath);
+    await window.electronAPI.fileSystem.createFile(filePath);
   }
 
   async createFolder(parentPath: string, folderName: string): Promise<void> {
     const folderPath = normalizePath(`${parentPath}/${folderName}`);
-    await (window as any).electronAPI.fileSystem.createFolder(folderPath);
+    await window.electronAPI.fileSystem.createFolder(folderPath);
   }
 
   hasClipboard(): boolean {

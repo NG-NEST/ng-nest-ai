@@ -1,5 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const sourceDir = path.join(__dirname, '../electron/skills');
 const destDir = path.join(__dirname, '../dist/electron/skills');
@@ -21,8 +25,23 @@ function copyDir(src, dest) {
       // Recursively copy subdirectory
       copyDir(srcPath, destPath);
     } else {
-      // Copy file
-      fs.copyFileSync(srcPath, destPath);
+      // For .js files, we need to update import paths if they reference './types'
+      if (entry.name.endsWith('.js')) {
+        let content = fs.readFileSync(srcPath, 'utf8');
+        // Replace './types' imports with the correct relative path
+        // This handles cases where the built skill files still reference './types'
+        content = content.replace(
+          /from\s+['"]\.\/types['"]/g, 
+          "from './types.js'"
+        ).replace(
+          /require\(['"]\.\/types['"]\)/g,
+          "require('./types.js')"
+        );
+        fs.writeFileSync(destPath, content);
+      } else {
+        // Copy file as-is for non-JS files
+        fs.copyFileSync(srcPath, destPath);
+      }
     }
   }
 }

@@ -119,7 +119,7 @@
     "deleteSession": "Supprimer le chat",
     "sureDeleteSession": "Êtes-vous sûr de vouloir supprimer ce chat ?"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Entrée pour envoyer, Alt + Entrée pour retour à la ligne"
   },
   "$fileTree": {

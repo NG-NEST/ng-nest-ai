@@ -119,7 +119,7 @@
     "deleteSession": "チャット削除",
     "sureDeleteSession": "このチャットを削除してもよろしいですか？"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Enterで送信、Alt + Enterで改行"
   },
   "$fileTree": {

@@ -1,5 +1,5 @@
 // electron/skills/builtin/file-operations.skill.ts
-import { SkillDefinition } from './types';
+import { SkillDefinition } from './types.js';
 import { readdirSync, statSync, existsSync } from 'fs';
 import { join, extname, basename, dirname, resolve } from 'path';
 

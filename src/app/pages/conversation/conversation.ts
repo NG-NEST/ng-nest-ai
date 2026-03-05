@@ -41,7 +41,7 @@ import {
 import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'rxjs';
 
 @Component({
-  selector: 'app-coversation',
+  selector: 'app-conversation',
   imports: [
     XSenderComponent,
     XButtonComponent,
@@ -56,11 +56,11 @@ import { debounceTime, finalize, Subject, Subscription, takeUntil, tap } from 'r
     XScrollableComponent,
     FormField
   ],
-  templateUrl: './coversation.html',
-  styleUrl: './coversation.scss',
+  templateUrl: './conversation.html',
+  styleUrl: './conversation.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Coversation {
+export class Conversation {
   loading = signal(false);
   config = inject(AppConfigService);
   message = inject(XMessageService);

@@ -1,6 +1,6 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import * as Minio from 'minio';
-import { env } from 'node:process';
+import { getEnvConfig } from '../../config/env.config';
 
 export interface IMinioService {
   uploadFile(
@@ -17,16 +17,26 @@ export interface IMinioService {
 export class MinioService implements IMinioService {
   private registeredHandlers = new Map<string, Function>();
   private isDestroyed = false;
-  private minioClient: Minio.Client;
+  private minioClient: Minio.Client | null = null;
+  private configError: string | null = null;
 
   constructor() {
-    const { MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY } = env;
-    this.minioClient = new Minio.Client({
-      endPoint: MINIO_ENDPOINT!,
-      useSSL: true,
-      accessKey: MINIO_ACCESS_KEY,
-      secretKey: MINIO_SECRET_KEY
-    });
+    const config = getEnvConfig();
+    const { MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY } = config;
+    
+    // 验证 MinIO 配置
+    if (!MINIO_ENDPOINT || !MINIO_ACCESS_KEY || !MINIO_SECRET_KEY) {
+      this.configError = 'MinIO 配置不完整，请在环境变量中设置 MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY';
+      console.warn(`[MinioService] ${this.configError}`);
+    } else {
+      this.minioClient = new Minio.Client({
+        endPoint: MINIO_ENDPOINT,
+        useSSL: true,
+        accessKey: MINIO_ACCESS_KEY,
+        secretKey: MINIO_SECRET_KEY
+      });
+    }
+    
     this.registerIpcHandlers();
   }
 
@@ -44,7 +54,7 @@ export class MinioService implements IMinioService {
     fileData: Buffer,
     metaData?: Minio.ItemBucketMetadata
   ): Promise<boolean> {
-    if (this.isDestroyed) return false;
+    if (this.isDestroyed || !this.minioClient) return false;
 
     try {
       const size = Buffer.byteLength(fileData);
@@ -64,7 +74,7 @@ export class MinioService implements IMinioService {
    * @returns 下载是否成功
    */
   async downloadFile(bucketName: string, objectName: string, filePath: string): Promise<boolean> {
-    if (this.isDestroyed) return false;
+    if (this.isDestroyed || !this.minioClient) return false;
 
     try {
       await this.minioClient.fGetObject(bucketName, objectName, filePath);
@@ -80,7 +90,7 @@ export class MinioService implements IMinioService {
    * @returns 存储桶名称列表
    */
   async listBuckets(): Promise<string[]> {
-    if (this.isDestroyed) return [];
+    if (this.isDestroyed || !this.minioClient) return [];
 
     try {
       const buckets = await this.minioClient.listBuckets();

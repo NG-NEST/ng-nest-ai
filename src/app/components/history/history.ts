@@ -88,7 +88,7 @@ export class History {
 
   itemClick(item: Session) {
     this.selectedItem.set(item);
-    this.router.navigate(['/coversation'], { queryParams: { sessionId: item.id } });
+    this.router.navigate(['/conversation'], { queryParams: { sessionId: item.id } });
   }
 
   onMore() {

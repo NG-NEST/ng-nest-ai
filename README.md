@@ -44,6 +44,13 @@ NgNest AI is a powerful desktop AI chat application built with Angular and Elect
 
 ## ✨ Key Features
 
+### 🎯 Recent Improvements
+- **Enhanced Security**: VM sandbox with code validation, dangerous pattern blocking, and network request whitelisting
+- **Type Safety**: Strict Angular template type checking and comprehensive Window API type definitions
+- **Code Quality**: Fixed typos, removed dead code, and cleaned up unused files
+- **Resource Management**: Proper cleanup of file watchers and system resources
+- **Environment Validation**: Robust environment variable validation with graceful error handling
+
 ### 🤖 AI Conversation System
 - **Real-time AI Chat**: Stream-based conversations with multiple AI models
 - **Multi-modal Support**: Text, image, and video input capabilities
@@ -75,15 +82,23 @@ NgNest AI is a powerful desktop AI chat application built with Angular and Elect
 ```
 .
 ├── electron/              # Main Process (Backend)
+│   ├── config/            # Environment Configuration & Validation
 │   ├── ipc/               # IPC Definitions
-│   ├── services/          # Core Services (OpenAI, FileSystem)
-│   └── skills/            # Skills System & Built-in Skills
+│   │   ├── services/      # Core Services (OpenAI, FileSystem, Window)
+│   │   └── worker/        # Worker Threads (File Scanner)
+│   ├── skills/            # Skills System
+│   │   ├── builtin/       # Built-in Skills (File Operations, System Info, etc.)
+│   │   ├── custom/        # Custom Markdown Skills
+│   │   └── markdown/      # Markdown Skill Loader
+│   └── utils/             # Utility Functions (HTTP Client)
 ├── src/
 │   └── app/               # Renderer Process (Frontend)
-│       ├── components/    # UI Components (Bubbles, Editor)
+│       ├── components/    # UI Components (Bubbles, Editor, File Tree)
 │       ├── core/          # Core Services (IndexedDB)
-│       └── pages/         # Application Pages
+│       ├── pages/         # Application Pages (Conversation, Project, History)
+│       └── types/         # TypeScript Type Definitions
 ├── build/                 # Build Resources (Icons)
+├── docs/                  # Documentation (API, Skills)
 └── scripts/               # Build & Startup Scripts
 ```
 
@@ -107,6 +122,11 @@ NgNest AI is a powerful desktop AI chat application built with Angular and Elect
 - **IndexedDB**: Local database with Dexie.js ORM
 - **File System**: Direct file system access and monitoring
 - **MinIO**: Cloud object storage for media files
+
+### Type Safety
+- **Strict Template Type Checking**: Angular templates with full type safety
+- **Extended Window Types**: Type-safe `window.electronAPI` with complete interface definitions
+- **No Any Types**: Eliminated all `(window as any)` usage in favor of typed APIs
 
 ## 🚀 Getting Started
 
@@ -242,10 +262,13 @@ Supported languages:
 
 ## 🛡️ Security Features
 
-- Sandboxed JavaScript execution for custom skills
-- Secure IPC communication between processes
-- Environment variable protection
-- File system access controls
+- **Sandboxed JavaScript Execution**: Custom skills run in isolated VM context with code validation
+- **Dangerous Code Prevention**: Blocks `eval`, `require`, `process.env`, and other dangerous patterns
+- **Network Request Whitelist**: Only allows requests to pre-approved domains
+- **Secure IPC Communication**: Type-safe inter-process communication between main and renderer processes
+- **Environment Variable Protection**: Validated environment configuration with graceful error handling
+- **File System Access Controls**: Workspace-based file access restrictions
+- **Resource Cleanup**: Proper cleanup of file watchers and system resources on application exit
 
 ## 📦 Build Configuration
 
@@ -263,6 +286,22 @@ The application uses Electron Builder for packaging:
 ```
 
 Supports Windows, macOS, and Linux distributions.
+
+## 📊 Development Status
+
+### Completed Improvements (v0.0.x)
+- ✅ **Environment Variable Validation**: Robust configuration validation system
+- ✅ **VM Sandbox Security**: Code validation with dangerous pattern blocking
+- ✅ **Network Security**: Domain whitelist for HTTP requests
+- ✅ **Type Safety**: Strict template checking and comprehensive type definitions
+- ✅ **Code Quality**: Fixed typos, removed dead code, cleaned up unused files
+- ✅ **Resource Management**: Proper cleanup of file watchers on application exit
+- ✅ **Module System**: Fixed ES module import/export issues in Electron
+
+### Ongoing Work
+- 🔄 **Testing Framework**: Setting up Vitest for comprehensive test coverage
+- 🔄 **HTTP Client**: Unifying HTTP calls across the application
+- 🔄 **Performance**: Implementing backpressure control for streaming responses
 
 ## 🤝 Contributing
 

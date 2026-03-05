@@ -118,9 +118,9 @@ export class Layout {
   }
 
   menuClick(menu: XMenuNode) {
-    if (menu.id === 'coversation') {
+    if (menu.id === 'conversation') {
       this.selectedItem.set(null);
-      this.router.navigate(['./coversation'], { queryParams: { time: new Date().getTime() } });
+      this.router.navigate(['./conversation'], { queryParams: { time: new Date().getTime() } });
       return;
     }
     if (menu.id === 'search') {
@@ -135,13 +135,13 @@ export class Layout {
 
   onHistoryDeleteItem(id: number) {
     if (id === this.selectedItem()?.id) {
-      this.router.navigate(['./coversation']);
+      this.router.navigate(['./conversation']);
     }
   }
 
   onProjectDeleteItem(id: number) {
     if (id === this.selectedItem()?.id) {
-      this.router.navigate(['./coversation']);
+      this.router.navigate(['./conversation']);
     }
   }
 

@@ -148,7 +148,7 @@
     "deleteSession": "Delete chat",
     "sureDeleteSession": "Sure to delete this chat?"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Enter to send, Alt + Enter to wrap"
   },
   "$fileTree": {

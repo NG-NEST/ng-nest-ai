@@ -1,5 +1,5 @@
 // electron/ipc/services/openai.service.ts
-import { ipcMain, IpcMainInvokeEvent, net } from 'electron';
+import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import OpenAI from 'openai';
 import { Stream } from 'openai/core/streaming';
 import { loadBuiltinSkills, SkillDefinition, SkillContext } from '../../skills/builtin';
@@ -8,7 +8,9 @@ import { executeSandboxedJavaScript } from '../../skills/vm-executor';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as chokidar from 'chokidar';
+import { HttpClient, HttpRequestOptions, HttpResponse, httpClient } from '../../utils/http-client';
 
+// 定义 SkillFromDB 接口
 interface SkillFromDB {
   id?: number;
   name: string;
@@ -31,65 +33,44 @@ interface SkillFromDB {
   };
 }
 
-// 自定义 fetch 函数，使用 Electron 的 net 模块
-function electronFetch(input: string | URL | Request, options?: RequestInit): Promise<Response> {
-  let url = (input instanceof Request ? input.url : input).toString();
+// 批量大小常量，用于背压控制
+const BATCH_SIZE = 10;
 
-  let method = options?.method ?? 'GET';
-  let headers = (options?.headers as Headers) ?? '';
-  let body = options?.body ?? '';
+// 将 HttpClient 适配为 OpenAI SDK 所需的 fetch 函数格式
+async function electronFetch(input: string | URL | Request, options?: RequestInit): Promise<Response> {
+  const url = (input instanceof Request ? input.url : input).toString();
+  const method = options?.method ?? 'GET';
+  const headers = options?.headers
+    ? options.headers instanceof Headers
+      ? Object.fromEntries(options.headers.entries())
+      : (options.headers as Record<string, string>)
+    : {};
+  const body = options?.body;
 
-  return new Promise((resolve, reject) => {
-    const request = net.request({ method, url });
+  // 将 RequestInit 转换为 HttpRequestOptions
+  const httpRequestOptions: HttpRequestOptions = {
+    method: method as any,
+    headers,
+    body: body ? (typeof body === 'string' ? body : body.toString()) : undefined
+  };
 
-    // 设置请求头
-    if (headers && typeof headers !== 'string') {
-      headers.forEach((value, key) => {
-        request.setHeader(key, value);
-      });
+  try {
+    const response: HttpResponse = await httpClient.request(url, httpRequestOptions);
+
+    // 将 HttpResponse 转换为标准的 Response 对象
+    const responseHeaders = new Headers();
+    for (const [key, value] of Object.entries(response.headers)) {
+      responseHeaders.append(key, value);
     }
 
-    // 如果有请求体，写入 body
-    if (body) {
-      request.write(body as string);
-    }
-
-    // 处理响应
-    request.on('response', (response) => {
-      let data = '';
-      response.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      response.on('end', () => {
-        try {
-          // 使用 new Response 来构造响应对象
-          const responseBody = new TextEncoder().encode(data); // 编码为 Uint8Array
-          // 将响应头转换为 Headers 对象
-          const responseHeaders = new Headers();
-          for (const [key, value] of Object.entries(response.headers)) {
-            responseHeaders.append(key, value as string); // 对于每个头部字段，添加到 Headers 对象中
-          }
-          // 构造一个完整的 Response 对象
-          const electronResponse = new Response(responseBody, {
-            status: response.statusCode,
-            statusText: response.statusMessage,
-            headers: responseHeaders
-          });
-          resolve(electronResponse); // 返回模拟的 Response
-        } catch (err) {
-          reject(new Error('Failed to parse response JSON'));
-        }
-      });
+    return new Response(response.rawText, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: responseHeaders
     });
-
-    // 处理请求错误
-    request.on('error', (err) => {
-      reject(err);
-    });
-
-    request.end();
-  });
+  } catch (error) {
+    throw new Error(`Network request failed: ${error}`);
+  }
 }
 
 export class OpenAIService {
@@ -104,12 +85,56 @@ export class OpenAIService {
   private tools: any[] = [];
   private mainWindow: Electron.BrowserWindow | null = null;
   private skillContext: SkillContext = {};
+  private skillWatcher: chokidar.FSWatcher | null = null;
+  private encryptedApiKey: string | null = null; // 存储加密的 API Key
 
   constructor() {
     this.initMainWindow();
     this.initSkillContext();
     this.initBuiltinSkills();
     this.registerIpcHandlers();
+  }
+
+  /**
+   * 使用加密存储存储 API Key
+   */
+  private async storeEncryptedKey(apiKey: string): Promise<void> {
+    try {
+      // 使用 safeStorage 加密 API Key
+      const { safeStorage } = require('electron');
+      if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Encryption is not available on this system');
+      }
+
+      const encryptedBuffer = safeStorage.encryptString(apiKey);
+      this.encryptedApiKey = encryptedBuffer.toString('base64');
+    } catch (error) {
+      console.error('Failed to encrypt API key:', error);
+      throw new Error('Encryption failed: ' + (error as Error).message);
+    }
+  }
+
+  /**
+   * 从加密存储中获取 API Key
+   */
+  private async getDecryptedApiKey(): Promise<string | null> {
+    if (!this.encryptedApiKey) {
+      return null;
+    }
+
+    try {
+      const { safeStorage } = require('electron');
+      if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Encryption is not available on this system');
+      }
+
+      const buffer = Buffer.from(this.encryptedApiKey, 'base64');
+      const decrypted = safeStorage.decryptString(buffer);
+      return decrypted;
+    } catch (error) {
+      console.error('Failed to decrypt API key:', error);
+      throw new Error('Decryption failed: ' + (error as Error).message);
+    }
   }
 
   private initMainWindow() {
@@ -141,8 +166,8 @@ export class OpenAIService {
       // 尝试在几个可能的位置查找
       const possibleDirs = [
         path.join(process.cwd(), 'electron/skills/custom'), // 开发环境/根目录
-        path.join(__dirname, '../../skills/custom'),        // 相对路径
-        path.join(process.resourcesPath, 'skills/custom')   // 打包后的资源路径
+        path.join(__dirname, '../../skills/custom'), // 相对路径
+        path.join(process.resourcesPath, 'skills/custom') // 打包后的资源路径
       ];
 
       let customSkillsDir = '';
@@ -151,7 +176,7 @@ export class OpenAIService {
           customSkillsDir = dir;
           console.log(`Loading custom skills from: ${dir}`);
           this.loadCustomSkills(dir);
-          break; 
+          break;
         }
       }
 
@@ -186,7 +211,13 @@ export class OpenAIService {
 
   private watchCustomSkills(dir: string) {
     console.log(`Starting hot-reload watcher for skills in: ${dir}`);
-    const watcher = chokidar.watch(path.join(dir, '*.md'), {
+
+    // 关闭已存在的 watcher
+    if (this.skillWatcher) {
+      this.skillWatcher.close();
+    }
+
+    this.skillWatcher = chokidar.watch(path.join(dir, '*.md'), {
       ignoreInitial: true,
       depth: 0
     });
@@ -201,12 +232,12 @@ export class OpenAIService {
           this.skills[skill.name] = skill;
           this.updateTools();
           console.log(`Hot-reloaded skill: ${skill.name}`);
-          
+
           // 通知前端（可选，如果需要实时更新 UI）
           if (this.mainWindow) {
-            this.mainWindow.webContents.send('ipc:skills:updated', { 
-              name: skill.name, 
-              action: 'update' 
+            this.mainWindow.webContents.send('ipc:skills:updated', {
+              name: skill.name,
+              action: 'update'
             });
           }
         } else {
@@ -231,13 +262,7 @@ export class OpenAIService {
       this.updateTools();
     };
 
-    watcher
-      .on('add', reloadSkill)
-      .on('change', reloadSkill)
-      .on('unlink', removeSkill);
-      
-    // 在服务销毁时应该关闭 watcher，但这里没有显式的 destroy 生命周期钩子用于 watcher
-    // 可以将其添加到类属性中以便管理，但对于单例服务来说，保持运行也是可以接受的
+    this.skillWatcher.on('add', reloadSkill).on('change', reloadSkill).on('unlink', removeSkill);
   }
 
   private getOrCreateOpenAIInstance(apiKey: string, baseURL?: string): OpenAI {
@@ -555,7 +580,7 @@ export class OpenAIService {
     try {
       const content = dbSkill.runtime.content || '';
       const instructions = dbSkill.runtime.instructions || '';
-      
+
       // Markdown 技能不执行代码，而是返回文档内容和使用说明
       // 这些信息将被添加到 AI 的上下文中，用于指导响应
       return {
@@ -600,7 +625,9 @@ export class OpenAIService {
       }
 
       // 检查是否为对象数组（且不包含 null 或数组）
-      const isArrayOfObjects = result.every((item) => typeof item === 'object' && item !== null && !Array.isArray(item));
+      const isArrayOfObjects = result.every(
+        (item) => typeof item === 'object' && item !== null && !Array.isArray(item)
+      );
 
       if (isArrayOfObjects) {
         // 收集所有对象的键，以处理可选字段
@@ -666,6 +693,10 @@ export class OpenAIService {
             return { success: false, error: 'Invalid API key' };
           }
 
+          // 加密存储 API Key
+          await this.storeEncryptedKey(apiKey);
+
+          // 使用解密后的 API Key 创建实例
           this.openai = this.getOrCreateOpenAIInstance(apiKey, baseURL);
 
           return {
@@ -695,7 +726,7 @@ export class OpenAIService {
 
         try {
           let currentMessages = [...messages];
-          
+
           // 如果提供了工作区路径，将其作为系统消息添加到对话中
           if (workspace) {
             currentMessages.unshift({
@@ -736,6 +767,8 @@ export class OpenAIService {
               }
 
               const delta = chunk.choices[0]?.delta;
+
+              console.log(delta);
 
               // 收集 tool_calls 数据
               if (delta?.tool_calls?.[0]) {
@@ -815,7 +848,8 @@ export class OpenAIService {
                 }
 
                 const skill = this.skills[toolCallData.name];
-                const displayName = skill?.displayName || this.dbSkillDisplayName.get(toolCallData.name) || toolCallData.name;
+                const displayName =
+                  skill?.displayName || this.dbSkillDisplayName.get(toolCallData.name) || toolCallData.name;
                 let skillDisplayName = `正在执行技能: ${displayName}`;
 
                 // 特殊处理 query_indexeddb
@@ -969,9 +1003,19 @@ export class OpenAIService {
 
   // 销毁服务时清理资源
   destroy() {
+    // 清理活动流
     this.activeStreams.forEach((stream) => {
       stream.cancel = true;
     });
     this.activeStreams.clear();
+
+    // 关闭文件监视器
+    if (this.skillWatcher) {
+      this.skillWatcher.close();
+      this.skillWatcher = null;
+    }
+
+    // 清理加密的 API Key
+    this.encryptedApiKey = null;
   }
 }

@@ -1,6 +1,6 @@
 // electron/skills/builtin/index.ts
 import { readdirSync } from 'fs';
-import { join } from 'path';
+import { join, extname } from 'path';
 import { SkillDefinition, SkillModule } from './types';
 
 /**
@@ -12,14 +12,15 @@ export async function loadBuiltinSkills(): Promise<SkillDefinition[]> {
   const skillsDir = __dirname;
   
   try {
-    // 读取当前目录下的所有 .skill.ts 或 .skill.js 文件
+    // 读取当前目录下的所有 .skill.js 文件 (构建后只有.js文件)
     const files = readdirSync(skillsDir).filter(file => 
-      file.endsWith('.skill.ts') || file.endsWith('.skill.js')
+      file.endsWith('.skill.js') && !file.endsWith('.skill.js.map')
     );
     
     for (const file of files) {
       try {
         const skillPath = join(skillsDir, file);
+        // 使用 require() 动态加载模块
         const skillModule: SkillModule = require(skillPath);
         
         if (skillModule.skill && typeof skillModule.skill === 'object') {

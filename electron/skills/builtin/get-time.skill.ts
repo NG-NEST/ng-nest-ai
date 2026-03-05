@@ -1,5 +1,5 @@
 // electron/skills/builtin/get-time.skill.ts
-import { SkillDefinition } from './types';
+import { SkillDefinition } from './types.js';
 
 export const skill: SkillDefinition = {
   name: 'get_time',

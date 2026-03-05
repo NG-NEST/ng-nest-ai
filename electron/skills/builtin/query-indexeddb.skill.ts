@@ -1,5 +1,5 @@
 // electron/skills/builtin/query-indexeddb.skill.ts
-import { SkillDefinition, SkillContext } from './types';
+import { SkillDefinition, SkillContext } from './types.js';
 
 export const skill: SkillDefinition = {
   name: 'query_indexeddb',

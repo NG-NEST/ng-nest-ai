@@ -119,7 +119,7 @@
     "deleteSession": "Удалить чат",
     "sureDeleteSession": "Вы уверены, что хотите удалить этот чат?"
   },
-  "$coversation": {
+  "$conversation": {
     "placeholder": "Enter для отправки, Alt + Enter для переноса строки"
   },
   "$fileTree": {

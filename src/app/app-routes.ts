@@ -8,10 +8,10 @@ export const LayoutRoutes: Routes = [
 ];
 
 export const AppRoutes: Routes = [
-  { path: '', redirectTo: 'coversation', pathMatch: 'full' },
+  { path: '', redirectTo: 'conversation', pathMatch: 'full' },
   {
-    path: 'coversation',
-    loadChildren: () => import('./pages/coversation/coversation-routing').then((x) => x.CoversationRoutes)
+    path: 'conversation',
+    loadChildren: () => import('./pages/conversation/conversation-routing').then((x) => x.ConversationRoutes)
   },
   {
     path: 'history',

@@ -58,6 +58,29 @@ declare global {
         decryptString(encryptedBase64: string): Promise<string>;
       };
     };
+    // Prism.js 语法高亮库
+    Prism?: typeof import('prismjs');
+    // Monaco Editor
+    monaco?: typeof import('monaco-editor');
+    // AMD require (用于 Monaco 加载)
+    require?: (modules: string[], callback: (...args: any[]) => void) => void;
+  }
+}
+
+// 扩展 IPC 类型定义
+declare global {
+  interface Window {
+    electronAPI: {
+      openAI: {
+        // ... 其他现有方法 ...
+        chatCompletionStream(
+          options: any,
+          onData: (data: any[] | any) => void, // 支持批量或单个数据
+          onDone: () => void,
+          onError: (error: any) => void
+        ): () => void;
+      };
+    };
   }
 }
 

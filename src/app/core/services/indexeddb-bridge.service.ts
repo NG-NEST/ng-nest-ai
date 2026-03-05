@@ -27,8 +27,8 @@ export class IndexedDBBridgeService {
 
   private initializeListener() {
     // 使用标准 IPC 机制注册处理器
-    if ((window as any).electronAPI?.openAI?.registerIndexedDBHandler) {
-      (window as any).electronAPI.openAI.registerIndexedDBHandler(
+    if (window.electronAPI?.openAI?.registerIndexedDBHandler) {
+      window.electronAPI.openAI.registerIndexedDBHandler(
         async (args: any) => {
           return await this.handleQuery(args);
         }
