@@ -59,7 +59,7 @@ export class ModelSwitchBoxComponent {
 
   input = viewChild.required(XInputComponent);
   router = inject(Router);
-  model = signal({
+  model = signal<{ title: string; manufacturerId: number; modelId: number }>({
     title: '',
     manufacturerId: 0,
     modelId: 0
@@ -156,15 +156,19 @@ export class ModelSwitchBoxComponent {
     });
   }
 
-  manufacturerClick(manufacturer: Manufacturer) {
-    this.selectedManufacturer.set(manufacturer);
-    this.form.manufacturerId().value.set(manufacturer.id!);
-    this.getModelList(manufacturer);
+  manufacturerClick(manufacturer: Manufacturer | XListNode) {
+    // Handle both Manufacturer and XListNode types
+    const mfg = manufacturer as Manufacturer;
+    this.selectedManufacturer.set(mfg);
+    this.form.manufacturerId().value.set(mfg.id!);
+    this.getModelList(mfg);
   }
 
-  modelClick(model: Model) {
-    this.selectedModel.set(model);
-    this.form.modelId().value.set(model.id!);
+  modelClick(model: Model | XListNode) {
+    // Handle both Model and XListNode types
+    const mdl = model as Model;
+    this.selectedModel.set(mdl);
+    this.form.modelId().value.set(mdl.id!);
   }
 
   save(event: Event) {

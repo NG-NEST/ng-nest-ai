@@ -10,6 +10,7 @@ import {
   XInputComponent,
   XKeywordDirective,
   XListComponent,
+  XListNode,
   XLoadingComponent,
   XI18nPipe
 } from '@ng-nest/ui';
@@ -45,7 +46,7 @@ export class RuleComponent {
 
   input = viewChild.required(XInputComponent);
   router = inject(Router);
-  model = signal({
+  model = signal<{ title: string; promptId: number }>({
     title: '',
     promptId: 0
   });
@@ -126,9 +127,11 @@ export class RuleComponent {
     }
   }
 
-  promptClick(prompt: Prompt) {
-    this.selectedPrompt.set(prompt);
-    this.form.promptId().value.set(prompt.id!);
+  promptClick(prompt: Prompt | XListNode) {
+    // Handle both Prompt and XListNode types
+    const p = prompt as Prompt;
+    this.selectedPrompt.set(p);
+    this.form.promptId().value.set(p.id!);
   }
 
   save(event: Event) {

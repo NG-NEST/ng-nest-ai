@@ -15,7 +15,7 @@
       <div
         class="item"
         x-ripple
-        [class.selected]="selectedItem()?.id === item.id && selectedItem().title === item.title"
+        [class.selected]="selectedItem()?.id === item.id && (selectedItem()?.title === item.title)"
         (click)="itemClick(item)"
       >
         <span [title]="item.title">{{ item.title }}</span>

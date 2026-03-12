@@ -3,7 +3,7 @@
     @if (item.role === 'assistant') {
       @if (item.image) {
         <x-bubble
-          [typing]="item.typing"
+          [typing]="item.typing ?? false"
           [renderer]="render"
           [content]="imageTpl"
           [reasoningContent]="item.reasoningContent"
@@ -17,7 +17,7 @@
         </ng-template>
       } @else if (item.video) {
         <x-bubble
-          [typing]="item.typing"
+          [typing]="item.typing ?? false"
           [renderer]="render"
           [content]="item.videoContent"
           [loading]="$index === data().length - 1 && loading()"
@@ -33,7 +33,7 @@
         </ng-template>
       } @else {
         <x-bubble
-          [typing]="item.typing"
+          [typing]="item.typing ?? false"
           [renderer]="render"
           [content]="item.content"
           [reasoningContent]="item.reasoningContent"
@@ -79,7 +79,7 @@
     } @else if (item.role === 'error') {
       <x-bubble
         [avatar]="{ icon: 'fto-aperture', backgroundColor: 'rgba(248, 113, 113, 0.5)' }"
-        [typing]="item.typing"
+        [typing]="item.typing ?? false"
         [content]="item.content"
       ></x-bubble>
     }

@@ -16,11 +16,11 @@
         >
           <x-icon
             class="project-icon"
-            [type]="form.icon?.().value()"
-            [style.color]="form.iconColor?.().value()"
+            [type]="form.icon?.()?.value() ?? 'fto-box'"
+            [style.color]="form.iconColor?.()?.value()"
           ></x-icon>
         </x-button>
-        <x-input floatLabel="on" [label]="'$base.name' | xI18n" [formField]="form.name" required></x-input>
+        <x-input floatLabel="on" [label]="'$base.name' | xI18n" [formField]="form.name!" required></x-input>
       </x-input-group>
     </div>
     <ng-template #contentTpl>
@@ -29,7 +29,7 @@
           @for (color of colors(); track color) {
             <div
               class="color"
-              [class.selected]="form.iconColor?.().value() === color"
+              [class.selected]="form.iconColor?.()?.value() === color"
               [style.backgroundColor]="color"
               (click)="setIconColor(color)"
             ></div>
@@ -37,7 +37,7 @@
         </div>
         <div class="icons">
           @for (icon of icons(); track icon) {
-            <div class="icon" [class.selected]="form.icon?.().value() === icon" (click)="setIcon(icon)">
+            <div class="icon" [class.selected]="form.icon?.()?.value() === icon" (click)="setIcon(icon)">
               <x-icon [type]="icon"></x-icon>
             </div>
           }

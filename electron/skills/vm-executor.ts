@@ -181,35 +181,8 @@ export async function executeSandboxedJavaScript(
     vm.createContext(context);
 
     // 包装代码，确保返回结果
-    const wrappedCode = `
-      (async () => {
-        try {
-          const userCode = ${JSON.stringify(code)}; 
-          // 稍微hack一下：我们不能直接把代码字符串插进去，因为可能包含语法错误
-          // 但为了简单，我们假设 code 是函数体或者表达式
-          // 更好的方式是像 OpenAIService 那样直接拼接，但要注意 code 本身的内容
-          
-          // 还原 OpenAIService 的逻辑：
-          // code 被视为一个表达式或函数体
-          const execute = eval(userCode); // 在沙箱内 eval 是相对安全的，或者直接把 code 作为源码运行
-          
-          // 实际上 OpenAIService 是这样做的：
-          // const execute = ${code}; 
-          // 这意味着 code 必须是一个有效的 JS 表达式（如箭头函数或匿名函数）
-          // 例如: (args) => { return args.x + 1 }
-          
-          if (typeof execute === 'function') {
-            return await execute(args);
-          } else {
-            return execute;
-          }
-        } catch (e) {
-          throw e;
-        }
-      })();
-    `;
-    
-    // 修正：直接使用 OpenAIService 的拼接方式，最简单直接
+    // code 应该是一个有效的 JS 表达式，如箭头函数或匿名函数
+    // 例如: (args) => { return args.x + 1 }
     const scriptCode = `
       (async () => {
         const execute = ${code};

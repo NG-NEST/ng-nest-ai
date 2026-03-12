@@ -77,7 +77,7 @@
               @if (activeModel()?.usePrompt && (data().length === 0 || (data().length > 0 && selectedPrompt()))) {
                 <x-button plain flat (click)="onTool()" [icon]="selectedPrompt() ? 'fto-user' : 'icon:prompt'">
                   @if (selectedPrompt()) {
-                    {{ selectedPrompt().name }}
+                    {{ selectedPrompt()!.name }}
                   } @else {
                     {{ '$prompt.title' | xI18n }}
                   }

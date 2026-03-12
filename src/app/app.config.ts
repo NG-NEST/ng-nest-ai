@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { provideRouter, withHashLocation, withRouterConfig } from '@angular/router';
 
-import { AppInitializer } from './app.initialezer';
+import { AppInitializer } from './app.initializer';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { X_CONFIG } from '@ng-nest/ui';
 import { NgNestConfig } from './ng-nest.config';

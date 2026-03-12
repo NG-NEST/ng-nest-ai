@@ -41,7 +41,7 @@ export class More {
   dialogRef = inject(XDialogRef<More>);
   input = viewChild.required(XInputComponent);
   router = inject(Router);
-  model = signal({
+  model = signal<{ title: string }>({
     title: ''
   });
   form = form(this.model, (schema) => {

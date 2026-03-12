@@ -768,8 +768,6 @@ export class OpenAIService {
 
               const delta = chunk.choices[0]?.delta;
 
-              console.log(delta);
-
               // 收集 tool_calls 数据
               if (delta?.tool_calls?.[0]) {
                 const toolCall = delta.tool_calls[0];

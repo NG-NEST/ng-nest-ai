@@ -28,7 +28,7 @@
       [style.top.rem]="node.children && node.expanded ? level * 1.5 : null"
       [style.z-index]="999 - level"
       [style.paddingLeft.rem]="level * 0.85 + 0.125"
-      [class.tree-item-cut]="service.clipboardState()?.type === 'cut' && node.id === service.clipboardState()?.path"
+      [class.tree-item-cut]="service.clipboardState()?.op === 'cut' && node.id === service.clipboardState()?.path"
     >
       @if (node.children) {
         <span aria-hidden="true" translate="no" class="icon expand-icon">

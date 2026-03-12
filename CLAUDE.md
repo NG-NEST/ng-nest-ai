@@ -1,50 +1,224 @@
-## Workflow Orchestration
+# AI 助手工作指南
 
-### 1. Plan Node Default
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately - don't keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
+## 工作流程编排
 
-### 2. Subagent Strategy
-- Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One tack per subagent for focused execution
+### 1. 计划优先原则
+- **进入计划模式**：对于任何非平凡任务（3步以上或涉及架构决策），必须先制定计划
+- **及时止损**：如果执行过程中出现问题，立即停止并重新规划，不要强行推进
+- **验证驱动**：计划模式不仅用于构建，也要用于验证步骤
+- **详细规范**：提前编写详细的技术规范，减少歧义和返工
+- **示例场景**：
+  - ✅ 需要计划：重构认证系统、添加新功能模块、修改数据库架构
+  - ❌ 无需计划：修复拼写错误、调整样式、更新文档
 
-### 3. Self-Improvement Loop
-- After ANY correction from the user: update `tasks/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+### 2. 子代理策略
+- **充分利用子代理**：使用子代理保持主上下文窗口清洁
+- **任务分流**：将研究、探索和并行分析任务卸载给子代理
+- **算力优先**：对于复杂问题，通过子代理投入更多计算资源
+- **专注执行**：每个子代理专注于单一任务，确保执行质量
+- **最佳实践**：
+  - 使用 `Explore` 代理快速探索代码库
+  - 使用 `bug-analyzer` 进行深度问题分析
+  - 使用 `code-reviewer` 进行代码质量审查
+  - 使用 `dev-planner` 制定开发计划
 
-### 4. Verification Before Done
-- Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
-- Run tests, check logs, demonstrate correctness
+### 3. 自我改进循环
+- **记录错误模式**：用户纠正后，立即更新 `tasks/lessons.md` 记录问题模式
+- **制定预防规则**：为自己编写规则，防止重复犯错
+- **持续迭代**：不断优化经验教训，直到错误率显著降低
+- **定期回顾**：在会话开始时回顾相关项目的经验教训
+- **示例格式**：
+  ```markdown
+  ## 错误类型：数据库迁移未测试
+  - 问题描述：直接执行迁移未在测试环境验证
+  - 根本原因：跳过了验证步骤
+  - 预防规则：所有迁移必须先在测试环境执行
+  - 检查清单：[ ] 测试环境验证 [ ] 备份数据 [ ] 回滚方案
+  ```
 
-### 5. Demand Elegance (Balanced)
-- For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes - don't over-engineer
-- Challenge your own work before presenting it
+### 4. 完成前验证
+- **证明有效**：永远不要在未证明功能正常的情况下标记任务完成
+- **对比验证**：相关时对比主分支与修改后的行为差异
+- **高标准审查**：问自己"资深工程师会批准这个吗？"
+- **全面测试**：运行测试、检查日志、演示正确性
+- **验证清单**：
+  - [ ] 单元测试通过
+  - [ ] 集成测试通过
+  - [ ] 代码审查完成
+  - [ ] 文档已更新
+  - [ ] 无回归问题
+  - [ ] 性能指标符合预期
 
-### 6. Autonomous Bug Fixing
-- When given a bug report: just fix it. Don't ask for hand-holding
-- Point at logs, errors, failing tests - then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
+### 5. 追求优雅（平衡）
+- **暂停思考**：对于非平凡变更，暂停并询问"是否有更优雅的方式？"
+- **拒绝临时方案**：如果修复感觉像权宜之计，重新思考："基于现有认知，实现优雅的解决方案"
+- **避免过度工程**：简单明显的修复跳过此步骤，不要过度设计
+- **自我挑战**：在展示工作成果前先挑战自己
+- **优雅标准**：
+  - 代码可读性强
+  - 遵循 SOLID 原则
+  - 易于测试和维护
+  - 性能合理
+  - 无重复代码
 
-## Task Management
-1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to `tasks/todo.md`
-6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+### 6. 自主问题修复
+- **主动解决**：收到 bug 报告后直接修复，不要请求手把手指导
+- **定位证据**：指出日志、错误信息、失败测试，然后解决它们
+- **零上下文切换**：用户无需提供额外上下文
+- **主动出击**：主动修复失败的 CI 测试，无需被告知如何做
+- **修复流程**：
+  1. 分析错误日志和堆栈跟踪
+  2. 定位问题根源
+  3. 设计修复方案
+  4. 实施修复
+  5. 验证修复效果
+  6. 添加回归测试
 
-## Core Principles
-- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
-- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
-- **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+## 任务管理
+
+### 标准流程
+1. **优先规划**：在 `tasks/todo.md` 中编写计划，包含可检查的项目
+2. **验证计划**：在开始实施前确认计划可行性
+3. **跟踪进度**：逐步标记完成的项目
+4. **解释变更**：每步提供高层总结
+5. **记录结果**：在 `tasks/todo.md` 添加审查部分
+6. **捕获经验**：纠正后更新 `tasks/lessons.md`
+
+### 任务文件结构
+```
+tasks/
+├── todo.md          # 当前任务计划和进度
+├── lessons.md       # 经验教训库
+└── archive/         # 已完成任务归档
+    └── 2026-03-10-feature-x.md
+```
+
+### todo.md 模板
+```markdown
+# 任务：[任务名称]
+
+## 目标
+[清晰描述任务目标]
+
+## 计划
+- [ ] 步骤 1：[具体描述]
+- [ ] 步骤 2：[具体描述]
+- [ ] 步骤 3：[具体描述]
+
+## 进度
+- [x] 已完成项
+- [ ] 进行中项
+- [ ] 待办项
+
+## 审查
+### 完成情况
+[描述最终结果]
+
+### 遇到的问题
+[记录遇到的挑战和解决方案]
+
+### 改进建议
+[下次可以做得更好的地方]
+```
+
+## 核心原则
+
+### 1. 简洁优先
+- **极简变更**：每个变更尽可能简单
+- **最小影响**：只影响必要的代码
+- **避免复杂性**：不要引入不必要的抽象层
+- **示例**：
+  - ✅ 修复特定 bug 只修改相关函数
+  - ❌ 修复 bug 时重构整个模块
+
+### 2. 拒绝懒惰
+- **追根溯源**：找到根本原因，不要停留在表面
+- **拒绝临时方案**：不使用临时修复，达到资深开发者标准
+- **完整解决方案**：提供完整、可持续的解决方案
+- **对比**：
+  - ❌ 临时方案：添加 try-catch 吞掉异常
+  - ✅ 根本方案：找到异常原因并修复
+
+### 3. 最小影响范围
+- **精准修改**：只修改必要的内容
+- **避免副作用**：不引入新 bug
+- **保护现有功能**：确保不破坏现有功能
+- **检查清单**：
+  - [ ] 只修改了必要的文件
+  - [ ] 没有修改不相关的代码
+  - [ ] 测试覆盖了变更
+  - [ ] 文档已同步更新
+
+## 代码质量标准
+
+### 代码审查要点
+- **可读性**：代码是否易于理解？
+- **可维护性**：未来修改是否容易？
+- **性能**：是否存在性能问题？
+- **安全性**：是否存在安全漏洞？
+- **测试覆盖**：测试是否充分？
+
+### 命名规范
+- 使用有意义的变量和函数名
+- 遵循项目现有的命名约定
+- 避免缩写，除非是广泛接受的
+- 布尔值使用 `is`、`has`、`can` 等前缀
+
+### 注释规范
+- 解释"为什么"而不是"是什么"
+- 保持注释与代码同步
+- 使用文档注释说明公共 API
+- 避免注释掉的代码，使用版本控制
+
+## 沟通规范
+
+### 状态更新
+- 定期报告进度
+- 遇到阻塞及时沟通
+- 提供清晰的上下文
+
+### 问题报告
+- 描述问题现象
+- 说明已尝试的解决方案
+- 提供相关日志和错误信息
+- 提出可能的解决方向
+
+### 完成报告
+- 总结完成的工作
+- 说明关键决策
+- 列出后续建议
+- 提供测试验证结果
+
+## 工具使用最佳实践
+
+### 文件操作
+- 使用专用工具而非终端命令
+- 批量操作使用 `multi_replace_string_in_file`
+- 读取文件时获取足够上下文
+
+### 代码搜索
+- 不确定时使用语义搜索
+- 知道具体模式时使用 grep 搜索
+- 探索代码库时使用子代理
+
+### 终端命令
+- 避免并行运行多个终端命令
+- 等待命令完成再执行下一个
+- 使用后台模式处理长时间任务
+
+## 持续改进
+
+### 每日回顾
+- 今天学到了什么？
+- 哪些可以做得更好？
+- 有哪些模式值得记录？
+
+### 经验积累
+- 记录成功的模式
+- 记录失败的教训
+- 定期更新工作流程
+
+### 知识共享
+- 更新项目文档
+- 分享最佳实践
+- 帮助团队成员成长
