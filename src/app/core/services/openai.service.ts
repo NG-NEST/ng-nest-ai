@@ -213,23 +213,23 @@ export class AppOpenAIService {
         if (!inputFunction || inputFunction?.trim() === '') {
           inputPromise = Promise.resolve(inputParam);
         } else {
-          inputPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(inputFunction!, vars), {
+          inputPromise = (window.electronAPI?.windowControls?.executeJavaScript(this.replaceVars(inputFunction!, vars), {
             input: { model: modelCode!, messages, workspace }
-          }) as Promise<any>;
+          }) ?? Promise.resolve(null)) as Promise<any>;
         }
-        inputPromise.then((input) => {
-          const cancelFunc = window.electronAPI.openAI.chatCompletionStream(
+          inputPromise.then((input) => {
+          const cancelFunc = window.electronAPI?.openAI?.chatCompletionStream(
             input,
             (msg: ChatCompletionChunk) => {
               if (!outputFunction || outputFunction?.trim() === '') {
                 outputPromise = Promise.resolve(msg);
               } else {
-                outputPromise = window.electronAPI.windowControls.executeJavaScript(
+                outputPromise = (window.electronAPI?.windowControls?.executeJavaScript(
                   this.replaceVars(outputFunction!, vars),
                   {
                     output: msg
                   }
-                ) as Promise<any>;
+                ) ?? Promise.resolve(null)) as Promise<any>;
               }
 
               outputPromise.then((output) => {
@@ -318,7 +318,7 @@ export class AppOpenAIService {
           sub.next({
             cancel: () => {
               if (!completed) {
-                cancelFunc();
+                cancelFunc?.();
               }
             }
           });

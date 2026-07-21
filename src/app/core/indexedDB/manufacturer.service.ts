@@ -33,7 +33,7 @@ export class ManufacturerService {
 
         // 加密 API Key
         let apiKey = config.apiKey;
-        if (apiKey && window.electronAPI && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
+        if (apiKey && window.electronAPI?.safeStorage && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
           apiKey = await window.electronAPI.safeStorage.encryptString(apiKey);
         }
 
@@ -95,7 +95,7 @@ export class ManufacturerService {
         }
 
         // 加密 API Key
-        if (updates.apiKey && window.electronAPI && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
+        if (updates.apiKey && window.electronAPI?.safeStorage && await window.electronAPI.safeStorage.isEncryptionAvailable()) {
           updates.apiKey = await window.electronAPI.safeStorage.encryptString(updates.apiKey);
         }
 

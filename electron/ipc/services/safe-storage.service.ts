@@ -1,44 +1,29 @@
-import { ipcMain, safeStorage, app } from 'electron';
+import { safeStorage } from 'electron';
 
 export class SafeStorageService {
-  constructor() {
-    this.registerIpcHandlers();
+  isEncryptionAvailable(): boolean {
+    return safeStorage.isEncryptionAvailable();
   }
 
-  private registerIpcHandlers() {
-    ipcMain.handle('ipc:safeStorage:isEncryptionAvailable', () => {
-      return safeStorage.isEncryptionAvailable();
-    });
-
-    ipcMain.handle('ipc:safeStorage:encryptString', (_event, plainText: string) => {
-      if (!safeStorage.isEncryptionAvailable()) {
-        throw new Error('Encryption is not available on this system');
-      }
-      try {
-        const buffer = safeStorage.encryptString(plainText);
-        return buffer.toString('base64');
-      } catch (error: any) {
-        throw new Error(`Encryption failed: ${error.message}`);
-      }
-    });
-
-    ipcMain.handle('ipc:safeStorage:decryptString', (_event, encryptedBase64: string) => {
-      if (!safeStorage.isEncryptionAvailable()) {
-        throw new Error('Encryption is not available on this system');
-      }
-      try {
-        const buffer = Buffer.from(encryptedBase64, 'base64');
-        const decrypted = safeStorage.decryptString(buffer);
-        return decrypted;
-      } catch (error: any) {
-        throw new Error(`Decryption failed: ${error.message}`);
-      }
-    });
+  encryptString(plainText: string): string {
+    if (!safeStorage.isEncryptionAvailable()) {
+      throw new Error('Encryption is not available on this system');
+    }
+    const buffer = safeStorage.encryptString(plainText);
+    return buffer.toString('base64');
   }
 
-  destroy() {
-    ipcMain.removeHandler('ipc:safeStorage:isEncryptionAvailable');
-    ipcMain.removeHandler('ipc:safeStorage:encryptString');
-    ipcMain.removeHandler('ipc:safeStorage:decryptString');
+  decryptString(encryptedBase64: string): string {
+    if (!safeStorage.isEncryptionAvailable()) {
+      throw new Error('Encryption is not available on this system');
+    }
+    try {
+      const buffer = Buffer.from(encryptedBase64, 'base64');
+      return safeStorage.decryptString(buffer);
+    } catch {
+      // Value was stored as plaintext (e.g. saved before encryption was available).
+      // Return it as-is so stored keys remain usable.
+      return encryptedBase64;
+    }
   }
 }

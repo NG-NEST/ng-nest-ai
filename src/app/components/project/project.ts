@@ -178,7 +178,7 @@ export class Project {
   }
 
   async selectDirectory() {
-    const workspace = await window.electronAPI.windowControls.selectDirectory();
+    const workspace = await window.electronAPI?.windowControls?.selectDirectory() ?? '';
     if (workspace !== '') {
       this.form.workspace?.()?.value.set(workspace);
     }

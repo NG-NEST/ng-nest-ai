@@ -114,7 +114,7 @@ export class Conversation {
       const bucketName = 'ng-nest-ai';
       const objectName = `${crypto.randomUUID()}/${file.name}`;
 
-      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData as string, file.type);
+      const result = await window.electronAPI?.minio?.uploadFile('ng-nest-ai', objectName, fileData as string, file.type);
 
       if (result) {
         this.file.set({

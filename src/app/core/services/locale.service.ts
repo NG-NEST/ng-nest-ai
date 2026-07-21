@@ -57,7 +57,7 @@ export class AppLocaleService {
   private async initializeDefaultLanguage(): Promise<void> {
     try {
       // Get system locale from Electron
-      const systemLocale = await window.electronAPI.windowControls.getSystemLocale();
+      const systemLocale = await window.electronAPI?.windowControls?.getSystemLocale();
 
       const mappedLang = this.mapSystemLocaleToSupportedLanguage(systemLocale);
       this.defaultLang.set(mappedLang);
@@ -67,7 +67,7 @@ export class AppLocaleService {
     }
   }
 
-  private mapSystemLocaleToSupportedLanguage(systemLocale: string): XI18nLanguage {
+  private mapSystemLocaleToSupportedLanguage(systemLocale: string | undefined): XI18nLanguage {
     // Map system locale to supported languages
     const localeMap: { [key: string]: XI18nLanguage } = {
       'zh-CN': 'zh_CN',
@@ -87,6 +87,8 @@ export class AppLocaleService {
       fr: 'fr_FR',
       'fr-FR': 'fr_FR'
     };
+
+    if (!systemLocale) return 'en_US';
 
     // Try exact match first
     if (localeMap[systemLocale]) {

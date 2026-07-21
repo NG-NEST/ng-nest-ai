@@ -57,7 +57,7 @@ export class HelpComponent {
       const href = target.getAttribute('href');
       if (href && this.isExternalUrl(href)) {
         event.preventDefault();
-        window.electronAPI.windowControls.openExternal(href);
+        window.electronAPI?.windowControls?.openExternal(href);
       }
     }
   }

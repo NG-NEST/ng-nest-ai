@@ -71,7 +71,7 @@ export class BubblesComponent {
     const codeText = target.getAttribute('data-preview-html') || '';
     const decodedText = this.decodeHtmlEntitiesForCopy(codeText);
 
-    window.electronAPI.windowControls.previewHtml(decodedText);
+    window.electronAPI?.windowControls?.previewHtml(decodedText);
   }
 
   private decodeHtmlEntitiesForCopy(text: string): string {

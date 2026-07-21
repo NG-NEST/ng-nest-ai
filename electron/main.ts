@@ -2,6 +2,7 @@ import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import dotenv from 'dotenv';
+import { IpcRouter } from './ipc/common/ipc-router';
 import { WindowService } from './ipc/services/window.service';
 import { OpenAIService } from './ipc/services/openai.service';
 import { HttpService } from './ipc/services/http.service';
@@ -11,23 +12,13 @@ import { SafeStorageService } from './ipc/services/safe-storage.service';
 import { logEnvStatus } from './config/env.config';
 
 const envPath = app.isPackaged ? path.join(process.resourcesPath, '.env') : path.join(__dirname, '../../.env');
-
 dotenv.config({ path: envPath });
-
-// 输出环境配置状态
 logEnvStatus();
 
 let win: BrowserWindow | null = null;
-let windowService: WindowService | null = null;
-let openaiService: OpenAIService | null = null;
-let httpService: HttpService | null = null;
-let minioService: MinioService | null = null;
-let fileSystemService: FileSystemService | null = null;
-let safeStorageService: SafeStorageService | null = null;
 
 const createBrowserWindow = () => {
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const { width, height } = primaryDisplay.workAreaSize;
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   win = new BrowserWindow({
     width: 1024,
@@ -36,103 +27,78 @@ const createBrowserWindow = () => {
     minWidth: 800,
     frame: false,
     webPreferences: {
-      // 推荐做法：禁用 nodeIntegration 并使用 preload 脚本
       nodeIntegration: false,
       sandbox: true,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js') // 假设有一个 preload 脚本
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
-  // 创建并注册 IPC 处理程序
-  windowService = new WindowService(() => win);
-  openaiService = new OpenAIService();
-  httpService = new HttpService();
-  minioService = new MinioService();
-  fileSystemService = new FileSystemService();
-  safeStorageService = new SafeStorageService();
-
-  // 判断是否是开发模式
   const isDev = process.env['NODE_ENV'] === 'development';
-  const appPath = isDev
-    ? 'http://localhost:5200' // 开发模式：加载 Angular 开发服务器
-    : url.format({
-        pathname: path.join(__dirname, '../ng-nest-ai/browser/index.html'), // 生产模式：注意这里的路径需要匹配 Angular 的实际输出路径
-        protocol: 'file:',
-        slashes: true
-      });
+  win.loadURL(
+    isDev
+      ? 'http://localhost:5200'
+      : url.format({
+          pathname: path.join(__dirname, '../ng-nest-ai/browser/index.html'),
+          protocol: 'file:',
+          slashes: true
+        })
+  );
 
-  win.loadURL(appPath);
-
-  // 安全：处理新窗口创建请求
-  win.webContents.setWindowOpenHandler((details) => {
-    const { url } = details;
-    if (url.startsWith('https://') || url.startsWith('http://')) {
-      require('electron').shell.openExternal(url);
-    }
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https://') || url.startsWith('http://')) require('electron').shell.openExternal(url);
     return { action: 'deny' };
   });
-
-  // 安全：处理导航请求
   win.webContents.on('will-navigate', (event, url) => {
     if (url.startsWith('https://') || url.startsWith('http://')) {
       event.preventDefault();
       require('electron').shell.openExternal(url);
     }
   });
-
-  // 安全：权限请求处理
-  win.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-    const allowedPermissions = ['clipboard-read', 'media']; // 根据需要调整
-    if (allowedPermissions.includes(permission)) {
-      callback(true);
-    } else {
-      console.warn(`Blocked permission request: ${permission}`);
-      callback(false);
-    }
+  win.webContents.session.setPermissionRequestHandler((_wc, permission, callback) => {
+    callback(['clipboard-read', 'media'].includes(permission));
   });
 
-  win.on('closed', async () => {
-    // 销毁服务以清理资源
-    if (windowService) {
-      windowService.destroy();
-      windowService = null;
-    }
-    if (openaiService) {
-      openaiService.destroy();
-      openaiService = null;
-    }
-    if (httpService) {
-      httpService.destroy();
-      httpService = null;
-    }
-    if (minioService) {
-      minioService.destroy();
-      minioService = null;
-    }
-    if (fileSystemService) {
-      fileSystemService.destroy();
-      fileSystemService = null;
-    }
-    if (safeStorageService) {
-      safeStorageService.destroy();
-      safeStorageService = null;
-    }
+  const router = new IpcRouter()
+    .add('window', new WindowService(() => win))
+    .add('openai', new OpenAIService(), {
+      expose: ['initialize', 'loadSkills', 'chatCompletionStream', 'chatCompletionStreamCancel'],
+      useEventSender: ['chatCompletionStream']
+    })
+    .add('http', new HttpService(), { expose: ['get', 'post', 'put', 'delete'] })
+    .add('minio', new MinioService(), { expose: ['uploadFile'] })
+    .add('fs', new FileSystemService(), {
+      expose: [
+        'watch',
+        'watchWithoutScan',
+        'unwatch',
+        'getContents',
+        'pathExists',
+        'getFileInfo',
+        'initialScan',
+        'createFile',
+        'createFolder',
+        'rename',
+        'delete',
+        'copy',
+        'showInExplorer'
+      ],
+      useEventSender: ['watch', 'watchWithoutScan', 'initialScan']
+    })
+    .add('safeStorage', new SafeStorageService(), {
+      expose: ['isEncryptionAvailable', 'encryptString', 'decryptString']
+    });
+
+  win.on('closed', () => {
+    router.destroy();
     win = null;
   });
 };
 
-// Electron 应用生命周期事件
 app.on('ready', createBrowserWindow);
-
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });
-
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createBrowserWindow();
-  }
+  if (BrowserWindow.getAllWindows().length === 0) createBrowserWindow();
 });

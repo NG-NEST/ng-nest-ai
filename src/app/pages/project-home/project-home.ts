@@ -137,7 +137,7 @@ export class ProjectHome {
       const bucketName = 'ng-nest-ai';
       const objectName = `${crypto.randomUUID()}/${file.name}`;
 
-      const result = await window.electronAPI.minio.uploadFile('ng-nest-ai', objectName, fileData as string, file.type);
+      const result = await window.electronAPI?.minio?.uploadFile('ng-nest-ai', objectName, fileData as string, file.type);
 
       if (result) {
         this.file.set({
@@ -191,7 +191,7 @@ export class ProjectHome {
   async unwatch() {
     this.fileDispose && this.fileDispose();
     if (this.projectDetail()?.workspace) {
-      await window.electronAPI.fileSystem.unwatch(this.projectDetail()?.workspace!);
+      await window.electronAPI?.fileSystem?.unwatch(this.projectDetail()?.workspace!);
     }
   }
 
@@ -206,10 +206,10 @@ export class ProjectHome {
       await this.unwatch();
       this.projectDetail.set(x!);
       if (x?.workspace) {
-        this.fileDispose = await window.electronAPI.fileSystem.onDidChange((event: any) => {
+        this.fileDispose = await window.electronAPI?.fileSystem?.onDidChange((event: any) => {
           this.fileTreeService.applyFsEvent(event);
         });
-        await window.electronAPI.fileSystem.watch(x?.workspace);
+        await window.electronAPI?.fileSystem?.watch(x?.workspace);
       }
     });
     this.sessionService.getProjectByPage(this.page(), this.size(), this.projectId()!).subscribe(({ data, count }) => {
@@ -347,7 +347,7 @@ export class ProjectHome {
 
     const filePath = `${workspacePath}/${fileName}`;
     try {
-      await window.electronAPI.fileSystem.createFile(filePath);
+      await window.electronAPI?.fileSystem?.createFile(filePath);
     } catch (error) {
       console.error('Create file error.', error);
     }
@@ -361,7 +361,7 @@ export class ProjectHome {
 
     const folderPath = `${workspacePath}/${folderName}`;
     try {
-      await window.electronAPI.fileSystem.createFolder(folderPath);
+      await window.electronAPI?.fileSystem?.createFolder(folderPath);
     } catch (error) {
       console.error('Create folder error.', error);
     }
@@ -372,7 +372,7 @@ export class ProjectHome {
     if (!workspacePath) return;
 
     try {
-      await window.electronAPI.fileSystem.initialScan(workspacePath);
+      await window.electronAPI?.fileSystem?.initialScan(workspacePath);
     } catch (error) {
       console.error('Refresh folder error.', error);
     }

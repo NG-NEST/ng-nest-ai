@@ -64,7 +64,7 @@ export class SkillService {
   private async loadSkills() {
     this.getAll().subscribe(async (skills) => {
       const activeSkills = skills.filter((x) => x.status === 'active');
-      const result = await window.electronAPI.openAI.loadSkills(activeSkills);
+      const result = await window.electronAPI?.openAI?.loadSkills(activeSkills);
       if (result.success) {
         console.log(`Loaded ${result.count} skills`);
       } else {

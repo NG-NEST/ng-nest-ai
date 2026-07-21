@@ -26,7 +26,7 @@ export class General {
       if (this.init()) return;
       const switchDev = this.formGroup.switchDev().value();
       this.config.showDevTools.set(switchDev);
-      await window.electronAPI.windowControls.switchDevTools(switchDev);
+      await window.electronAPI?.windowControls?.switchDevTools(switchDev);
     });
     effect(async () => {
       const lang = this.formGroup.lang().value();

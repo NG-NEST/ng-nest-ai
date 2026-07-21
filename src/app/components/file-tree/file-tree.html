@@ -1,4 +1,4 @@
-<ul ngTree #tree="ngTree" [(values)]="selected" class="basic-tree" [cdkContextMenuTriggerFor]="rootMenus">
+<ul ngTree #tree="ngTree" [(value)]="selected" class="basic-tree" [cdkContextMenuTriggerFor]="rootMenus">
   <ng-template [ngTemplateOutlet]="treeNodes" [ngTemplateOutletContext]="{ nodes: data(), parent: tree, level: 0 }" />
 </ul>
 

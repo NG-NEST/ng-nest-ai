@@ -132,9 +132,9 @@ export class AppHttpService {
     const vars = { apiKey, code, content, image };
 
     try {
-      bodyPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(bodyFunction!, vars));
-      paramsPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(paramsFunction!, vars));
-      headersPromise = window.electronAPI.windowControls.executeJavaScript(this.replaceVars(headersFunction!, vars));
+      bodyPromise = window.electronAPI?.windowControls?.executeJavaScript(this.replaceVars(bodyFunction!, vars));
+      paramsPromise = window.electronAPI?.windowControls?.executeJavaScript(this.replaceVars(paramsFunction!, vars));
+      headersPromise = window.electronAPI?.windowControls?.executeJavaScript(this.replaceVars(headersFunction!, vars));
     } catch (error) {
       console.error('Error:', error);
     }
@@ -149,9 +149,9 @@ export class AppHttpService {
     return from(
       Promise.all([bodyPromise!, paramsPromise!, headersPromise!]).then(([body, params, headers]) => {
         if (method === 'POST') {
-          return window.electronAPI.http.post(url!, body, { headers });
+          return window.electronAPI?.http?.post(url!, body, { headers }) ?? Promise.resolve({ status: 500, statusText: 'Not in Electron environment', data: {} });
         } else if (method === 'GET') {
-          return window.electronAPI.http.get(url!, params, { headers });
+          return window.electronAPI?.http?.get(url!, params, { headers }) ?? Promise.resolve({ status: 500, statusText: 'Not in Electron environment', data: {} });
         }
         return Promise.resolve({ status: 500, statusText: 'Request method is not supported', data: {} });
       })
@@ -159,9 +159,9 @@ export class AppHttpService {
       switchMap((msg) => {
         if (msg.status === 200) {
           return from(
-            window.electronAPI.windowControls.executeJavaScript(this.replaceVars(outputFunction!, vars), {
+            window.electronAPI?.windowControls?.executeJavaScript(this.replaceVars(outputFunction!, vars), {
               output: msg.data
-            })
+            }) ?? Promise.resolve(null)
           ).pipe(switchMap((data) => this.requests(requests, vars, data)));
         } else {
           return of(msg);
@@ -386,28 +386,22 @@ export class AppHttpService {
 
     url = this.replaceVars(url!, extendedVars);
 
-    scripts.push(
-      window.electronAPI.windowControls.executeJavaScript(this.replaceVars(bodyFunction!, extendedVars), {
-        input: accValue
-      })
-    );
-    scripts.push(
-      window.electronAPI.windowControls.executeJavaScript(this.replaceVars(paramsFunction!, extendedVars), {
-        input: accValue
-      })
-    );
-    scripts.push(
-      window.electronAPI.windowControls.executeJavaScript(this.replaceVars(headersFunction!, extendedVars), {
-        input: accValue
-      })
-    );
+    const execScript = (fn: string, extendedVars: Record<string, any>) =>
+      window.electronAPI?.windowControls?.executeJavaScript(
+        this.replaceVars(fn, extendedVars),
+        { input: accValue }
+      ) ?? Promise.resolve(null);
+
+    scripts.push(execScript(bodyFunction!, extendedVars));
+    scripts.push(execScript(paramsFunction!, extendedVars));
+    scripts.push(execScript(headersFunction!, extendedVars));
 
     return from(
       Promise.all(scripts).then(([body, params, headers]) => {
         if (method === 'POST') {
-          return window.electronAPI.http.post(url, body, { headers });
+          return window.electronAPI?.http?.post(url, body, { headers }) ?? Promise.resolve({ status: 500, statusText: 'Not in Electron environment', data: {} });
         } else if (method === 'GET') {
-          return window.electronAPI.http.get(url, params, { headers });
+          return window.electronAPI?.http?.get(url, params, { headers }) ?? Promise.resolve({ status: 500, statusText: 'Not in Electron environment', data: {} });
         }
         return Promise.resolve({ status: 500, statusText: 'Request method is not supported', data: {} });
       })
@@ -418,9 +412,9 @@ export class AppHttpService {
         }
         if (outputFunction) {
           return from(
-            window.electronAPI.windowControls.executeJavaScript(this.replaceVars(outputFunction!, extendedVars), {
+            window.electronAPI?.windowControls?.executeJavaScript(this.replaceVars(outputFunction!, extendedVars), {
               output: msg.data
-            })
+            }) ?? Promise.resolve(null)
           );
         }
         return of(msg.data);

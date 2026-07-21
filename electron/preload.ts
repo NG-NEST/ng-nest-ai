@@ -1,76 +1,39 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { Chat } from 'openai/resources';
 import type { FsEvent, FsFile } from './ipc/services/file-system.service';
+import type { IElectronAPI } from './ipc/contracts';
 
 // window controls
-interface WindowControls {
-  isMaximized: () => Promise<boolean>;
-  minimize: () => Promise<void>;
-  maximize: () => Promise<void>;
-  unmaximize: () => Promise<void>;
-  close: () => Promise<void>;
-  switchDevTools: (show: boolean) => Promise<void>;
-  isDevToolsOpened: () => Promise<boolean>;
-  getSystemLocale: () => Promise<string>;
-  reloadPage: () => Promise<void>;
-  previewHtml: (html: string) => Promise<void>;
-  selectDirectory: () => Promise<string>;
-  openExternal: (url: string) => Promise<void>;
-  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number) => Promise<any>;
-}
-const windowControls: WindowControls = {
-  isMaximized: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isMaximized'),
-  minimize: (): Promise<void> => ipcRenderer.invoke('ipc:window:minimize'),
-  maximize: (): Promise<void> => ipcRenderer.invoke('ipc:window:maximize'),
-  unmaximize: (): Promise<void> => ipcRenderer.invoke('ipc:window:unmaximize'),
-  close: (): Promise<void> => ipcRenderer.invoke('ipc:window:close'),
-  switchDevTools: (show: boolean): Promise<void> => ipcRenderer.invoke('ipc:window:switchDevTools', show),
-  isDevToolsOpened: (): Promise<boolean> => ipcRenderer.invoke('ipc:window:isDevToolsOpened'),
-  getSystemLocale: (): Promise<string> => ipcRenderer.invoke('ipc:window:getSystemLocale'),
-  reloadPage: (): Promise<void> => ipcRenderer.invoke('ipc:window:reloadPage'),
-  previewHtml: (html: string): Promise<void> => ipcRenderer.invoke('ipc:window:previewHtml', html),
-  selectDirectory: (): Promise<string> => ipcRenderer.invoke('ipc:window:selectDirectory'),
-  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('ipc:window:openExternal', url),
-  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number): Promise<any> =>
+const windowControls: IElectronAPI['windowControls'] = {
+  isMaximized: () => ipcRenderer.invoke('ipc:window:isMaximized'),
+  minimize: () => ipcRenderer.invoke('ipc:window:minimize'),
+  maximize: () => ipcRenderer.invoke('ipc:window:maximize'),
+  unmaximize: () => ipcRenderer.invoke('ipc:window:unmaximize'),
+  close: () => ipcRenderer.invoke('ipc:window:close'),
+  switchDevTools: (show: boolean) => ipcRenderer.invoke('ipc:window:switchDevTools', show),
+  isDevToolsOpened: () => ipcRenderer.invoke('ipc:window:isDevToolsOpened'),
+  getSystemLocale: () => ipcRenderer.invoke('ipc:window:getSystemLocale'),
+  reloadPage: () => ipcRenderer.invoke('ipc:window:reloadPage'),
+  previewHtml: (html: string) => ipcRenderer.invoke('ipc:window:previewHtml', html),
+  selectDirectory: () => ipcRenderer.invoke('ipc:window:selectDirectory'),
+  openExternal: (url: string) => ipcRenderer.invoke('ipc:window:openExternal', url),
+  executeJavaScript: (code: string, context?: Record<string, any>, timeout?: number) =>
     ipcRenderer.invoke('ipc:window:executeJavaScript', code, context, timeout)
 };
 
 // openai
-interface OpenAI {
-  initialize: (param: { apiKey: string; baseURL: string }) => Promise<void>;
-  loadSkills: (skills: any[]) => Promise<{ success: boolean; count?: number; error?: string }>;
-  chatCompletionStream: (
-    options: Chat.Completions.ChatCompletionCreateParamsStreaming,
-    onData: (data: any) => void,
-    onDone: () => void,
-    onError: (error: any) => void
-  ) => () => void;
-  // 注册 IndexedDB 查询处理器
-  registerIndexedDBHandler: (handler: (args: any) => Promise<any>) => void;
-}
-
-// safeStorage
-interface SafeStorage {
-  isEncryptionAvailable: () => Promise<boolean>;
-  encryptString: (plainText: string) => Promise<string>;
-  decryptString: (encryptedBase64: string) => Promise<string>;
-}
-
-const openAI: OpenAI = {
+const openAI: IElectronAPI['openAI'] = {
   initialize: (param: { apiKey: string; baseURL: string }) => ipcRenderer.invoke('ipc:openai:initialize', param),
   loadSkills: (skills: any[]) => ipcRenderer.invoke('ipc:openai:loadSkills', skills),
   chatCompletionStream: (
-    options: Chat.Completions.ChatCompletionCreateParamsStreaming,
+    options: any,
     onData: (data: any) => void,
     onDone: () => void,
     onError: (error: any) => void
   ) => {
     const streamId = `${Date.now()}-${Math.random()}`;
 
-    // 设置监听器
     const handleStream = (_event: any, args: any) => {
       if (args.streamId !== streamId) return;
-
       if (args.done) {
         cleanup();
         onDone();
@@ -80,35 +43,28 @@ const openAI: OpenAI = {
     };
 
     const handleError = (_event: any, args: any) => {
-      if (args.streamId && args.streamId !== streamId) return; // 允许没有streamId的早期错误
-
+      if (args.streamId && args.streamId !== streamId) return;
       cleanup();
       onError(args.error);
     };
 
-    // 统一清理函数
     const cleanup = () => {
       ipcRenderer.removeListener('ipc:openai:chatCompletionStream:stream', handleStream);
       ipcRenderer.removeListener('ipc:openai:chatCompletionStream:error', handleError);
     };
 
-    // 注册监听器
     ipcRenderer.on('ipc:openai:chatCompletionStream:stream', handleStream);
     ipcRenderer.on('ipc:openai:chatCompletionStream:error', handleError);
 
-    // 发起请求
     ipcRenderer.invoke('ipc:openai:chatCompletionStream', { ...options, streamId }).catch((invokeError) => {
-      // 处理invoke本身的错误（如网络问题等）
       cleanup();
       onError(invokeError);
     });
 
-    // 返回取消函数
     return () => {
       ipcRenderer.invoke('ipc:openai:chatCompletionStream:cancel', streamId);
     };
   },
-  // 注册 IndexedDB 查询处理器，由渲染进程调用
   registerIndexedDBHandler: (handler: (args: any) => Promise<any>) => {
     ipcRenderer.on('ipc:openai:query-indexeddb', async (_event, args) => {
       try {
@@ -125,62 +81,33 @@ const openAI: OpenAI = {
 };
 
 // http
-interface Http {
-  get: (url: string, params?: any, options?: RequestInit) => Promise<any>;
-  post: (url: string, body: any, options?: RequestInit) => Promise<any>;
-  put: (url: string, body: any, options?: RequestInit) => Promise<any>;
-  delete: (url: string, options?: RequestInit) => Promise<any>;
-}
-const http: Http = {
-  get: (url: string, params?: any, options?: RequestInit): Promise<any> =>
-    ipcRenderer.invoke('ipc:http:get', url, params, options),
-  post: (url: string, body: any, options?: RequestInit): Promise<any> =>
-    ipcRenderer.invoke('ipc:http:post', url, body, options),
-  put: (url: string, body: any, options?: RequestInit): Promise<any> =>
-    ipcRenderer.invoke('ipc:http:put', url, body, options),
-  delete: (url: string, options?: RequestInit): Promise<any> => ipcRenderer.invoke('ipc:http:delete', url, options)
+const http: IElectronAPI['http'] = {
+  get: (url: string, params?: any, options?: RequestInit) => ipcRenderer.invoke('ipc:http:get', url, params, options),
+  post: (url: string, body: any, options?: RequestInit) => ipcRenderer.invoke('ipc:http:post', url, body, options),
+  put: (url: string, body: any, options?: RequestInit) => ipcRenderer.invoke('ipc:http:put', url, body, options),
+  delete: (url: string, options?: RequestInit) => ipcRenderer.invoke('ipc:http:delete', url, options)
 };
 
 // minio
-interface Minio {
-  uploadFile: (bucketName: string, objectName: string, fileData: string, contentType?: string) => Promise<boolean>;
-}
-const minio: Minio = {
+const minio: IElectronAPI['minio'] = {
   uploadFile: (bucketName: string, objectName: string, fileData: string, contentType?: string) =>
     ipcRenderer.invoke('ipc:minio:uploadFile', bucketName, objectName, fileData, contentType)
 };
 
 // file system
-interface FileSystem {
-  watch: (root: string) => Promise<boolean>;
-  watchWithoutScan: (root: string) => Promise<boolean>; // 不扫描初始文件的监听
-  unwatch: (root: string) => Promise<boolean>;
-  getContents: (dirPath: string) => Promise<FsFile[]>; // 获取目录内容
-  pathExists: (dirPath: string) => Promise<boolean>; // 检查路径是否存在
-  getFileInfo: (filePath: string) => Promise<FsFile | null>; // 获取文件信息
-  onDidChange(listener: (event: FsEvent) => void): () => void; // 监听文件系统事件
-  initialScan: (root: string) => Promise<void>; // 初始扫描
-  createFile: (filePath: string) => Promise<void>; // 创建文件
-  createFolder: (dirPath: string) => Promise<void>; // 创建文件夹
-  rename: (oldPath: string, newPath: string) => Promise<void>; // 重命名
-  delete: (filePath: string) => Promise<void>; // 删除文件或文件夹
-  copy: (source: string, destination: string) => Promise<void>; // 复制文件或文件夹
-  showInExplorer: (filePath: string) => Promise<void>; // 显示文件或文件夹在文件资源管理器中
-}
-
 const fsListeners = new Set<(e: FsEvent) => void>();
 ipcRenderer.on('fs:event', (_e, event: FsEvent) => {
   fsListeners.forEach((fn) => fn(event));
 });
 
-const fileSystem: FileSystem = {
+const fileSystem: IElectronAPI['fileSystem'] = {
   watch: (root: string) => ipcRenderer.invoke('ipc:fs:watch', root),
   watchWithoutScan: (root: string) => ipcRenderer.invoke('ipc:fs:watch-without-scan', root),
   unwatch: (root: string) => ipcRenderer.invoke('ipc:fs:unwatch', root),
   getContents: (dirPath: string) => ipcRenderer.invoke('ipc:fs:get-contents', dirPath),
   pathExists: (dirPath: string) => ipcRenderer.invoke('ipc:fs:path-exists', dirPath),
   getFileInfo: (filePath: string) => ipcRenderer.invoke('ipc:fs:get-file-info', filePath),
-  onDidChange(listener) {
+  onDidChange(listener: (event: FsEvent) => void) {
     fsListeners.add(listener);
     return () => fsListeners.delete(listener);
   },
@@ -190,23 +117,15 @@ const fileSystem: FileSystem = {
   rename: (oldPath: string, newPath: string) => ipcRenderer.invoke('ipc:fs:rename', oldPath, newPath),
   delete: (filePath: string) => ipcRenderer.invoke('ipc:fs:delete', filePath),
   copy: (source: string, destination: string) => ipcRenderer.invoke('ipc:fs:copy', source, destination),
-  showInExplorer: (filePath: string) => ipcRenderer.invoke('ipc:fs:show-in-explorer', filePath)
+  showInExplorer: (filePath: string) => ipcRenderer.invoke('ipc:fs:showInExplorer', filePath)
 };
 
-const safeStorage: SafeStorage = {
+// safeStorage
+const safeStorage: IElectronAPI['safeStorage'] = {
   isEncryptionAvailable: () => ipcRenderer.invoke('ipc:safeStorage:isEncryptionAvailable'),
   encryptString: (plainText: string) => ipcRenderer.invoke('ipc:safeStorage:encryptString', plainText),
   decryptString: (encryptedBase64: string) => ipcRenderer.invoke('ipc:safeStorage:decryptString', encryptedBase64)
 };
-
-interface IElectronAPI {
-  windowControls: WindowControls;
-  openAI: OpenAI;
-  http: Http;
-  minio: Minio;
-  fileSystem: FileSystem;
-  safeStorage: SafeStorage;
-}
 
 contextBridge.exposeInMainWorld('electronAPI', {
   windowControls,
@@ -215,4 +134,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   minio,
   fileSystem,
   safeStorage
-} as IElectronAPI);
+} as unknown as IElectronAPI);

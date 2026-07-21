@@ -50,7 +50,7 @@ export class AppSendService {
     }
 
     // 初始化 OpenAI
-    await window.electronAPI.openAI.initialize({ baseURL, apiKey });
+    await window.electronAPI?.openAI?.initialize({ baseURL, apiKey });
   }
 
   send(params: ChatSendParams) {

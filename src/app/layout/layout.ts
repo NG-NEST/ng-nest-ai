@@ -75,35 +75,35 @@ export class Layout {
   }
 
   async ngAfterViewInit() {
-    this.isMaximized.set(await window.electronAPI.windowControls.isMaximized());
+    this.isMaximized.set(await window.electronAPI?.windowControls?.isMaximized() ?? false);
   }
 
   async switchDevTools() {
     this.config.showDevTools.update((x) => !x);
-    await window.electronAPI.windowControls.switchDevTools(this.config.showDevTools());
+    await window.electronAPI?.windowControls?.switchDevTools(this.config.showDevTools());
   }
 
   minimize() {
-    window.electronAPI.windowControls.minimize();
+    window.electronAPI?.windowControls?.minimize();
     this.isMaximized.set(false);
   }
 
   maximize() {
-    window.electronAPI.windowControls.maximize();
+    window.electronAPI?.windowControls?.maximize();
     this.isMaximized.set(true);
   }
 
   close() {
-    window.electronAPI.windowControls.close();
+    window.electronAPI?.windowControls?.close();
   }
 
   unmaximize() {
-    window.electronAPI.windowControls.unmaximize();
+    window.electronAPI?.windowControls?.unmaximize();
     this.isMaximized.set(false);
   }
 
   refresh() {
-    window.electronAPI.windowControls.reloadPage();
+    window.electronAPI?.windowControls?.reloadPage();
   }
 
   onCollapsed() {
